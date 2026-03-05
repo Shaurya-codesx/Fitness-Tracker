@@ -6,7 +6,7 @@ import com.example.fitnessapp.Data.Model.Entities.ActiveRun
 import com.example.fitnessapp.Data.Model.Entities.RunEntity
 import com.example.fitnessapp.Data.Model.LocationPoints
 import com.example.fitnessapp.Data.Model.runDAO
-import com.example.fitnessapp.Domain.CalcDistanceUseCase
+import com.example.fitnessapp.Domain.UseCases.CalcDistanceUseCase
 import com.example.fitnessapp.Domain.RunRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

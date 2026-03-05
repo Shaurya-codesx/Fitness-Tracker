@@ -18,7 +18,7 @@ import com.example.fitnessapp.Data.Model.LocationPoints
 import com.example.fitnessapp.Data.Model.Entities.RunEntity
 import com.example.fitnessapp.Data.Model.runDAO
 import com.example.fitnessapp.Data.Repositories.RunRepoImpl
-import com.example.fitnessapp.Domain.CalcDistanceUseCase
+import com.example.fitnessapp.Domain.UseCases.CalcDistanceUseCase
 import com.example.fitnessapp.ui.theme.FitnessAppTheme
 import com.google.firebase.firestore.GeoPoint
 import kotlinx.coroutines.delay
