@@ -17,8 +17,11 @@ import com.example.fitnessapp.Data.Model.AppDatabase
 import com.example.fitnessapp.Data.Model.LocationPoints
 import com.example.fitnessapp.Data.Model.Entities.RunEntity
 import com.example.fitnessapp.Data.Model.runDAO
+import com.example.fitnessapp.Data.Repositories.RunRepoImpl
+import com.example.fitnessapp.Domain.CalcDistanceUseCase
 import com.example.fitnessapp.ui.theme.FitnessAppTheme
 import com.google.firebase.firestore.GeoPoint
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -38,20 +41,26 @@ class MainActivity : ComponentActivity() {
         lifecycleScope.launch {
             val db = AppDatabase.getDatabase(applicationContext)
             val dao = db.getDAO()
+            val dist = CalcDistanceUseCase()
 
-            val dummyRun = RunEntity (
-                startTime = System.currentTimeMillis(),
-                endTime = System.currentTimeMillis() + 10000,
-                distanceInMeters = 1000f,
-                avgPace = 300f,
-                route = listOf(LocationPoints(GeoPoint(23.44, 34.3), System.currentTimeMillis())),
-                isSynced = false
-            )
-            dao.insertRun(dummyRun)
-            dao.getAllRuns().collect {
-                Log.d("DB_TEST", it.toString())
+            val repo = RunRepoImpl(dao, dist)
+            repo.startRun()
+            delay(2000)
+            repo.addLocationPoint(LocationPoints(
+                GeoPoint(28.440548, 77.297560),
+                System.currentTimeMillis()))
+            delay(2000)
+            repo.addLocationPoint(LocationPoints(
+                GeoPoint(28.440548, 77.297975),
+                System.currentTimeMillis()))
+            delay(4000)
+            repo.addLocationPoint(LocationPoints(
+                GeoPoint(28.440548, 77.298549),
+                System.currentTimeMillis()))
+            repo.stopRun()
+            repo.getAllRuns().collect {
+                Log.d("checkRun", it.toString())
             }
-
         }
     }
 }

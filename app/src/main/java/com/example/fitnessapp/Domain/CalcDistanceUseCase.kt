@@ -5,8 +5,11 @@ import javax.inject.Inject
 import kotlin.math.*
 
 class CalcDistanceUseCase @Inject constructor() {
-    operator fun invoke(lastPoint : LocationPoints, currentPoint : LocationPoints) : Double {
-        val earthRadiusMeters = 6_371_000.0
+    operator fun invoke(lastPoint : LocationPoints, currentPoint : LocationPoints) : Float {
+        val earthRadiusMeters = 6371000.0
+
+        // Helper to convert degrees to radians
+        fun Double.toRadians() = this * PI / 180.0
 
         val dLat = Math.toRadians(currentPoint.coordinates.latitude - lastPoint.coordinates.latitude)
         val dLon = Math.toRadians(currentPoint.coordinates.longitude - lastPoint.coordinates.longitude)
@@ -17,6 +20,6 @@ class CalcDistanceUseCase @Inject constructor() {
 
         val c = 2 * atan2(sqrt(a), sqrt(1 - a))
 
-        return earthRadiusMeters * c
+        return (earthRadiusMeters * c).toFloat()
     }
 }
