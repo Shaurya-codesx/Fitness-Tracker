@@ -1,33 +1,86 @@
 package com.example.fitnessapp.Data.Location
 
+import android.content.Context
+
+import android.os.Looper
+import android.util.Log
+
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.Priority
-import androidx.navigationevent.NavigationEventDispatcher
 import com.example.fitnessapp.Data.Model.LocationPoints
 import com.example.fitnessapp.Domain.LocationDataSource
-import kotlinx.coroutines.flow.Flow
 
-class androidLocationProvider : LocationDataSource { // this implementation of LocationDataSource tells exactly how the Location Data from android Framework
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.LocationSettingsRequest
+import com.google.android.gms.location.LocationSettingsResponse
+import com.google.android.gms.location.SettingsClient
+import com.google.android.gms.tasks.Task
+import com.google.firebase.firestore.GeoPoint
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import javax.inject.Inject
+
+
+class androidLocationProvider @Inject constructor(
+    @ApplicationContext private val context: Context
+) : LocationDataSource { // this implementation of LocationDataSource tells exactly how the Location Data from android Framework
     // is converted to my LocationPoint model and then collected by repo
 
-    override val locationDataStream: Flow<LocationPoints>
-        get() = TODO("Not yet implemented")
 
-    override fun startLocationTracking() {
-        TODO("Not yet implemented")
-
-    }
-
-    override fun stopLocationTracking() {
-        TODO("Not yet implemented")
-    }
-
-
+    private val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
     private val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000L)
         .setMinUpdateIntervalMillis(3000L)
         .setMinUpdateDistanceMeters(3f)
-        .build()
-    //An encapsulation of various parameters for requesting location through FusedLocationProviderClient.
+        .build() //An encapsulation of various parameters for requesting location through FusedLocationProviderClient.
 
+    override val locationDataStream: Flow<LocationPoints> = callbackFlow {
+        val locationCallback = object : LocationCallback() {
+            override fun onLocationResult(result: LocationResult) {
+                super.onLocationResult(result)
+                result.locations.forEach { location ->
+                    val point = LocationPoints(
+                        coordinates = GeoPoint(location.latitude, location.longitude),
+                        timeStamp = System.currentTimeMillis()
+                    )
+                    trySend(point) // send the point to the Flow subscriber
+                }
+            }
+        }
+        // here flow itself starts tracking
+        // collect Flow → location updates start
+        // cancel Flow → location updates stop // no manual start and stop functions needed
 
+        // first we check the settings
+        val builder = LocationSettingsRequest.Builder().addLocationRequest(locationRequest)
+        val client : SettingsClient = LocationServices.getSettingsClient(context)
+        val task : Task<LocationSettingsResponse> = client.checkLocationSettings(builder.build())
+
+        // if task is success then start location tracking
+        task.addOnSuccessListener {
+            try {
+                fusedLocationClient.requestLocationUpdates(
+                    locationRequest,
+                    locationCallback,
+                    Looper.getMainLooper()
+                )
+            }catch (e : SecurityException) { // if looses location permission
+                close(e) // close the Flow if permission missing
+            }
+        }
+
+        // else solve exception and close the thread
+        task.addOnFailureListener { exception -> // this is ResolvableApiException
+            // handle the fail
+            close(exception) // we close the flow here
+        }
+
+        awaitClose {
+            fusedLocationClient.removeLocationUpdates(locationCallback)
+            Log.d("Location", "stopping location tracking")
+        }
+    }
 }
