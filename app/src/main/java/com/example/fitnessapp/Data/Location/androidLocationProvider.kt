@@ -42,11 +42,15 @@ class androidLocationProvider @Inject constructor(
             override fun onLocationResult(result: LocationResult) {
                 super.onLocationResult(result)
                 result.locations.forEach { location ->
-                    val point = LocationPoints(
-                        coordinates = GeoPoint(location.latitude, location.longitude),
-                        timeStamp = System.currentTimeMillis()
-                    )
-                    trySend(point) // send the point to the Flow subscriber
+                    if (location.accuracy <= 30f) {
+                        val point = LocationPoints(
+                            coordinates = GeoPoint(location.latitude, location.longitude),
+                            timeStamp = System.currentTimeMillis()
+                        )
+                        trySend(point) // send the point to the Flow subscriber
+                    } else {
+                        Log.d("Location", "skipped location point, less accuracy")
+                    }
                 }
             }
         }
