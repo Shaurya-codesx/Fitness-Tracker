@@ -34,7 +34,7 @@ class androidLocationProvider @Inject constructor(
     private val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
     private val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000L)
         .setMinUpdateIntervalMillis(3000L)
-        .setMinUpdateDistanceMeters(3f)
+//        .setMinUpdateDistanceMeters(3f)
         .build() //An encapsulation of various parameters for requesting location through FusedLocationProviderClient.
 
     override val locationDataStream: Flow<LocationPoints> = callbackFlow {
@@ -48,8 +48,9 @@ class androidLocationProvider @Inject constructor(
                             timeStamp = System.currentTimeMillis()
                         )
                         trySend(point) // send the point to the Flow subscriber
+                        Log.d("loc", "location point sent : $point")
                     } else {
-                        Log.d("Location", "skipped location point, less accuracy")
+                        Log.d("loc", "skipped location point, less accuracy")
                     }
                 }
             }
@@ -84,7 +85,7 @@ class androidLocationProvider @Inject constructor(
 
         awaitClose {
             fusedLocationClient.removeLocationUpdates(locationCallback)
-            Log.d("Location", "stopping location tracking")
+            Log.d("loc", "stopping location tracking")
         }
     }
 }

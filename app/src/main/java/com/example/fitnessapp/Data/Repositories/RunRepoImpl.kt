@@ -2,10 +2,12 @@ package com.example.fitnessapp.Data.Repositories
 
 import android.util.Log
 import android.widget.Toast
+import com.example.fitnessapp.Data.Location.androidLocationProvider
 import com.example.fitnessapp.Data.Model.Entities.ActiveRun
 import com.example.fitnessapp.Data.Model.Entities.RunEntity
 import com.example.fitnessapp.Data.Model.LocationPoints
 import com.example.fitnessapp.Data.Model.runDAO
+import com.example.fitnessapp.Domain.LocationDataSource
 import com.example.fitnessapp.Domain.UseCases.CalcDistanceUseCase
 import com.example.fitnessapp.Domain.RunRepository
 import kotlinx.coroutines.CoroutineScope
@@ -20,7 +22,8 @@ import kotlinx.coroutines.launch
 
 class RunRepoImpl(
     private val runDAO : runDAO,
-    private val calcDistanceUseCase : CalcDistanceUseCase
+    private val calcDistanceUseCase : CalcDistanceUseCase,
+    private val androidLocationProvider: LocationDataSource
 ) : RunRepository{
 
     private val _activeRun = MutableStateFlow<ActiveRun?>(null) // so this private variable is mutable for us to change it, and the public is read only
@@ -34,6 +37,7 @@ class RunRepoImpl(
     //                                                                                                                 Dispatchers.IO → database / network
     //                                                                                                                 Dispatchers.Default → CPU work
     private var timerJob : Job? = null
+    private var locationCollectionJob : Job? = null
 
     override fun startRun() {
         if (_activeRun.value != null) {
@@ -57,11 +61,22 @@ class RunRepoImpl(
                 Log.d("timerCheck", "elapsed time : ${_activeRun.value?.elapsedTime}")
             }
         }
+
+        locationCollectionJob?.cancel()
+        locationCollectionJob = repositoryScope.launch {
+            Log.d("loc", "Location tracking started")
+            androidLocationProvider.locationDataStream.collect { points ->
+                addLocationPoint(points)
+            }
+        }
     }
 
     override suspend fun stopRun() { // here we make the stopRun function suspend and let the caller decide the scope of the coroutine
         timerJob?.cancel()
         timerJob = null
+
+        locationCollectionJob?.cancel()
+        locationCollectionJob = null
 
         val finalRun = _activeRun.value ?: return
 

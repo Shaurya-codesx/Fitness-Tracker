@@ -13,11 +13,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.lifecycleScope
+import com.example.fitnessapp.Data.Location.androidLocationProvider
 import com.example.fitnessapp.Data.Model.AppDatabase
 import com.example.fitnessapp.Data.Model.LocationPoints
 import com.example.fitnessapp.Data.Model.Entities.RunEntity
 import com.example.fitnessapp.Data.Model.runDAO
 import com.example.fitnessapp.Data.Repositories.RunRepoImpl
+import com.example.fitnessapp.Domain.LocationDataSource
 import com.example.fitnessapp.Domain.UseCases.CalcDistanceUseCase
 import com.example.fitnessapp.ui.theme.FitnessAppTheme
 import com.google.firebase.firestore.GeoPoint
@@ -42,21 +44,11 @@ class MainActivity : ComponentActivity() {
             val db = AppDatabase.getDatabase(applicationContext)
             val dao = db.getDAO()
             val dist = CalcDistanceUseCase()
+            val androidLocationProvider = androidLocationProvider(applicationContext)
 
-            val repo = RunRepoImpl(dao, dist)
+            val repo = RunRepoImpl(dao, dist, androidLocationProvider)
             repo.startRun()
-            delay(2000)
-            repo.addLocationPoint(LocationPoints(
-                GeoPoint(28.440548, 77.297560),
-                System.currentTimeMillis()))
-            delay(2000)
-            repo.addLocationPoint(LocationPoints(
-                GeoPoint(28.440548, 77.297975),
-                System.currentTimeMillis()))
-            delay(4000)
-            repo.addLocationPoint(LocationPoints(
-                GeoPoint(28.440548, 77.298549),
-                System.currentTimeMillis()))
+            delay(20000)
             repo.stopRun()
             repo.getAllRuns().collect {
                 Log.d("checkRun", it.toString())
