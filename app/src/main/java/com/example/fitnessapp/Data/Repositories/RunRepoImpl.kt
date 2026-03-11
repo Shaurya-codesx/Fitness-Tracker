@@ -64,7 +64,7 @@ class RunRepoImpl(
 
         locationCollectionJob?.cancel()
         locationCollectionJob = repositoryScope.launch {
-            Log.d("loc", "Location tracking started")
+            Log.d("lokation", "Location tracking started")
             androidLocationProvider.locationDataStream.collect { points ->
                 addLocationPoint(points)
             }

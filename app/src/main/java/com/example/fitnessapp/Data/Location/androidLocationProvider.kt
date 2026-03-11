@@ -48,9 +48,9 @@ class androidLocationProvider @Inject constructor(
                             timeStamp = System.currentTimeMillis()
                         )
                         trySend(point) // send the point to the Flow subscriber
-                        Log.d("loc", "location point sent : $point")
+                        Log.d("lokation", "location point sent : $point")
                     } else {
-                        Log.d("loc", "skipped location point, less accuracy")
+                        Log.d("lokation", "skipped location point, less accuracy")
                     }
                 }
             }
@@ -72,20 +72,22 @@ class androidLocationProvider @Inject constructor(
                     locationCallback,
                     Looper.getMainLooper()
                 )
-            }catch (e : SecurityException) { // if looses location permission
+            }catch (e : SecurityException) { // this occurs when the app does not has location permission but still tries to access location
                 close(e) // close the Flow if permission missing
             }
         }
 
         // else solve exception and close the thread
-        task.addOnFailureListener { exception -> // this is ResolvableApiException
+        task.addOnFailureListener { exception -> // this is ResolvableApiException, meaning the app has permission to access locaiton
+            // but the hardware of the device is turned off for the app
             // handle the fail
+            Log.d("lokation", "crashed because location not enabled")
             close(exception) // we close the flow here
         }
 
         awaitClose {
             fusedLocationClient.removeLocationUpdates(locationCallback)
-            Log.d("loc", "stopping location tracking")
+            Log.d("lokation", "stopping location tracking")
         }
     }
 }
