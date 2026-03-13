@@ -1,5 +1,6 @@
 package com.example.fitnessapp.ui.activity
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -12,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.fitnessapp.Data.Location.androidLocationProvider
 import com.example.fitnessapp.Data.Model.AppDatabase
@@ -19,13 +21,16 @@ import com.example.fitnessapp.Data.Model.LocationPoints
 import com.example.fitnessapp.Data.Model.Entities.RunEntity
 import com.example.fitnessapp.Data.Model.runDAO
 import com.example.fitnessapp.Data.Repositories.RunRepoImpl
+import com.example.fitnessapp.Data.Service.LocationForegroundService
 import com.example.fitnessapp.Domain.LocationDataSource
 import com.example.fitnessapp.Domain.UseCases.CalcDistanceUseCase
 import com.example.fitnessapp.ui.theme.FitnessAppTheme
 import com.google.firebase.firestore.GeoPoint
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,18 +46,17 @@ class MainActivity : ComponentActivity() {
             }
         }
         lifecycleScope.launch {
-            val db = AppDatabase.getDatabase(applicationContext)
-            val dao = db.getDAO()
-            val dist = CalcDistanceUseCase()
-            val androidLocationProvider = androidLocationProvider(applicationContext)
 
-            val repo = RunRepoImpl(dao, dist, androidLocationProvider)
-            repo.startRun()
-            delay(20000)
-            repo.stopRun()
-            repo.getAllRuns().collect {
-                Log.d("checkRun", it.toString())
+            val startIntent = Intent(this@MainActivity, LocationForegroundService::class.java).apply {
+                action = LocationForegroundService.ACTION_START_RUN
             }
+            ContextCompat.startForegroundService(this@MainActivity, startIntent)
+            delay(20000)
+
+            val stopIntent = Intent(this@MainActivity, LocationForegroundService::class.java).apply {
+                action = LocationForegroundService.ACTION_STOP_RUN
+            }
+            startService(stopIntent)
         }
     }
 }

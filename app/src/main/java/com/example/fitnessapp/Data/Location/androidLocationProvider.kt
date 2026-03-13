@@ -42,7 +42,7 @@ class androidLocationProvider @Inject constructor(
             override fun onLocationResult(result: LocationResult) {
                 super.onLocationResult(result)
                 result.locations.forEach { location ->
-                    if (location.accuracy <= 30f) {
+                    if (location.accuracy <= 20f) {
                         val point = LocationPoints(
                             coordinates = GeoPoint(location.latitude, location.longitude),
                             timeStamp = System.currentTimeMillis()
