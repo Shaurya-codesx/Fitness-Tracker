@@ -14,6 +14,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 import androidx.core.content.PermissionChecker
 import com.example.fitnessapp.Data.Repositories.RunRepoImpl
+import com.example.fitnessapp.Domain.RunRepository
 import com.example.fitnessapp.R
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -27,7 +28,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class LocationForegroundService : Service() {
     @Inject
-    lateinit var runRepo : RunRepoImpl
+    lateinit var runRepo : RunRepository
 
     /*
     to start this service
@@ -110,7 +111,6 @@ class LocationForegroundService : Service() {
             Log.d("servicee", "promoted to foreground")
         }catch (e : Exception) {
             stopSelf()
-            Log.d("servicee", "yahan pe chuda hai")
             return
         }
         runRepo.startRun()
