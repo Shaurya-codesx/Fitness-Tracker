@@ -1,12 +1,17 @@
 package com.example.fitnessapp.ui.viewModel
 
+import android.content.Context
+import android.content.Intent
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.fitnessapp.Data.Service.LocationForegroundService
 import com.example.fitnessapp.Domain.RunRepository
 import com.example.fitnessapp.Domain.UseCases.ConvertTimeUseCase
 import com.example.fitnessapp.Domain.UseCases.PaceCalcUseCase
 import com.example.fitnessapp.ui.UiStates.TrackingUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -17,7 +22,8 @@ import javax.inject.Inject
 class TrackingViewModel @Inject constructor(
     private val runRepo : RunRepository,
     private val convertTimeUseCase: ConvertTimeUseCase,
-    private val paceCalcUseCase: PaceCalcUseCase
+    private val paceCalcUseCase: PaceCalcUseCase,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
     // this collects the activeRun stateFlow from the repo and translates it into TrackingUiState and exposes it to the UI
     // but activeRun is already stateFlow, but that is a domain model, we need a UI only model, with modified values
@@ -43,6 +49,16 @@ class TrackingViewModel @Inject constructor(
         )
 
     fun startRun() {
+        val intent = Intent(context, LocationForegroundService::class.java).apply {
+            action = LocationForegroundService.ACTION_START_RUN
+        }
+        ContextCompat.startForegroundService(context, intent)
+    }
 
+    fun stopRun() {
+        val intent = Intent(context, LocationForegroundService::class.java).apply {
+            action = LocationForegroundService.ACTION_STOP_RUN
+        }
+        context.startService(intent)
     }
 }

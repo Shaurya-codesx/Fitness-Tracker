@@ -25,6 +25,7 @@ import com.example.fitnessapp.Data.Service.LocationForegroundService
 import com.example.fitnessapp.Domain.LocationDataSource
 import com.example.fitnessapp.Domain.UseCases.CalcDistanceUseCase
 import com.example.fitnessapp.ui.theme.FitnessAppTheme
+import com.example.fitnessapp.ui.viewModel.TrackingViewModel
 import com.google.firebase.firestore.GeoPoint
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
@@ -47,16 +48,7 @@ class MainActivity : ComponentActivity() {
         }
         lifecycleScope.launch {
 
-            val startIntent = Intent(this@MainActivity, LocationForegroundService::class.java).apply {
-                action = LocationForegroundService.ACTION_START_RUN
-            }
-            ContextCompat.startForegroundService(this@MainActivity, startIntent)
-            delay(20000)
 
-            val stopIntent = Intent(this@MainActivity, LocationForegroundService::class.java).apply {
-                action = LocationForegroundService.ACTION_STOP_RUN
-            }
-            startService(stopIntent)
         }
     }
 }
