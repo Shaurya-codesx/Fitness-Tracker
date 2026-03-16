@@ -1,14 +1,48 @@
 package com.example.fitnessapp.ui.viewModel
 
 import androidx.lifecycle.ViewModel
-import com.example.fitnessapp.Data.Repositories.RunRepoImpl
+import androidx.lifecycle.viewModelScope
 import com.example.fitnessapp.Domain.RunRepository
+import com.example.fitnessapp.Domain.UseCases.ConvertTimeUseCase
+import com.example.fitnessapp.Domain.UseCases.PaceCalcUseCase
+import com.example.fitnessapp.ui.UiStates.TrackingUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
 class TrackingViewModel @Inject constructor(
-    private val runRepo : RunRepository
+    private val runRepo : RunRepository,
+    private val convertTimeUseCase: ConvertTimeUseCase,
+    private val paceCalcUseCase: PaceCalcUseCase
 ) : ViewModel() {
     // this collects the activeRun stateFlow from the repo and translates it into TrackingUiState and exposes it to the UI
+    // but activeRun is already stateFlow, but that is a domain model, we need a UI only model, with modified values
+    // so this viewModel takes the domain model and converts it into presentation model and exposes it to the UI
+
+    val trackingUiState: StateFlow<TrackingUiState> = runRepo.activeRun.map { run ->
+        if (run != null) {
+            TrackingUiState(
+                startTime = convertTimeUseCase(run.startTime),
+                timerValue = convertTimeUseCase.timerFormat(run.elapsedTime),
+                currentDistance = run.currentDistance.toString(),
+                currentPace = paceCalcUseCase(run.currentDistance, run.elapsedTime).toString(),
+                route = run.route
+            )
+        } else {
+            TrackingUiState()
+        }
+    }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = TrackingUiState()
+        )
+
+    fun startRun() {
+
+    }
 }
