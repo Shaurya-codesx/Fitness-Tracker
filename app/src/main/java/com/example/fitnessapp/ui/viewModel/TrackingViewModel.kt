@@ -2,6 +2,7 @@ package com.example.fitnessapp.ui.viewModel
 
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -15,6 +16,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
@@ -29,7 +31,13 @@ class TrackingViewModel @Inject constructor(
     // but activeRun is already stateFlow, but that is a domain model, we need a UI only model, with modified values
     // so this viewModel takes the domain model and converts it into presentation model and exposes it to the UI
 
-    val trackingUiState: StateFlow<TrackingUiState> = runRepo.activeRun.map { run ->
+
+    // it takes in the cold StateFlow from the repo and converts it into a hot StateFlow that is exposed to the UI
+    val trackingUiState: StateFlow<TrackingUiState> = runRepo.activeRun
+        .onEach { run ->
+            Log.d("tracking Viewmodel", "Active Run received: ${run.toString()}")
+        }
+        .map { run ->
         if (run != null) {
             TrackingUiState(
                 startTime = convertTimeUseCase(run.startTime),
@@ -41,8 +49,7 @@ class TrackingViewModel @Inject constructor(
         } else {
             TrackingUiState()
         }
-    }
-        .stateIn(
+    }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = TrackingUiState()
@@ -53,6 +60,7 @@ class TrackingViewModel @Inject constructor(
             action = LocationForegroundService.ACTION_START_RUN
         }
         ContextCompat.startForegroundService(context, intent)
+        Log.d("tracking Viewmodel", "Location service Started from viewmodel")
     }
 
     fun stopRun() {
@@ -60,5 +68,6 @@ class TrackingViewModel @Inject constructor(
             action = LocationForegroundService.ACTION_STOP_RUN
         }
         context.startService(intent)
+        Log.d("tracking Viewmodel", "Location service stopped from viewmodel")
     }
 }

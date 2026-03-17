@@ -1,8 +1,6 @@
 package com.example.fitnessapp.Data.Repositories
 
 import android.util.Log
-import android.widget.Toast
-import com.example.fitnessapp.Data.Location.androidLocationProvider
 import com.example.fitnessapp.Data.Model.Entities.ActiveRun
 import com.example.fitnessapp.Data.Model.Entities.RunEntity
 import com.example.fitnessapp.Data.Model.LocationPoints
@@ -20,7 +18,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class RunRepoImpl @Inject constructor(
     private val runDAO : runDAO,
     private val calcDistanceUseCase : CalcDistanceUseCase,
