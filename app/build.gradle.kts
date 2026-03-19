@@ -98,4 +98,7 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10.1")
 
     implementation("com.google.android.gms:play-services-location:21.3.0")
+
+    //OSM droid
+    implementation("org.osmdroid:osmdroid-android:6.1.18")
 }
