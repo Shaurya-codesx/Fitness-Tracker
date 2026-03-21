@@ -87,7 +87,6 @@ class LocationForegroundService : Service() {
         )
         if (locationPermission != PermissionChecker.PERMISSION_GRANTED) {
             stopSelf()
-            Log.d("servicee", "permission fucked, stopping")
             return
         }
 

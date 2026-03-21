@@ -32,8 +32,8 @@ class androidLocationProvider @Inject constructor(
 
 
     private val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
-    private val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000L)
-        .setMinUpdateIntervalMillis(3000L)
+    private val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 3000L)
+        .setMinUpdateIntervalMillis(2000L)
 //        .setMinUpdateDistanceMeters(3f)
         .build() //An encapsulation of various parameters for requesting location through FusedLocationProviderClient.
 

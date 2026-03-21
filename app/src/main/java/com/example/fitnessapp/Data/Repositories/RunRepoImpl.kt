@@ -71,7 +71,6 @@ class RunRepoImpl @Inject constructor(
             }
         }
     }
-
     override suspend fun stopRun() { // here we make the stopRun function suspend and let the caller decide the scope of the coroutine
         timerJob?.cancel()
         timerJob = null
@@ -86,9 +85,6 @@ class RunRepoImpl @Inject constructor(
             finalRun.currentDistance / timeInSeconds
         } else 0f
 
-        val sdf = java.text.SimpleDateFormat("HH:mm", java.util.Locale.getDefault())
-        val readableStartTime = sdf.format(java.util.Date(finalRun.startTime))
-        val readableEndTime = sdf.format(java.util.Date(finalRun.startTime + finalRun.elapsedTime))
 
 
         val finalRunEntity = RunEntity(
@@ -114,6 +110,14 @@ class RunRepoImpl @Inject constructor(
             calcDistanceUseCase(current.route.last(), point)
         } else 0f
 
+
+        // if incremental distance < minThreshold then we do not send the point forward, coz GPS data may be noisy so we filer here
+
+        if (current.route.isNotEmpty() && incrementalDistance < 3f) {
+            Log.d("lokation", "location point skipped by repo, inc distance < 3m")
+            return
+        }
+
         val updatedRoute = current.route + point
 
         // finds the incremental distance value and then adds it to the current distance of the activeRun,
@@ -122,6 +126,8 @@ class RunRepoImpl @Inject constructor(
             currentDistance = current.currentDistance + incrementalDistance,
             route = updatedRoute
         )
-        Log.d("distCheck", "distance : ${_activeRun.value?.currentDistance}")
+        Log.d("lokation", "distance : ${_activeRun.value?.currentDistance}")
+
     }
+
 }
