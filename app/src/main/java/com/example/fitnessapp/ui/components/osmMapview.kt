@@ -1,10 +1,13 @@
 package com.example.fitnessapp.ui.components
 
+import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.viewinterop.AndroidView
@@ -21,12 +24,7 @@ fun OsmMapview(modifier : Modifier = Modifier, currentLocation : LocationPoints?
         MapView(context).apply {
             setTileSource(TileSourceFactory.MAPNIK)
             setMultiTouchControls(true) // sets pinch to touch function in map
-            controller.setZoom(15.0)
-            if (currentLocation == null) {
-                controller.setCenter(GeoPoint(77.4220, -152.0841))
-            }else {
-                controller.setCenter(GeoPoint(currentLocation.coordinates.latitude, currentLocation.coordinates.longitude))
-            }
+            controller.setZoom(20.0)
         }
     }
 
@@ -42,4 +40,14 @@ fun OsmMapview(modifier : Modifier = Modifier, currentLocation : LocationPoints?
         factory = { mapView },
         modifier = modifier.fillMaxSize()
     )
+
+    LaunchedEffect(
+        currentLocation
+    ) {
+        currentLocation?.let {
+            val center = GeoPoint(currentLocation.coordinates.latitude, currentLocation.coordinates.longitude)
+            mapView.controller.animateTo(center)
+            Log.d("uitestingmap", "map center updated NOW")
+        }
+    }
 }

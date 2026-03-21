@@ -116,7 +116,6 @@ class RunRepoImpl @Inject constructor(
 
         val updatedRoute = current.route + point
 
-
         // finds the incremental distance value and then adds it to the current distance of the activeRun,
         // also adds the last GeoPoint to the route list
         _activeRun.value = current.copy(
