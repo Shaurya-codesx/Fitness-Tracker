@@ -57,7 +57,7 @@ fun Uitesting(uiState : TrackingUiState, trackingViewModel : TrackingViewModel) 
     ) {
         // 2. If the run is started, show the Map in the background
         if (isRunStarted && uiState.route.isNotEmpty()) {
-            OsmMapview(modifier = Modifier.fillMaxSize(), uiState.route.last())
+            OsmMapview(modifier = Modifier.fillMaxSize(), uiState.route)
             Log.d("uitesting", "Uitesting: last location : ${uiState.route.last().toString()}")
         }
 
