@@ -75,7 +75,7 @@ fun Uitesting(uiState : TrackingUiState, trackingViewModel : TrackingViewModel) 
                 Text(text = "Start Time : ${uiState.startTime}")
                 Text(text = "Distance: ${uiState.currentDistance} meters")
                 Text(text = "Elapsed Time: ${uiState.timerValue} seconds")
-                Text(text = "Current Pace ${uiState.currentPace} km/s")
+                Text(text = "Current Pace ${uiState.currentPace} m/s")
 
                 if (!isRunStarted) {
                     Button(

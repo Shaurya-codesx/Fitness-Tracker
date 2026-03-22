@@ -7,6 +7,6 @@ class PaceCalcUseCase @Inject constructor() {
         val timeInSeconds = time / 1000f
         return if (timeInSeconds == 0f || distance == 0f ) {
             0f
-        } else distance / timeInSeconds
+        } else (distance / timeInSeconds)/1000
     }
 }

@@ -54,7 +54,7 @@ fun OsmMapview(modifier : Modifier = Modifier, Route : List<LocationPoints> = em
 
     }
 
-    // Step 2 - manage lifecycle
+    // manage lifecycle
     DisposableEffect(Unit) {
 
         mapView.onResume()
