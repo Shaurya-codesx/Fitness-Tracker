@@ -1,9 +1,11 @@
 package com.example.fitnessapp.Data.Service
 
 import android.Manifest
+import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
+import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.os.Build
@@ -11,10 +13,12 @@ import android.os.IBinder
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC
 import androidx.core.app.ServiceCompat
 import androidx.core.content.PermissionChecker
 import com.example.fitnessapp.Data.Repositories.RunRepoImpl
 import com.example.fitnessapp.Domain.RunRepository
+import com.example.fitnessapp.Domain.UseCases.ConvertTimeUseCase
 import com.example.fitnessapp.R
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -29,6 +33,8 @@ import javax.inject.Inject
 class LocationForegroundService : Service() {
     @Inject
     lateinit var runRepo : RunRepository
+    @Inject
+    lateinit var convertTimeUseCase: ConvertTimeUseCase
 
     /*
     to start this service
@@ -91,20 +97,14 @@ class LocationForegroundService : Service() {
         }
 
 
-        val notification = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_location_notification)
-            .setContentTitle("Fitness Tracker")
-            .setContentText("Tracking your run...")
-            .setOngoing(true) // User cannot swipe it away
-            .setPriority(NotificationCompat.PRIORITY_LOW)
-            .build()
+
         Log.d("servicee", "notification built")
 
         try {
             ServiceCompat.startForeground(
                 this,
                 NOTIFICATION_ID,
-                notification,
+                buildNotification("00:00", "0.00"),
                 ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
             )
             Log.d("servicee", "promoted to foreground")
@@ -113,6 +113,18 @@ class LocationForegroundService : Service() {
             return
         }
         runRepo.startRun()
+
+        // collecting flow to update the notification live
+        serviceScope.launch {
+            runRepo.activeRun.collect { run ->
+                run?.let {
+                    val timeStr = convertTimeUseCase.timerFormat(it.elapsedTime)
+                    val distanceStr = String.format("%.2f", it.currentDistance)
+                    buildNotification(timeStr, distanceStr)
+                    Log.d("servicee", "run received jsut now")
+                }
+            }
+        }
         Log.d("servicee", "run started")
     }
 
@@ -132,10 +144,27 @@ class LocationForegroundService : Service() {
                 "Location Tracking",
                 NotificationManager.IMPORTANCE_LOW // Low so it doesn't "beep" every time
             )
-            val manager = getSystemService(NotificationManager::class.java)
+            val manager : NotificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             manager.createNotificationChannel(channel)
         }
     }
+
+    private fun buildNotification(time : String, distance : String) : Notification{
+        val notification = NotificationCompat.Builder(this, CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_location_notification)
+            .setContentTitle("Fitness Tracker")
+            .setContentText("Time: $time s, Distance: $distance m")
+            .setOngoing(true) // User cannot swipe it away
+            .setSilent(true)
+            .setVisibility(VISIBILITY_PUBLIC)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .build()
+
+        val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        manager.notify(NOTIFICATION_ID, notification)
+        return notification
+    }
+
 
     override fun onDestroy() {
         super.onDestroy()
