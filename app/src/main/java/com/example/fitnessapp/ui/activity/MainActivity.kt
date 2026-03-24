@@ -47,7 +47,6 @@ class MainActivity : ComponentActivity() {
 
 
 @Composable
-@Preview(showSystemUi = true, showBackground = true)
 fun Uitesting(uiState : TrackingUiState, trackingViewModel : TrackingViewModel) {
     val isRunStarted = uiState.startTime.isNotEmpty()
 
