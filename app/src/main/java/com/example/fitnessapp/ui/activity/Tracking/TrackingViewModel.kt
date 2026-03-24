@@ -1,4 +1,4 @@
-package com.example.fitnessapp.ui.viewModel
+package com.example.fitnessapp.ui.activity.Tracking
 
 import android.content.Context
 import android.content.Intent
@@ -51,13 +51,13 @@ class TrackingViewModel @Inject constructor(
         }
     }.stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
+            started = SharingStarted.Companion.WhileSubscribed(5000),
             initialValue = TrackingUiState()
         )
 
     fun startRun() {
         val intent = Intent(context, LocationForegroundService::class.java).apply {
-            action = LocationForegroundService.ACTION_START_RUN
+            action = LocationForegroundService.Companion.ACTION_START_RUN
         }
         ContextCompat.startForegroundService(context, intent)
         Log.d("tracking Viewmodel", "Location service Started from viewmodel")
@@ -65,7 +65,7 @@ class TrackingViewModel @Inject constructor(
 
     fun stopRun() {
         val intent = Intent(context, LocationForegroundService::class.java).apply {
-            action = LocationForegroundService.ACTION_STOP_RUN
+            action = LocationForegroundService.Companion.ACTION_STOP_RUN
         }
         context.startService(intent)
         Log.d("tracking Viewmodel", "Location service stopped from viewmodel")

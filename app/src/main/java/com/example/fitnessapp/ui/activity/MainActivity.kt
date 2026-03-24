@@ -25,9 +25,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.fitnessapp.ui.UiStates.TrackingUiState
-import com.example.fitnessapp.ui.components.OsmMapview
+import com.example.fitnessapp.ui.activity.Tracking.OsmMapview
 import com.example.fitnessapp.ui.theme.FitnessAppTheme
-import com.example.fitnessapp.ui.viewModel.TrackingViewModel
+import com.example.fitnessapp.ui.activity.Tracking.TrackingViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

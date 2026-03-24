@@ -1,4 +1,4 @@
-package com.example.fitnessapp.ui.components
+package com.example.fitnessapp.ui.activity.Tracking
 
 import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,19 +10,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.viewinterop.AndroidView
-import com.example.fitnessapp.Data.Location.androidLocationProvider
 import com.example.fitnessapp.Data.Model.LocationPoints
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.Polyline
-import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
-import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
 
 @Composable
 fun OsmMapview(modifier : Modifier = Modifier, Route : List<LocationPoints> = emptyList()) {

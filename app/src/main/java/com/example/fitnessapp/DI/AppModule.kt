@@ -13,7 +13,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class LocationModule {
-
     @Binds
     @Singleton
     abstract fun bindLocationDataSource(
