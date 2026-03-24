@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -149,7 +150,20 @@ class LocationForegroundService : Service() {
         }
     }
 
-    private fun buildNotification(time : String, distance : String) : Notification{
+    private fun buildNotification(time : String, distance : String) : Notification {
+
+        // Create a PendingIntent that sends the STOP action to this service
+        val stopIntent = Intent(this, LocationForegroundService::class.java).apply {
+            action = ACTION_STOP_RUN
+        }
+        val stopPendingIntent = PendingIntent.getService(
+            this,
+            0,
+            stopIntent,
+            PendingIntent.FLAG_IMMUTABLE
+        )
+
+        // Notification object
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_location_notification)
             .setContentTitle("Fitness Tracker")
@@ -158,6 +172,7 @@ class LocationForegroundService : Service() {
             .setSilent(true)
             .setVisibility(VISIBILITY_PUBLIC)
             .setPriority(NotificationCompat.PRIORITY_LOW)
+            .addAction(R.drawable.ic_stop, "Stop Run", stopPendingIntent)
             .build()
 
         val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
