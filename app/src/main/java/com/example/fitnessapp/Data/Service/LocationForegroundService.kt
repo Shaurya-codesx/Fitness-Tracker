@@ -50,7 +50,9 @@ class LocationForegroundService : Service() {
     */
 
 
-    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main) // to launch the stoprun function
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Default) // to launch the stoprun function
+
+    private var runCollectorJob: Job? = null
 
     companion object {
         const val ACTION_START_RUN = "ACTION_START_RUN"
@@ -116,12 +118,16 @@ class LocationForegroundService : Service() {
         runRepo.startRun()
 
         // collecting flow to update the notification live
-        serviceScope.launch {
+        runCollectorJob?.cancel()
+        runCollectorJob = serviceScope.launch {
             runRepo.activeRun.collect { run ->
-                run?.let {
-                    val timeStr = convertTimeUseCase.timerFormat(it.elapsedTime)
-                    val distanceStr = String.format("%.2f", it.currentDistance)
-                    buildNotification(timeStr, distanceStr)
+                if (run == null){
+                    runCollectorJob?.cancel()
+                    return@collect
+                } else{
+                    val timeStr = convertTimeUseCase.timerFormat(run.elapsedTime)
+                    val distanceStr = String.format("%.2f", run.currentDistance)
+                    updateNotification(timeStr, distanceStr)
                     Log.d("servicee", "run received jsut now")
                 }
             }
@@ -132,6 +138,8 @@ class LocationForegroundService : Service() {
     private fun stopRunForeground() {
         serviceScope.launch {
             runRepo.stopRun()
+            runCollectorJob?.cancel()
+            runCollectorJob = null
             stopForeground(STOP_FOREGROUND_REMOVE)
             stopSelf()
         }
@@ -164,7 +172,7 @@ class LocationForegroundService : Service() {
         )
 
         // Notification object
-        val notification = NotificationCompat.Builder(this, CHANNEL_ID)
+        return NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_location_notification)
             .setContentTitle("Fitness Tracker")
             .setContentText("Time: $time s, Distance: $distance m")
@@ -175,9 +183,12 @@ class LocationForegroundService : Service() {
             .addAction(R.drawable.ic_stop, "Stop Run", stopPendingIntent)
             .build()
 
-        val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        manager.notify(NOTIFICATION_ID, notification)
-        return notification
+    }
+
+    private fun updateNotification(time: String, distance: String) {
+        val manager =
+            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        manager.notify(NOTIFICATION_ID, buildNotification(time, distance))
     }
 
 
