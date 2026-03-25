@@ -18,4 +18,7 @@ interface runDAO {
 
     @Query("SELECT * FROM runs")
     fun getAllRuns() : Flow<List<RunEntity>>
+
+    @Query("SELECT * FROM runs ORDER BY startTime DESC")
+    fun getALLRunsSortByDate () : Flow<List<RunEntity>>
 }

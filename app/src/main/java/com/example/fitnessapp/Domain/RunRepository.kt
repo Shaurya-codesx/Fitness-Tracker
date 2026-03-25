@@ -22,8 +22,9 @@ interface RunRepository { // this repository holds the data for the active run s
 
     suspend fun stopRun()
 
+    fun addLocationPoint(point : LocationPoints)
+
     fun getAllRuns() : Flow<List<RunEntity>>
 
-
-    fun addLocationPoint(point : LocationPoints)
+    fun getALLRunsSortByDate () : Flow<List<RunEntity>>
 }

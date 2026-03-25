@@ -103,6 +103,10 @@ class RunRepoImpl @Inject constructor(
         return runDAO.getAllRuns()
     }
 
+    override fun getALLRunsSortByDate(): Flow<List<RunEntity>> {
+        return runDAO.getALLRunsSortByDate()
+    }
+
 
     override fun addLocationPoint(point: LocationPoints) {
         val current = _activeRun.value ?: return // does nothing if activeRun object is null
