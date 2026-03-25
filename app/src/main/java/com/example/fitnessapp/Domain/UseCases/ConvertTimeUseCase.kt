@@ -11,7 +11,8 @@ class ConvertTimeUseCase @Inject constructor() {
         return sdf.format(Date(timeMillis))
     }
 
-    fun timerFormat(seconds: Long): String {
+    fun timerFormat(milliseconds: Long): String {
+        val seconds = milliseconds/1000
         val hours = seconds / 3600
         val minutes = (seconds % 3600) / 60
         val secs = seconds % 60

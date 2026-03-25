@@ -68,6 +68,7 @@ class LocationForegroundService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        Log.d("servicee", "creating notification channel")
         createNotificationChannel()
     }
 
@@ -155,6 +156,7 @@ class LocationForegroundService : Service() {
             )
             val manager : NotificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             manager.createNotificationChannel(channel)
+            Log.d("servicee", "notification channel built")
         }
     }
 

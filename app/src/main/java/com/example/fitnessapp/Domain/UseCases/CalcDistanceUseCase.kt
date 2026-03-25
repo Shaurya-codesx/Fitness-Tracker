@@ -6,6 +6,7 @@ import kotlin.math.PI
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.pow
+import kotlin.math.round
 import kotlin.math.sin
 import kotlin.math.sqrt
 
@@ -28,7 +29,7 @@ class CalcDistanceUseCase @Inject constructor() {
                 sin(dLon / 2).pow(2)
 
         val c = 2 * atan2(sqrt(a), sqrt(1 - a))
-
-        return (earthRadiusMeters * c).toFloat()
+        val result = earthRadiusMeters * c
+        return result.toFloat()
     }
 }

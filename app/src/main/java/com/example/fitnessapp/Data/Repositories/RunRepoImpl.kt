@@ -57,7 +57,7 @@ class RunRepoImpl @Inject constructor(
             while (_activeRun.value!= null) {
                 delay(1000)
                 val current = _activeRun.value ?: break
-                val updatedTime = (System.currentTimeMillis() - current.startTime) / 1000
+                val updatedTime = (System.currentTimeMillis() - current.startTime)
                 _activeRun.value = current.copy(elapsedTime = updatedTime)
                 Log.d("timerCheck", "elapsed time : ${_activeRun.value?.elapsedTime}")
             }
@@ -80,18 +80,12 @@ class RunRepoImpl @Inject constructor(
 
         val finalRun = _activeRun.value ?: return
 
-        val timeInSeconds = finalRun.elapsedTime / 1000f
-        val avgPaceMps = if (timeInSeconds > 0) {
-            finalRun.currentDistance / timeInSeconds
-        } else 0f
-
 
 
         val finalRunEntity = RunEntity(
             startTime = finalRun.startTime,
-            endTime = finalRun.startTime + finalRun.elapsedTime,
+            endTime = finalRun.startTime + finalRun.elapsedTime, // elapsed time is in seconds, fix this issue
             distanceInMeters = finalRun.currentDistance,
-            avgPace = avgPaceMps,
             route = finalRun.route,
             isSynced = false
         )

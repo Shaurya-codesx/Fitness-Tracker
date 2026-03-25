@@ -16,7 +16,7 @@ interface runDAO {
     @Query("DELETE FROM runs WHERE id = :id")
     suspend fun deleteRun(id : Int)
 
-    @Query("SELECT * FROM runs")
+    @Query("SELECT * FROM runs ORDER BY startTime DESC")
     fun getAllRuns() : Flow<List<RunEntity>>
 
     @Query("SELECT * FROM runs ORDER BY startTime DESC")

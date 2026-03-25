@@ -1,6 +1,4 @@
-package com.example.fitnessapp.ui.activity.RunHistory
-
-import com.example.fitnessapp.Data.Model.LocationPoints
+package com.example.fitnessapp.ui.UiStates
 
 data class RunUiModel(
     val id : Long,
@@ -9,5 +7,4 @@ data class RunUiModel(
     val duration : String,
     val distanceInMeters : String,
     val avgPace : String,
-    val route : List<LocationPoints>
 )
