@@ -13,8 +13,8 @@ interface runDAO {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertRun(run : RunEntity)
 
-    @Query("DELETE FROM runs WHERE id = :id")
-    suspend fun deleteRun(id : Int)
+    @Query("DELETE FROM runs")
+    suspend fun deleteRun()
 
     @Query("SELECT * FROM runs ORDER BY startTime DESC")
     fun getAllRuns() : Flow<List<RunEntity>>

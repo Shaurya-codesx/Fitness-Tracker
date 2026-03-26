@@ -24,22 +24,29 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
+import com.example.fitnessapp.Data.Model.runDAO
 import com.example.fitnessapp.ui.UiStates.TrackingUiState
+import com.example.fitnessapp.ui.activity.RunHistory.RunHistoryScreen
 import com.example.fitnessapp.ui.activity.Tracking.OsmMapview
 import com.example.fitnessapp.ui.theme.FitnessAppTheme
 import com.example.fitnessapp.ui.activity.Tracking.TrackingViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val trackingViewModel : TrackingViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             FitnessAppTheme {
-                val uiState by trackingViewModel.trackingUiState.collectAsStateWithLifecycle()
-                Uitesting(uiState, trackingViewModel)
+//                val uiState by trackingViewModel.trackingUiState.collectAsStateWithLifecycle()
+//                Uitesting(uiState, trackingViewModel)
+                RunHistoryScreen()
             }
         }
     }

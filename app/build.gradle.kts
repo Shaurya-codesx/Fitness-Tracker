@@ -101,4 +101,6 @@ dependencies {
 
     //OSM droid
     implementation("org.osmdroid:osmdroid-android:6.1.18")
+
+    implementation("androidx.compose.material:material-icons-extended")
 }
