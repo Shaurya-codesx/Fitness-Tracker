@@ -44,9 +44,16 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             FitnessAppTheme {
-//                val uiState by trackingViewModel.trackingUiState.collectAsStateWithLifecycle()
-//                Uitesting(uiState, trackingViewModel)
-                RunHistoryScreen()
+                val uiState by trackingViewModel.trackingUiState.collectAsStateWithLifecycle()
+                Column(modifier = Modifier.fillMaxSize()) {
+                    // Use weight(1f) to make them share the screen space equally
+                    Box(modifier = Modifier.weight(1f)) {
+                        Uitesting(uiState, trackingViewModel)
+                    }
+                    Box(modifier = Modifier.weight(1f)) {
+                        RunHistoryScreen()
+                    }
+                }
             }
         }
     }
