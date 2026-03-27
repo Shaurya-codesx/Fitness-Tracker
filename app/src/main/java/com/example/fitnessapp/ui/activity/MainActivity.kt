@@ -27,10 +27,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.example.fitnessapp.Data.Model.runDAO
 import com.example.fitnessapp.ui.UiStates.TrackingUiState
-import com.example.fitnessapp.ui.activity.RunHistory.RunHistoryScreen
+
 import com.example.fitnessapp.ui.activity.Tracking.OsmMapview
 import com.example.fitnessapp.ui.theme.FitnessAppTheme
 import com.example.fitnessapp.ui.activity.Tracking.TrackingViewModel
+import com.example.runtracker.ui.screens.RunHistoryScreenM3
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -45,15 +46,16 @@ class MainActivity : ComponentActivity() {
         setContent {
             FitnessAppTheme {
                 val uiState by trackingViewModel.trackingUiState.collectAsStateWithLifecycle()
-                Column(modifier = Modifier.fillMaxSize()) {
-                    // Use weight(1f) to make them share the screen space equally
-                    Box(modifier = Modifier.weight(1f)) {
-                        Uitesting(uiState, trackingViewModel)
-                    }
-                    Box(modifier = Modifier.weight(1f)) {
-                        RunHistoryScreen()
-                    }
-                }
+                RunHistoryScreenM3()
+//                Column(modifier = Modifier.fillMaxSize()) {
+//                    // Use weight(1f) to make them share the screen space equally
+//                    Box(modifier = Modifier.weight(1f)) {
+//                        Uitesting(uiState, trackingViewModel)
+//                    }
+//                    Box(modifier = Modifier.weight(1f)) {
+//                        RunHistoryScreen()
+//                    }
+//                }
             }
         }
     }
