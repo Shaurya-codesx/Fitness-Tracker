@@ -31,11 +31,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.fitnessapp.ui.activity.RunHistory.RunDetails.RunDetailScreen
 
 import com.example.fitnessapp.ui.activity.Tracking.OsmMapview
 import com.example.fitnessapp.ui.theme.FitnessAppTheme
 import com.example.fitnessapp.ui.activity.Tracking.TrackingViewModel
+import com.example.runtracker.ui.screens.RunDetailsScreen
 import com.example.runtracker.ui.screens.RunHistoryScreenM3
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -66,7 +66,7 @@ fun appRun() {
             arguments = listOf(navArgument("runId") { type = NavType.LongType })
         ) { backStackEntry ->
             val runId = backStackEntry.arguments?.getLong("runId") ?: -1L
-            RunDetailScreen(navController)
+            RunDetailsScreen(navController)
         }
     }
 }
