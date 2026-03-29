@@ -1,6 +1,7 @@
 package com.example.runtracker.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -112,8 +113,8 @@ fun RunHistoryScreenM3(navController: NavController) {
 
             // Run cards
             items(uiState.runs, key = { it.id }) { run ->
-                RunSessionCardM3(run = run){
-
+                RunSessionCardM3(run = run){ id ->
+                    navController.navigate("runDetails/$id")
                 }
                 Spacer(modifier = Modifier.height(10.dp))
             }
@@ -303,7 +304,8 @@ fun RunSessionCardM3(run: RunUiModel, onClick: (Long) -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp),
+            .padding(horizontal = 16.dp)
+            .clickable { onClick(run.id) },
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow

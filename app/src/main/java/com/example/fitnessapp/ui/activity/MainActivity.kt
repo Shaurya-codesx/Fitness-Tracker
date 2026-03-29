@@ -21,27 +21,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.fitnessapp.Data.Model.runDAO
-import com.example.fitnessapp.ui.UiStates.TrackingUiState
+import androidx.navigation.navArgument
+import com.example.fitnessapp.ui.activity.RunHistory.RunDetails.RunDetailScreen
 
 import com.example.fitnessapp.ui.activity.Tracking.OsmMapview
 import com.example.fitnessapp.ui.theme.FitnessAppTheme
 import com.example.fitnessapp.ui.activity.Tracking.TrackingViewModel
 import com.example.runtracker.ui.screens.RunHistoryScreenM3
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -65,6 +61,13 @@ fun appRun() {
     NavHost(navController, startDestination = "runHistory") {
         composable("runHistory", content = {RunHistoryScreenM3(navController)})
         composable("trackingScreen", content = {Uitesting(navController)})
+        composable(
+            route = "runDetails/{runId}",
+            arguments = listOf(navArgument("runId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            val runId = backStackEntry.arguments?.getLong("runId") ?: -1L
+            RunDetailScreen(navController)
+        }
     }
 }
 
