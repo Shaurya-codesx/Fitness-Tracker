@@ -97,6 +97,10 @@ class RunRepoImpl @Inject constructor(
         return runDAO.getAllRuns()
     }
 
+    override fun getRunById(id : Long): Flow<RunEntity> {
+        return runDAO.getRunById(id)
+    }
+
     override fun getALLRunsSortByDate(): Flow<List<RunEntity>> {
         return runDAO.getALLRunsSortByDate()
     }

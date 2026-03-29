@@ -23,8 +23,15 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.fitnessapp.Data.Model.runDAO
 import com.example.fitnessapp.ui.UiStates.TrackingUiState
 
@@ -45,17 +52,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             FitnessAppTheme {
-                val uiState by trackingViewModel.trackingUiState.collectAsStateWithLifecycle()
-                RunHistoryScreenM3()
-//                Column(modifier = Modifier.fillMaxSize()) {
-//                    // Use weight(1f) to make them share the screen space equally
-//                    Box(modifier = Modifier.weight(1f)) {
-//                        Uitesting(uiState, trackingViewModel)
-//                    }
-//                    Box(modifier = Modifier.weight(1f)) {
-//                        RunHistoryScreen()
-//                    }
-//                }
+                appRun()
             }
         }
     }
@@ -63,7 +60,19 @@ class MainActivity : ComponentActivity() {
 
 
 @Composable
-fun Uitesting(uiState : TrackingUiState, trackingViewModel : TrackingViewModel) {
+fun appRun() {
+    val navController : NavHostController = rememberNavController()
+    NavHost(navController, startDestination = "runHistory") {
+        composable("runHistory", content = {RunHistoryScreenM3(navController)})
+        composable("trackingScreen", content = {Uitesting(navController)})
+    }
+}
+
+@Composable
+fun Uitesting(navController: NavController) {
+    val trackingViewModel : TrackingViewModel = hiltViewModel()
+    val uiState by trackingViewModel.trackingUiState.collectAsStateWithLifecycle()
+
     val isRunStarted = uiState.startTime.isNotEmpty()
 
     Box(

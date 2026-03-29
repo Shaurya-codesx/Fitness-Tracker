@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import com.example.fitnessapp.ui.UiStates.RunUiModel
 import com.example.fitnessapp.ui.activity.RunHistory.RunHistoryViewModel
 import com.example.fitnessapp.ui.activity.Tracking.TrackingViewModel
@@ -34,7 +35,7 @@ private val filterOptions = listOf("All runs", "This week", "This month")
 // ─── Screen Entry Point ───────────────────────────────────────────────────────
 
 @Composable
-fun RunHistoryScreenM3() {
+fun RunHistoryScreenM3(navController: NavController) {
     val runHistoryViewModel: RunHistoryViewModel = hiltViewModel()
     val uiState by runHistoryViewModel.runHistoryUiState.collectAsStateWithLifecycle()
 
@@ -46,7 +47,10 @@ fun RunHistoryScreenM3() {
         containerColor = MaterialTheme.colorScheme.surface,
         floatingActionButton = {
             ExtendedFloatingActionButton(
-                onClick = { /* navigate to start run */
+                onClick = {
+                    navController.navigate("trackingScreen"){
+                        popUpTo("runHistory")
+                    }
                 },
                 icon = { Icon(Icons.Rounded.Add, contentDescription = null) },
                 text = { Text("Start new run") },
@@ -108,7 +112,9 @@ fun RunHistoryScreenM3() {
 
             // Run cards
             items(uiState.runs, key = { it.id }) { run ->
-                RunSessionCardM3(run = run)
+                RunSessionCardM3(run = run){
+
+                }
                 Spacer(modifier = Modifier.height(10.dp))
             }
 
@@ -291,7 +297,7 @@ private fun TonalSummaryCard(
 // ─── Run Session Card (M3) ────────────────────────────────────────────────────
 
 @Composable
-fun RunSessionCardM3(run: RunUiModel) {
+fun RunSessionCardM3(run: RunUiModel, onClick: (Long) -> Unit) {
     val style = resolveM3CardStyle(run)
 
     Card(

@@ -26,5 +26,8 @@ interface RunRepository { // this repository holds the data for the active run s
 
     fun getAllRuns() : Flow<List<RunEntity>>
 
+    fun getRunById(id : Long) : Flow<RunEntity>
+
+
     fun getALLRunsSortByDate () : Flow<List<RunEntity>>
 }
