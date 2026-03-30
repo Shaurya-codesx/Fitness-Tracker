@@ -29,7 +29,7 @@ import androidx.navigation.NavController
 import com.example.fitnessapp.ui.activity.RunHistory.RunDetails.RunDetailsState
 import com.example.fitnessapp.ui.activity.RunHistory.RunDetails.RunDetailsUiState
 import com.example.fitnessapp.ui.activity.RunHistory.RunDetails.RunDetailsViewModel
-
+import com.example.fitnessapp.ui.activity.RunHistory.RunDetails.miniMapView
 
 
 // ─── Entry Point ──────────────────────────────────────────────────────────────
@@ -114,30 +114,31 @@ private fun RunDetailSuccessState(data: RunDetailsUiState) {
                 .fillMaxWidth()
                 .padding(horizontal = 18.dp)
                 .padding(top = 14.dp)
-                .height(200.dp)
+                .height(400.dp)
                 .clip(RoundedCornerShape(24.dp))
                 .background(MaterialTheme.colorScheme.secondaryContainer),
             contentAlignment = Alignment.Center
         ) {
             // Map view start here
             // edit this part to show the map view inside this box content
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = "🗺",
-                    fontSize = 32.sp
-                )
-                Spacer(modifier = Modifier.height(6.dp))
-                Text(
-                    text = "Route map",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer
-                )
-                Text(
-                    text = "${data.routeList.size} location points",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f)
-                )
-            }
+            miniMapView(modifier = Modifier, routeList = data.routeList)
+//            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+//                Text(
+//                    text = "🗺",
+//                    fontSize = 32.sp
+//                )
+//                Spacer(modifier = Modifier.height(6.dp))
+//                Text(
+//                    text = "Route map",
+//                    style = MaterialTheme.typography.labelLarge,
+//                    color = MaterialTheme.colorScheme.onSecondaryContainer
+//                )
+//                Text(
+//                    text = "${data.routeList.size} location points",
+//                    style = MaterialTheme.typography.bodySmall,
+//                    color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f)
+//                )
+//            }
         }
 
         // ── Hero Card — Distance + Duration ───────────────────────────────
