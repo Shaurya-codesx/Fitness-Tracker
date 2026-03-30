@@ -13,6 +13,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import com.example.fitnessapp.Data.Model.LocationPoints
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
+import org.osmdroid.util.BoundingBox
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
@@ -34,7 +35,7 @@ fun miniMapView(modifier: Modifier = Modifier, routeList: List<LocationPoints> =
             // map view configuration
             setTileSource(TileSourceFactory.MAPNIK) // sets the tiles
             setMultiTouchControls(true) // sets pinch to touch function in map
-            controller.setZoom(19.0)
+//            controller.setZoom(19.0)
 
 
         }
@@ -45,10 +46,10 @@ fun miniMapView(modifier: Modifier = Modifier, routeList: List<LocationPoints> =
         modifier = modifier.fillMaxSize(),
         update = { map ->
             if (routeList.isNotEmpty()) {
+                map.overlays.clear()
                 val startingPoint = route.first()
                 val endPoint = route.last()
 
-                map.overlays.clear()
 
                 val startMarker = Marker(map).apply {
                     position = startingPoint
@@ -73,15 +74,32 @@ fun miniMapView(modifier: Modifier = Modifier, routeList: List<LocationPoints> =
                 map.overlays.add(endMarker)
 
                 // invalidate the map
-                map.controller.setCenter(startingPoint)
-
+                map.invalidate()
             }
         }
     )
 
     LaunchedEffect(route) {
-        if (route.isNotEmpty()) {miniMap.controller.setCenter(route.first()) }
+        if (route.isNotEmpty()) {
+            miniMap.post {
+                try {
+                    if (route.size > 1) {
+                        val boundingBox = BoundingBox.fromGeoPoints(route)
+                        // Padding of 120 pixels
+                        miniMap.zoomToBoundingBox(boundingBox, false, 120)
+                    } else {
+                        // If there is only one point, just center on it
+                        miniMap.controller.setCenter(route.first())
+                        miniMap.controller.setZoom(18.0)
+                    }
+                } catch (e: Exception) {
+                    // Fallback if the bounding box calculation fails
+                    miniMap.controller.setCenter(route.first())
+                }
+            }
+        }
     }
+
 
     // manage lifecycle
     DisposableEffect(Unit) {

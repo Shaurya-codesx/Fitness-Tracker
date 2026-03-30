@@ -105,10 +105,7 @@ private fun RunDetailSuccessState(data: RunDetailsUiState) {
             .verticalScroll(rememberScrollState())
             .padding(bottom = 32.dp)
     ) {
-        // ── Route Map Placeholder ──────────────────────────────────────────
-        // Have to replace this Box with actual MapView composable.
-        // The routeList (List<LocationPoints>) from data.routeList
-        // should be drawn as a polyline on the map inside here.
+        // ── Route Map  ──────────────────────────────────────────
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -119,26 +116,7 @@ private fun RunDetailSuccessState(data: RunDetailsUiState) {
                 .background(MaterialTheme.colorScheme.secondaryContainer),
             contentAlignment = Alignment.Center
         ) {
-            // Map view start here
-            // edit this part to show the map view inside this box content
             miniMapView(modifier = Modifier, routeList = data.routeList)
-//            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-//                Text(
-//                    text = "🗺",
-//                    fontSize = 32.sp
-//                )
-//                Spacer(modifier = Modifier.height(6.dp))
-//                Text(
-//                    text = "Route map",
-//                    style = MaterialTheme.typography.labelLarge,
-//                    color = MaterialTheme.colorScheme.onSecondaryContainer
-//                )
-//                Text(
-//                    text = "${data.routeList.size} location points",
-//                    style = MaterialTheme.typography.bodySmall,
-//                    color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f)
-//                )
-//            }
         }
 
         // ── Hero Card — Distance + Duration ───────────────────────────────
