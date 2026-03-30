@@ -1,5 +1,6 @@
 package com.example.fitnessapp.ui.activity.RunHistory.RunDetails
 
+import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -21,8 +22,13 @@ import org.osmdroid.views.overlay.Polyline
 
 
 @Composable
-fun miniMapView(modifier: Modifier = Modifier, routeList: List<LocationPoints> = emptyList()) {
+fun miniMapView(routeList: List<LocationPoints> = emptyList()) {
     val context = LocalContext.current
+
+
+    // has two bugs which need to be fixed,
+    // 1. if any run with a single point in the route list, it shows very far from that point in the mini map
+    // 2. the mini map stutters on touch, fights user interaction
 
     val route = remember(routeList) { // to prevent unnecessary mapping on ui recomposition
         routeList.map {
@@ -41,64 +47,63 @@ fun miniMapView(modifier: Modifier = Modifier, routeList: List<LocationPoints> =
         }
     }
 
-    AndroidView(
-        factory = {miniMap},
-        modifier = modifier.fillMaxSize(),
-        update = { map ->
-            if (routeList.isNotEmpty()) {
-                map.overlays.clear()
-                val startingPoint = route.first()
-                val endPoint = route.last()
-
-
-                val startMarker = Marker(map).apply {
-                    position = startingPoint
-                    setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-                    title = "Starting Point"
-                }
-                val endMarker = Marker(map).apply {
-                    position = endPoint
-                    setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-                    title = "End Point"
-                }
-
-                // create polyline
-                val polyline = Polyline(map).apply {
-                    outlinePaint.color = Color.Green.toArgb()
-                    outlinePaint.strokeWidth = 10f
-                    setPoints(route)
-                }
-
-                map.overlays.add(polyline)
-                map.overlays.add(startMarker)
-                map.overlays.add(endMarker)
-
-                // invalidate the map
-                map.invalidate()
-            }
-        }
-    )
-
     LaunchedEffect(route) {
-        if (route.isNotEmpty()) {
+        if (route.isEmpty()) return@LaunchedEffect
+
+        miniMap.overlays.clear()
+
+        val startingPoint = route.first()
+        val endPoint = route.last()
+
+        val startMarker = Marker(miniMap).apply {
+            position = startingPoint
+            setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+            title = "Starting Point"
+        }
+        val endMarker = Marker(miniMap).apply {
+            position = endPoint
+            setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+            title = "End Point"
+        }
+
+        // create polyline
+        val polyline = Polyline(miniMap).apply {
+            outlinePaint.color = Color.Green.toArgb()
+            outlinePaint.strokeWidth = 10f
+            setPoints(route)
+        }
+
+        miniMap.overlays.add(polyline)
+        miniMap.overlays.add(startMarker)
+        miniMap.overlays.add(endMarker)
+
+        if (route.size > 1) {
             miniMap.post {
                 try {
-                    if (route.size > 1) {
                         val boundingBox = BoundingBox.fromGeoPoints(route)
                         // Padding of 120 pixels
                         miniMap.zoomToBoundingBox(boundingBox, false, 120)
-                    } else {
-                        // If there is only one point, just center on it
-                        miniMap.controller.setCenter(route.first())
-                        miniMap.controller.setZoom(18.0)
-                    }
+                    Log.d("map view", "this nigga also running")
                 } catch (e: Exception) {
                     // Fallback if the bounding box calculation fails
-                    miniMap.controller.setCenter(route.first())
+                    miniMap.controller.setCenter(endPoint)
                 }
             }
+        }else {
+            miniMap.controller.setCenter(endPoint)
+            miniMap.controller.setZoom(18.0)
         }
+        miniMap.invalidate()
     }
+
+
+    val modifier = Modifier
+    AndroidView(
+        factory = {miniMap},
+        modifier = modifier.fillMaxSize(),
+        update = {
+        }
+    )
 
 
     // manage lifecycle

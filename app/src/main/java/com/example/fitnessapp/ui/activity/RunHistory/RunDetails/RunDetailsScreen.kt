@@ -116,7 +116,7 @@ private fun RunDetailSuccessState(data: RunDetailsUiState) {
                 .background(MaterialTheme.colorScheme.secondaryContainer),
             contentAlignment = Alignment.Center
         ) {
-            miniMapView(modifier = Modifier, routeList = data.routeList)
+            miniMapView(routeList = data.routeList)
         }
 
         // ── Hero Card — Distance + Duration ───────────────────────────────
