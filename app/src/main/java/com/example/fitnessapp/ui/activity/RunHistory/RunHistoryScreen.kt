@@ -514,11 +514,22 @@ private fun resolveM3CardStyle(run: RunUiModel): M3CardStyle {
 }
 
 private fun resolveRunTitle(run: RunUiModel): String {
-    val hour = run.startTime.substringBefore(":").toIntOrNull() ?: 12
+    val timeString = run.startTime.uppercase()
+    val hour = timeString.substringBefore(":").toIntOrNull() ?: 12
+    val isPm = timeString.contains("PM")
+    val isAm = timeString.contains("AM")
+
+    // Convert to 24-hour conceptual hour for easier range comparison
+    val militaryHour = when {
+        isPm && hour != 12 -> hour + 12  // 1 PM -> 13, etc.
+        isAm && hour == 12 -> 0         // 12 AM -> 0
+        else -> hour                    // 12 PM remains 12, 8 AM remains 8
+    }
+
     return when {
-        hour < 10 -> "Morning run"
-        hour < 14 -> "Midday run"
-        hour < 18 -> "Afternoon run"
-        else -> "Evening jog"
+        militaryHour in 5..11 -> "Morning run"
+        militaryHour in 12..16 -> "Afternoon run"
+        militaryHour in 17..20 -> "Evening jog"
+        else -> "Night run" // Covers 9 PM to 4 AM
     }
 }

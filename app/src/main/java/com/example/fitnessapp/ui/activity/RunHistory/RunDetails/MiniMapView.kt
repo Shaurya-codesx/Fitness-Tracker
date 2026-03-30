@@ -77,7 +77,7 @@ fun miniMapView(routeList: List<LocationPoints> = emptyList()) {
         miniMap.overlays.add(startMarker)
         miniMap.overlays.add(endMarker)
 
-        if (route.size > 1) {
+        if (route.size >= 2) {
             miniMap.post {
                 try {
                         val boundingBox = BoundingBox.fromGeoPoints(route)
