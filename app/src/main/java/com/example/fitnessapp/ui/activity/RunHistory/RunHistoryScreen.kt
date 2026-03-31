@@ -25,8 +25,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.fitnessapp.ui.UiStates.RunUiModel
 import com.example.fitnessapp.ui.activity.RunHistory.RunHistoryViewModel
-import com.example.fitnessapp.ui.activity.Tracking.TrackingViewModel
-import com.example.fitnessapp.ui.activity.Uitesting
+
 
 
 // ─── Filter chips data ────────────────────────────────────────────────────────

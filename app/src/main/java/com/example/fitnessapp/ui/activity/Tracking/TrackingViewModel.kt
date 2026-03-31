@@ -34,9 +34,6 @@ class TrackingViewModel @Inject constructor(
 
     // it takes in the cold StateFlow from the repo and converts it into a hot StateFlow that is exposed to the UI
     val trackingUiState: StateFlow<TrackingUiState> = runRepo.activeRun
-        .onEach { run ->
-            Log.d("tracking Viewmodel", "Active Run received: ${run.toString()}")
-        }
         .map { run ->
         if (run != null) {
             TrackingUiState(
@@ -60,7 +57,6 @@ class TrackingViewModel @Inject constructor(
             action = LocationForegroundService.Companion.ACTION_START_RUN
         }
         ContextCompat.startForegroundService(context, intent)
-        Log.d("tracking Viewmodel", "Location service Started from viewmodel")
     }
 
     fun stopRun() {
@@ -68,6 +64,5 @@ class TrackingViewModel @Inject constructor(
             action = LocationForegroundService.Companion.ACTION_STOP_RUN
         }
         context.startService(intent)
-        Log.d("tracking Viewmodel", "Location service stopped from viewmodel")
     }
 }

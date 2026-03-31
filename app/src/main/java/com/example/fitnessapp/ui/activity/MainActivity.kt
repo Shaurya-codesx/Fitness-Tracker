@@ -37,6 +37,7 @@ import com.example.fitnessapp.ui.theme.FitnessAppTheme
 import com.example.fitnessapp.ui.activity.Tracking.TrackingViewModel
 import com.example.runtracker.ui.screens.RunDetailsScreen
 import com.example.runtracker.ui.screens.RunHistoryScreenM3
+import com.example.runtracker.ui.screens.TrackingScreen
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -60,7 +61,7 @@ fun appRun() {
     val navController : NavHostController = rememberNavController()
     NavHost(navController, startDestination = "runHistory") {
         composable("runHistory", content = {RunHistoryScreenM3(navController)})
-        composable("trackingScreen", content = {Uitesting(navController)})
+        composable("trackingScreen", content = { TrackingScreen(navController) })
         composable(
             route = "runDetails/{runId}",
             arguments = listOf(navArgument("runId") { type = NavType.LongType })
@@ -71,52 +72,3 @@ fun appRun() {
     }
 }
 
-@Composable
-fun Uitesting(navController: NavController) {
-    val trackingViewModel : TrackingViewModel = hiltViewModel()
-    val uiState by trackingViewModel.trackingUiState.collectAsStateWithLifecycle()
-
-    val isRunStarted = uiState.startTime.isNotEmpty()
-
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        // 2. If the run is started, show the Map in the background
-        if (isRunStarted && uiState.route.isNotEmpty()) {
-            OsmMapview(modifier = Modifier.fillMaxSize(), uiState.route)
-            Log.d("uitesting", "Uitesting: last location : ${uiState.route.last().toString()}")
-        }
-
-        // 3. Your UI Overlay
-        Box(
-            modifier = Modifier
-                .padding(16.dp)
-                .shadow(15.dp, RoundedCornerShape(20.dp), spotColor = Color.Red)
-                .then(if (isRunStarted) Modifier.align(Alignment.BottomCenter) else Modifier.fillMaxSize())
-                .clip(RoundedCornerShape(20))
-                .background(Color.White.copy(alpha = 0.9f)),
-            contentAlignment = Alignment.Center
-        ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(text = "Start Time : ${uiState.startTime}")
-                Text(text = "Distance: ${uiState.currentDistance} meters")
-                Text(text = "Elapsed Time: ${uiState.timerValue} seconds")
-                Text(text = "Current Pace ${uiState.currentPace} m/s")
-
-                if (!isRunStarted) {
-                    Button(
-                        onClick = {
-                            // Only trigger the LOGIC here
-                            trackingViewModel.startRun()
-                        }
-                    ) { Text("Start Run Session") }
-                } else {
-                    Button(onClick = { trackingViewModel.stopRun() }) {
-                        Text("Stop Run Session")
-                    }
-                }
-            }
-        }
-    }
-}
