@@ -39,8 +39,8 @@ class TrackingViewModel @Inject constructor(
             TrackingUiState(
                 startTime = convertTimeUseCase(run.startTime),
                 timerValue = convertTimeUseCase.timerFormat(run.elapsedTime),
-                currentDistance = "%.1f".format(run.currentDistance),
-                currentPace = paceCalcUseCase(run.currentDistance, run.elapsedTime).toString(),
+                currentDistance = "%.2f".format(run.currentDistance/1000),
+                currentPace = paceCalcUseCase(run.currentDistance, run.elapsedTime),
                 route = run.route
             )
         } else {

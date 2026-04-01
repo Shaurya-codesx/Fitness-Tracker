@@ -36,8 +36,8 @@ class RunHistoryViewModel @Inject constructor(
                     startTime = convertTimeUseCase(runEntity.startTime),
                     endTime = convertTimeUseCase(runEntity.endTime),
                     duration = convertTimeUseCase.timerFormat(duration),
-                    distanceInMeters = "%.1f".format(runEntity.distanceInMeters),
-                    avgPace = avgPace.toString()
+                    distanceInMeters = "%.2f".format(runEntity.distanceInMeters/1000),
+                    avgPace = avgPace
                 )
             }
         )

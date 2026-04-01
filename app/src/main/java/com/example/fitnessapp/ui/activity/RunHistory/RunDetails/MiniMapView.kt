@@ -82,8 +82,7 @@ fun miniMapView(routeList: List<LocationPoints> = emptyList()) {
                 try {
                         val boundingBox = BoundingBox.fromGeoPoints(route)
                         // Padding of 120 pixels
-                        miniMap.zoomToBoundingBox(boundingBox, false, 120)
-                    Log.d("map view", "this nigga also running")
+                        miniMap.zoomToBoundingBox(boundingBox, true, 140)
                 } catch (e: Exception) {
                     // Fallback if the bounding box calculation fails
                     miniMap.controller.setCenter(endPoint)

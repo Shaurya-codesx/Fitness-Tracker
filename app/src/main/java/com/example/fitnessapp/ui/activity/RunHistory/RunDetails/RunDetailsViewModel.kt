@@ -49,8 +49,8 @@ class RunDetailsViewModel @Inject constructor(
                     startTime = convertTimeUseCase(run.startTime),
                     endTime = convertTimeUseCase(run.endTime),
                     duration = convertTimeUseCase.timerFormat(duration),
-                    distance = "%.1f".format(run.distanceInMeters),
-                    avgPace = avgPace.toString(),
+                    distance = "%.2f".format(run.distanceInMeters/1000) ,
+                    avgPace = avgPace,
                     routeList = run.route
                 )
 

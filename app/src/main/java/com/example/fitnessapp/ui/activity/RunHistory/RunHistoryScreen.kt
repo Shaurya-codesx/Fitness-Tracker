@@ -364,7 +364,7 @@ fun RunSessionCardM3(run: RunUiModel, onClick: (Long) -> Unit) {
             ) {
                 M3StatItem(icon = "⏱", value = run.duration, label = "Duration", modifier = Modifier.weight(1f))
                 VerticalStatDivider()
-                M3StatItem(icon = "📍", value = run.distanceInMeters, label = "Distance", modifier = Modifier.weight(1f))
+                M3StatItem(icon = "📍", value = run.distanceInMeters + " km", label = "Distance", modifier = Modifier.weight(1f))
                 VerticalStatDivider()
                 M3StatItem(icon = "⚡", value = run.avgPace, label = "Avg pace", modifier = Modifier.weight(1f))
             }

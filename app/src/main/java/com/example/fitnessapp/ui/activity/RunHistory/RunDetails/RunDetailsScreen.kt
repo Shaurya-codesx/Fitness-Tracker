@@ -137,7 +137,7 @@ private fun RunDetailSuccessState(data: RunDetailsUiState) {
             ) {
                 Column {
                     Text(
-                        text = data.distance,
+                        text = data.distance + " Km",
                         style = MaterialTheme.typography.displaySmall.copy(fontWeight = FontWeight.Medium),
                         color = MaterialTheme.colorScheme.onPrimary
                     )
