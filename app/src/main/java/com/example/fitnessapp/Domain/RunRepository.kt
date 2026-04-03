@@ -1,5 +1,6 @@
 package com.example.fitnessapp.Domain
 
+import com.example.fitnessapp.Data.Model.DistAndDuration
 import com.example.fitnessapp.Data.Model.Entities.ActiveRun
 import com.example.fitnessapp.Data.Model.Entities.RunEntity
 import com.example.fitnessapp.Data.Model.LocationPoints
@@ -26,8 +27,10 @@ interface RunRepository { // this repository holds the data for the active run s
 
     fun getAllRuns() : Flow<List<RunEntity>>
 
+    fun getRunsInRange(startTime: Long, endTime: Long) : Flow<List<RunEntity>>
+
     fun getRunById(id : Long) : Flow<RunEntity>
 
-
+    fun getDistAndDurationInRange(startTime : Long, endTime : Long) : Flow<DistAndDuration>
 
 }

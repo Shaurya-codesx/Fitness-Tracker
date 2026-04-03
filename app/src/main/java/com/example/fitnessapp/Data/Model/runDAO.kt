@@ -19,8 +19,17 @@ interface runDAO {
     @Query("SELECT * FROM runs ORDER BY startTime DESC")
     fun getAllRuns() : Flow<List<RunEntity>>
 
+
+    @Query("SELECT * FROM runs WHERE startTime BETWEEN :startTime AND :endTime ORDER BY startTime DESC")
+    fun getRunsInRange(startTime : Long, endTime : Long) : Flow<List<RunEntity>>
+
     @Query("SELECT * FROM runs WHERE id = :id")
     fun getRunById(id : Long) : Flow<RunEntity>
 
-
+    @Query("SELECT \n" +
+            "    COALESCE(SUM(distanceInMeters), 0) AS totalDistance,\n" +
+            "    COALESCE(SUM(endTime - startTime), 0) AS totalDuration\n" +
+            "FROM runs\n" +
+            "WHERE startTime BETWEEN :startTime AND :endTime")
+    fun getDistAndDurationInRange (startTime : Long, endTime : Long) : Flow<DistAndDuration> //COALESCE replaces the null values with default ones
 }

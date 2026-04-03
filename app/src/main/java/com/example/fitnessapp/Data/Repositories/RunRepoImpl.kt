@@ -1,6 +1,7 @@
 package com.example.fitnessapp.Data.Repositories
 
 import android.util.Log
+import com.example.fitnessapp.Data.Model.DistAndDuration
 import com.example.fitnessapp.Data.Model.Entities.ActiveRun
 import com.example.fitnessapp.Data.Model.Entities.RunEntity
 import com.example.fitnessapp.Data.Model.LocationPoints
@@ -129,4 +130,13 @@ class RunRepoImpl @Inject constructor(
 
     }
 
+
+    override fun getDistAndDurationInRange(startTime: Long, endTime: Long): Flow<DistAndDuration> {
+        return runDAO.getDistAndDurationInRange(startTime, endTime)
+    }
+
+
+    override fun getRunsInRange(startTime: Long, endTime: Long): Flow<List<RunEntity>> {
+        return runDAO.getRunsInRange(startTime, endTime)
+    }
 }

@@ -24,6 +24,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.fitnessapp.ui.UiStates.RunUiModel
+import com.example.fitnessapp.ui.activity.RunHistory.RunFilter
 import com.example.fitnessapp.ui.activity.RunHistory.RunHistoryViewModel
 
 
@@ -37,9 +38,11 @@ private val filterOptions = listOf("All runs", "This week", "This month")
 @Composable
 fun RunHistoryScreenM3(navController: NavController) {
     val runHistoryViewModel: RunHistoryViewModel = hiltViewModel()
+    var selectedFilter by remember { mutableStateOf("All runs") }
+
     val uiState by runHistoryViewModel.runHistoryUiState.collectAsStateWithLifecycle()
 
-    var selectedFilter by remember { mutableStateOf("All runs") }
+
 
 
     // M3 scaffold with bottom bar
@@ -80,7 +83,14 @@ fun RunHistoryScreenM3(navController: NavController) {
                 FilterChipRow(
                     options = filterOptions,
                     selected = selectedFilter,
-                    onSelect = { selectedFilter = it }
+                    onSelect = {
+                        selectedFilter = it
+                        when(selectedFilter) {
+                            "All runs" -> {runHistoryViewModel.onFilterSelected(RunFilter.ALL)}
+                            "This week" -> {runHistoryViewModel.onFilterSelected(RunFilter.WEEK)}
+                            "This month" -> {runHistoryViewModel.onFilterSelected(RunFilter.MONTH)}
+                        }
+                    }
                 )
             }
 
