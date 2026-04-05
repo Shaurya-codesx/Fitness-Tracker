@@ -7,7 +7,6 @@ import javax.inject.Inject
 class GetRunRangeUseCase @Inject constructor() {
 
         operator fun invoke(filter: RunFilter): Pair<Long, Long> {
-            val a = 23
             val now = System.currentTimeMillis()
 
             val calendar = Calendar.getInstance()
