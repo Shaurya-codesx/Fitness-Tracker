@@ -8,4 +8,5 @@ data class TrackingUiState(
     val currentDistance : String = "",
     val currentPace : String = "",
     val route : List<LocationPoints> = emptyList()
+
 )
