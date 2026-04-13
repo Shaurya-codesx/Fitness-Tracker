@@ -31,6 +31,5 @@ class CalcDistanceUseCase @Inject constructor() {
         val c = 2 * atan2(sqrt(a), sqrt(1 - a))
         val result = earthRadiusMeters * c
         return result.toFloat()
-        // nothing
     }
 }
