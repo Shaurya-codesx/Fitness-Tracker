@@ -19,23 +19,17 @@ class GetRunRangeUseCase @Inject constructor() {
 
                 RunFilter.WEEK -> {
                     calendar.timeInMillis = now
-
                     // set to first day of week (Monday)
                     calendar.set(Calendar.DAY_OF_WEEK, calendar.firstDayOfWeek)
-
                     resetToStartOfDay(calendar)
-
                     calendar.timeInMillis to now
                 }
 
                 RunFilter.MONTH -> {
                     calendar.timeInMillis = now
-
                     // set to first day of month
                     calendar.set(Calendar.DAY_OF_MONTH, 1)
-
                     resetToStartOfDay(calendar)
-
                     calendar.timeInMillis to now
                 }
             }

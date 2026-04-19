@@ -27,14 +27,15 @@ class RunHistoryViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val selectedFilter = MutableStateFlow(RunFilter.ALL)
-    fun onFilterSelected(filter: RunFilter) {
+    fun onFilterSelected(filter: RunFilter) { // this function changes the value of the selected filter when a new filter is selected
         selectedFilter.value = filter
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val runHistoryUiState: StateFlow<RunHistoryUiState> =
         selectedFilter
-            .flatMapLatest { filter ->
+            .flatMapLatest { filter -> // when ever the selectedFilter value changes from the ui, this block runs with the new filter value
+                //
                 val (startTime, endTime) = getRange(filter)
                 runRepository.getRunsInRange(startTime, endTime)
             }
