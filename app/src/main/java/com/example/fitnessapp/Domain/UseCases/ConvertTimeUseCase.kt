@@ -18,4 +18,16 @@ class ConvertTimeUseCase @Inject constructor() {
         val secs = seconds % 60
         return String.format("%02d:%02d:%02d", hours, minutes, secs)
     }
+
+    fun formatDurationShort(milliseconds: Long): String {
+        val totalSeconds = milliseconds /1000
+        val hours = totalSeconds / 3600
+        val minutes = (totalSeconds % 3600) / 60
+
+        return when {
+            hours > 0 -> "${hours}h ${minutes}m"
+            else -> "${minutes}m"
+        }
+    }
+
 }

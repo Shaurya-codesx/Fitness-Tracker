@@ -97,7 +97,7 @@ fun RunHistoryScreenM3(navController: NavController) {
 
             // Summary cards
             item {
-                SummarySection(runs = uiState.runs)
+                SummarySection(totalDistance = uiState.totalDistance, totalTime = uiState.totalTime)
             }
 
             // Section header
@@ -211,7 +211,7 @@ private fun FilterChipRow(
 // ─── Summary Section ──────────────────────────────────────────────────────────
 
 @Composable
-private fun SummarySection(runs: List<RunUiModel>) {
+private fun SummarySection(totalDistance: String, totalTime: String) {
     Column(
         modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -233,7 +233,7 @@ private fun SummarySection(runs: List<RunUiModel>) {
             ) {
                 Column {
                     Text(
-                        text = "42.6 km",
+                        text = totalDistance,
                         style = MaterialTheme.typography.displaySmall.copy(fontWeight = FontWeight.Medium),
                         color = MaterialTheme.colorScheme.onPrimary
                     )
@@ -266,7 +266,7 @@ private fun SummarySection(runs: List<RunUiModel>) {
                 modifier = Modifier.weight(1f)
             )
             TonalSummaryCard(
-                value = "5h 24m",
+                value = totalTime,
                 label = "Total time",
                 containerColor = MaterialTheme.colorScheme.tertiaryContainer,
                 contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
