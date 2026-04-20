@@ -69,8 +69,9 @@ class RunHistoryViewModel @Inject constructor(
                             avgPace = avgPace
                         )
                     },
-                    totalDistance = "%.2f km".format((stats?.totalDistance ?: 0f) / 1000f),
-                    totalTime = convertTimeUseCase.formatDurationShort(stats?.totalDuration ?: 0L)
+                    totalDistance = "%.2f km".format((stats.totalDistance ?: 0f) / 1000f),
+                    totalTime = convertTimeUseCase.formatDurationShort(stats?.totalDuration ?: 0L),
+                    totalAvgPace = paceCalcUseCase(stats.totalDistance , stats.totalDuration )
                 )
             }
             .stateIn(
