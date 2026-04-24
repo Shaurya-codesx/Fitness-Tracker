@@ -9,6 +9,7 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.Priority
 import com.example.fitnessapp.Data.Model.LocationPoints
 import com.example.fitnessapp.Domain.LocationDataSource
+import com.example.fitnessapp.Domain.Wrapper.Resource
 
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationResult
@@ -37,7 +38,7 @@ class androidLocationProvider @Inject constructor(
 //        .setMinUpdateDistanceMeters(3f)
         .build() //An encapsulation of various parameters for requesting location through FusedLocationProviderClient.
 
-    override val locationDataStream: Flow<LocationPoints> = callbackFlow {
+    override val locationDataStream: Flow<Resource<LocationPoints>> = callbackFlow {
         val locationCallback = object : LocationCallback() {
             override fun onLocationResult(result: LocationResult) {
                 super.onLocationResult(result)
@@ -47,7 +48,7 @@ class androidLocationProvider @Inject constructor(
                             coordinates = GeoPoint(location.latitude, location.longitude),
                             timeStamp = System.currentTimeMillis()
                         )
-                        trySend(point) // send the point to the Flow subscriber
+                        trySend(Resource.Success(point)) // send the point to the Flow subscriber
                         Log.d("lokation", "location point sent : $point")
                     } else {
                         Log.d("lokation", "skipped location point, less accuracy")

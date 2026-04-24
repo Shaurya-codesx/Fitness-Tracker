@@ -9,6 +9,7 @@ import com.example.fitnessapp.Data.Model.runDAO
 import com.example.fitnessapp.Domain.LocationDataSource
 import com.example.fitnessapp.Domain.UseCases.CalcDistanceUseCase
 import com.example.fitnessapp.Domain.RunRepository
+import com.example.fitnessapp.Domain.Wrapper.Resource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -67,8 +68,14 @@ class RunRepoImpl @Inject constructor(
         locationCollectionJob?.cancel()
         locationCollectionJob = repositoryScope.launch {
             Log.d("lokation", "Location tracking started")
-            androidLocationProvider.locationDataStream.collect { points ->
-                addLocationPoint(points)
+            androidLocationProvider.locationDataStream.collect { point ->
+                when(point) {
+                    is Resource.Error -> {}
+                    is Resource.Success<*> -> {
+                        addLocationPoint(point.data as LocationPoints)
+                    }
+                    is Resource.Loading -> {}
+                }
             }
         }
     }

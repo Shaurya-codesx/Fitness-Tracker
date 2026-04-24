@@ -11,10 +11,12 @@ import com.example.fitnessapp.Domain.RunRepository
 import com.example.fitnessapp.Domain.UseCases.ConvertTimeUseCase
 import com.example.fitnessapp.Domain.UseCases.PaceCalcUseCase
 import com.example.fitnessapp.ui.UiStates.TrackingUiState
+import com.google.android.gms.common.api.ResolvableApiException
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
@@ -46,7 +48,15 @@ class TrackingViewModel @Inject constructor(
         } else {
             TrackingUiState()
         }
-    }.stateIn(
+    }
+        .catch { exception ->
+            if (exception is ResolvableApiException) {
+                Log.d("TrackingViewModel", "Location turned off exception caught by view model")
+            } else {
+                Log.d("TrackingViewModel", "other exception caught by view model")
+            }
+        }
+        .stateIn(
             scope = viewModelScope,
             started = SharingStarted.Companion.WhileSubscribed(5000),
             initialValue = TrackingUiState()
