@@ -78,12 +78,13 @@ class androidLocationProvider @Inject constructor(
             }
         }
 
+
         // else solve exception and close the thread
         task.addOnFailureListener { exception -> // this is ResolvableApiException, meaning the app has permission to access location
             // but the hardware of the device is turned off for the app
             // handle the fail
             Log.d("lokation", "crashed because location not enabled")
-            close(exception) // we close the flow here
+            trySend(Resource.Error(exception)) // we close the flow here
         }
 
         awaitClose {

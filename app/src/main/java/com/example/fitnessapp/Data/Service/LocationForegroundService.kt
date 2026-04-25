@@ -9,6 +9,7 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
+import android.location.LocationManager
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
@@ -20,6 +21,7 @@ import androidx.core.content.PermissionChecker
 import com.example.fitnessapp.Data.Repositories.RunRepoImpl
 import com.example.fitnessapp.Domain.RunRepository
 import com.example.fitnessapp.Domain.UseCases.ConvertTimeUseCase
+import com.example.fitnessapp.Domain.Wrapper.Resource
 import com.example.fitnessapp.R
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -53,6 +55,7 @@ class LocationForegroundService : Service() {
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Default) // to launch the stoprun function
 
     private var runCollectorJob: Job? = null
+    private var eventJob : Job? = null;
 
     companion object {
         const val ACTION_START_RUN = "ACTION_START_RUN"
@@ -92,13 +95,24 @@ class LocationForegroundService : Service() {
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun startRunForeground() {
         // before starting the service as foreground we check if the permission it requires are enabled
-        val locationPermission = PermissionChecker.checkSelfPermission(
-            this, Manifest.permission.ACCESS_FINE_LOCATION
-        )
-        if (locationPermission != PermissionChecker.PERMISSION_GRANTED) {
-            stopSelf()
-            return
-        }
+//        val locationPermission = PermissionChecker.checkSelfPermission(
+//            this, Manifest.permission.ACCESS_FINE_LOCATION
+//        )
+//        if (locationPermission != PermissionChecker.PERMISSION_GRANTED) {
+//            Log.d("servicee", "location permission not granted")
+//            stopRunForeground()
+//            return
+//        }
+
+//        val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+//        val isGpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+//        val isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+//
+//        if (!isGpsEnabled && !isNetworkEnabled) {
+//            Log.d("servicee", "Location hardware is disabled in settings/quick tiles")
+//            stopSelf()
+//            return
+//        }
 
 
 
@@ -113,10 +127,21 @@ class LocationForegroundService : Service() {
             )
             Log.d("servicee", "promoted to foreground")
         }catch (e : Exception) {
+            Log.d("servicee", "gets fucked here, not promoted to foreground")
             stopSelf()
             return
         }
         runRepo.startRun() // this calls the android Location provider from the repository and crash happens if location is disabled
+
+        eventJob?.cancel()
+        eventJob = serviceScope.launch {
+            runRepo.runEvents.collect { event ->
+                if (event is Resource.Error) {
+                    Log.d("servicee", "runevent caught")
+                    stopRunForeground()
+                }
+            }
+        }
 
         // collecting flow to update the notification live
         runCollectorJob?.cancel()
