@@ -75,6 +75,7 @@ class RunRepoImpl @Inject constructor(
                         addLocationPoint(point.data as LocationPoints)
                     }
                     is Resource.Loading -> {}
+                    //
                 }
             }
         }
