@@ -83,7 +83,7 @@ class androidLocationProvider @Inject constructor(
             // but the hardware of the device is turned off for the app
             // handle the fail
             Log.d("lokation", "crashed because location not enabled")
-            close(exception) // we close the flow here
+            trySend(Resource.Error(exception)) // we close the flow here
         }
 
         awaitClose {

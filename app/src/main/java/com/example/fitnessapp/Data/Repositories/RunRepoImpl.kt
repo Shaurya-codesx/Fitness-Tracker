@@ -16,6 +16,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -31,6 +32,9 @@ class RunRepoImpl @Inject constructor(
 
     private val _activeRun = MutableStateFlow<ActiveRun?>(null) // so this private variable is mutable for us to change it, and the public is read only
     override val activeRun : StateFlow<ActiveRun?> = _activeRun
+
+    private val _runEvents = MutableSharedFlow<Resource<Unit>>()
+    override val runEvents: Flow<Resource<Unit>> = _runEvents
 
 
     // a coroutine Scope is simply like a container that contains all the coroutines in that scope,it simply manages when can a coroutine start, cancelled, keeps track
@@ -70,7 +74,10 @@ class RunRepoImpl @Inject constructor(
             Log.d("lokation", "Location tracking started")
             androidLocationProvider.locationDataStream.collect { point ->
                 when(point) {
-                    is Resource.Error -> {}
+                    is Resource.Error -> {
+                        _runEvents.emit(Resource.Error(point.exception))
+                        stopRun()
+                    }
                     is Resource.Success<*> -> {
                         addLocationPoint(point.data as LocationPoints)
                     }

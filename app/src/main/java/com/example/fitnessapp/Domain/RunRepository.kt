@@ -4,6 +4,7 @@ import com.example.fitnessapp.Data.Model.DistAndDuration
 import com.example.fitnessapp.Data.Model.Entities.ActiveRun
 import com.example.fitnessapp.Data.Model.Entities.RunEntity
 import com.example.fitnessapp.Data.Model.LocationPoints
+import com.example.fitnessapp.Domain.Wrapper.Resource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -19,6 +20,8 @@ interface RunRepository { // this repository holds the data for the active run s
     ViewModel maps to UiState.                  Background tracking, Rotation
     UI re-renders.                              Multiple collectors (UI + notification)*/
 
+
+    val runEvents : Flow<Resource<Unit>>
     fun startRun()
 
     suspend fun stopRun()
