@@ -79,6 +79,8 @@ class androidLocationProvider @Inject constructor(
         }
 
 
+
+
         // else solve exception and close the thread
         task.addOnFailureListener { exception -> // this is ResolvableApiException, meaning the app has permission to access location
             // but the hardware of the device is turned off for the app
