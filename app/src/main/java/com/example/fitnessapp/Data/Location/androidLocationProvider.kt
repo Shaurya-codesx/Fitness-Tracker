@@ -1,15 +1,21 @@
 package com.example.fitnessapp.Data.Location
 
+import android.Manifest
 import android.content.Context
+import android.location.LocationManager
 
 import android.os.Looper
 import android.util.Log
+import androidx.core.content.ContextCompat.getSystemService
+import androidx.core.content.PermissionChecker
 
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.Priority
 import com.example.fitnessapp.Data.Model.LocationPoints
+import com.example.fitnessapp.Data.Service.LocationReadiness
 import com.example.fitnessapp.Domain.LocationDataSource
 import com.example.fitnessapp.Domain.Wrapper.Resource
+import com.google.android.gms.common.api.ResolvableApiException
 
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationResult
@@ -23,6 +29,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import java.security.Permission
 import javax.inject.Inject
 
 
@@ -37,6 +44,28 @@ class androidLocationProvider @Inject constructor(
         .setMinUpdateIntervalMillis(2000L)
 //        .setMinUpdateDistanceMeters(3f)
         .build() //An encapsulation of various parameters for requesting location through FusedLocationProviderClient.
+
+    fun checkLocationSettings(onResult: (LocationReadiness) -> Unit) {
+
+        // 2. Check if Hardware (GPS/Network) is enabled
+        val builder = LocationSettingsRequest.Builder().addLocationRequest(locationRequest)
+        val client: SettingsClient = LocationServices.getSettingsClient(context)
+        val task: Task<LocationSettingsResponse> = client.checkLocationSettings(builder.build())
+
+        task.addOnSuccessListener {
+            onResult(LocationReadiness.Ready)
+        }
+
+        task.addOnFailureListener { exception ->
+            if (exception is ResolvableApiException) {
+                // This is where you get the actual Resolvable exception
+                // that contains the intent to show the "Turn on GPS" dialog
+                onResult(LocationReadiness.Resolvable(exception))
+            } else { // location permission not given
+                onResult(LocationReadiness.NotResolvable)
+            }
+        }
+    }
 
     override val locationDataStream: Flow<Resource<LocationPoints>> = callbackFlow {
         val locationCallback = object : LocationCallback() {

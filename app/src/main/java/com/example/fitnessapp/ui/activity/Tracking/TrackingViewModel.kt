@@ -1,25 +1,37 @@
 package com.example.fitnessapp.ui.activity.Tracking
 
+import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.location.LocationManager
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.getSystemService
+import androidx.core.content.PermissionChecker
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.fitnessapp.Data.Location.androidLocationProvider
 import com.example.fitnessapp.Data.Service.LocationForegroundService
+import com.example.fitnessapp.Data.Service.LocationReadiness
 import com.example.fitnessapp.Domain.RunRepository
 import com.example.fitnessapp.Domain.UseCases.ConvertTimeUseCase
 import com.example.fitnessapp.Domain.UseCases.PaceCalcUseCase
 import com.example.fitnessapp.ui.UiStates.TrackingUiState
+import com.example.runtracker.ui.screens.TrackingScreen
 import com.google.android.gms.common.api.ResolvableApiException
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -27,11 +39,17 @@ class TrackingViewModel @Inject constructor(
     private val runRepo : RunRepository,
     private val convertTimeUseCase: ConvertTimeUseCase,
     private val paceCalcUseCase: PaceCalcUseCase,
+    private val locationProvider : androidLocationProvider,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
     // this collects the activeRun stateFlow from the repo and translates it into TrackingUiState and exposes it to the UI
     // but activeRun is already stateFlow, but that is a domain model, we need a UI only model, with modified values
     // so this viewModel takes the domain model and converts it into presentation model and exposes it to the UI
+
+
+
+    private val _uiEvent = MutableSharedFlow<TrackingUiEvent>()
+    val uiEvent = _uiEvent.asSharedFlow()
 
 
     // it takes in the cold StateFlow from the repo and converts it into a hot StateFlow that is exposed to the UI
@@ -49,13 +67,6 @@ class TrackingViewModel @Inject constructor(
             TrackingUiState()
         }
     }
-        .catch { exception ->
-            if (exception is ResolvableApiException) {
-                Log.d("TrackingViewModel", "Location turned off exception caught by view model")
-            } else {
-                Log.d("TrackingViewModel", "other exception caught by view model")
-            }
-        }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.Companion.WhileSubscribed(5000),
@@ -63,6 +74,26 @@ class TrackingViewModel @Inject constructor(
         )
 
     fun startRun() {
+
+        locationProvider.checkLocationSettings { readiness ->
+            viewModelScope.launch {
+                when(readiness) { //
+                    is LocationReadiness.Ready -> {
+                        _uiEvent.emit(TrackingUiEvent.StartRunService)
+
+                    }
+                    is LocationReadiness.Resolvable -> {
+                        _uiEvent.emit(TrackingUiEvent.RequestEnableLocation(readiness.exception))
+                    }
+                    is LocationReadiness.NotResolvable -> {
+                        _uiEvent.emit(TrackingUiEvent.ShowLocationError)
+                    }
+                }
+            }
+        }
+    }
+
+    fun startIntent() {
         val intent = Intent(context, LocationForegroundService::class.java).apply {
             action = LocationForegroundService.Companion.ACTION_START_RUN
         }

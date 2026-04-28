@@ -1,5 +1,6 @@
 package com.example.runtracker.ui.screens
 
+import android.util.Log
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.*
@@ -25,6 +26,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.fitnessapp.ui.UiStates.TrackingUiState
 import com.example.fitnessapp.ui.activity.Tracking.OsmMapview
+import com.example.fitnessapp.ui.activity.Tracking.TrackingUiEvent
 import com.example.fitnessapp.ui.activity.Tracking.TrackingViewModel
 
 // ─── Entry Point ──────────────────────────────────────────────────────────────
@@ -33,6 +35,24 @@ import com.example.fitnessapp.ui.activity.Tracking.TrackingViewModel
 fun TrackingScreen(navController: NavController) {
     val trackingViewModel: TrackingViewModel = hiltViewModel()
     val uiState by trackingViewModel.trackingUiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        trackingViewModel.uiEvent.collect { event ->
+            when (event) {
+                is TrackingUiEvent.StartRunService -> {
+                    trackingViewModel.startIntent()
+                }
+                is TrackingUiEvent.RequestEnableLocation -> {
+                    Log.d("hello", "Location Error caught")
+                    // Handle later
+                }
+                is TrackingUiEvent.ShowLocationError -> {
+                    // Handle later
+                }
+            }
+        }
+    }
+
 
     val isRunning = uiState.startTime.isNotEmpty()
 

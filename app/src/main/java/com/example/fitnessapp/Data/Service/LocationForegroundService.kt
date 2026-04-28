@@ -91,6 +91,13 @@ class LocationForegroundService : Service() {
         return START_STICKY // Keep service alive if killed
     }
 
+     fun checkLocationSettings() : Boolean{
+        val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        val isGpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+
+        return (isGpsEnabled)
+    }
+
 
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun startRunForeground() {
@@ -104,15 +111,7 @@ class LocationForegroundService : Service() {
 //            return
 //        }
 
-//        val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-//        val isGpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-//        val isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
-//
-//        if (!isGpsEnabled && !isNetworkEnabled) {
-//            Log.d("servicee", "Location hardware is disabled in settings/quick tiles")
-//            stopSelf()
-//            return
-//        }
+
 
 
 
