@@ -76,6 +76,7 @@ class RunRepoImpl @Inject constructor(
                 when(point) {
                     is Resource.Error -> {
                         _runEvents.emit(Resource.Error(point.exception))
+                        Log.d("lokation", "Location Error caught and run event emitted")
                         stopRun()
                     }
                     is Resource.Success<*> -> {

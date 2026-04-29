@@ -1,5 +1,6 @@
 package com.example.runtracker.ui.screens
 
+import android.app.Activity
 import android.util.Log
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
@@ -18,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -35,6 +37,7 @@ import com.example.fitnessapp.ui.activity.Tracking.TrackingViewModel
 fun TrackingScreen(navController: NavController) {
     val trackingViewModel: TrackingViewModel = hiltViewModel()
     val uiState by trackingViewModel.trackingUiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         trackingViewModel.uiEvent.collect { event ->
@@ -45,6 +48,8 @@ fun TrackingScreen(navController: NavController) {
                 is TrackingUiEvent.RequestEnableLocation -> {
                     Log.d("hello", "Location Error caught")
                     // Handle later
+                    val activity = context as? Activity
+                    event.exception.startResolutionForResult(activity!!, 1001)
                 }
                 is TrackingUiEvent.ShowLocationError -> {
                     // Handle later
