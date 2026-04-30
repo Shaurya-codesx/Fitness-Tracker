@@ -194,6 +194,7 @@ private fun SheetContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 12.dp)
+
             ) {
                 Row(
                     modifier = Modifier
