@@ -65,7 +65,9 @@ fun TrackingScreen(navController: NavController) {
         uiState = uiState,
         isRunning = isRunning,
         onStart = { trackingViewModel.startRun() },
-        onStop = { trackingViewModel.stopRun() },
+        onStop = {
+            trackingViewModel.stopRun()
+                 },
         onBack = { navController.navigateUp() }
     )
 }

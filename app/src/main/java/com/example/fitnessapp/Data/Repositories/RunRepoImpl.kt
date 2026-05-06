@@ -108,6 +108,8 @@ class RunRepoImpl @Inject constructor(
                 isSynced = false
             )
             runDAO.insertRun(finalRunEntity)
+            _activeRun.value = null
+            _runEvents.emit(Resource.Success(Unit))
             Log.d("repo", "Run saved to DB")
         } else {
             Log.d("repo", "Run discarded - no data collected")
