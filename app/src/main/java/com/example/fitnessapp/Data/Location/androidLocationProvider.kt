@@ -16,6 +16,7 @@ import com.example.fitnessapp.Data.Service.LocationReadiness
 import com.example.fitnessapp.Domain.LocationDataSource
 import com.example.fitnessapp.Domain.Wrapper.Resource
 import com.google.android.gms.common.api.ResolvableApiException
+import com.google.android.gms.location.LocationAvailability
 
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationResult
@@ -82,6 +83,14 @@ class androidLocationProvider @Inject constructor(
                     } else {
                         Log.d("lokation", "skipped location point, less accuracy")
                     }
+                }
+            }
+            override fun onLocationAvailability(availability: LocationAvailability) {
+                super.onLocationAvailability(availability)
+                if (!availability.isLocationAvailable) {
+                    // This is triggered when the user turns off GPS mid-run
+                    Log.d("lokation", "Hardware disabled mid-stream")
+                    trySend(Resource.Error(Exception("Location hardware disabled")))
                 }
             }
         }

@@ -18,6 +18,7 @@ import com.example.fitnessapp.Data.Service.LocationReadiness
 import com.example.fitnessapp.Domain.RunRepository
 import com.example.fitnessapp.Domain.UseCases.ConvertTimeUseCase
 import com.example.fitnessapp.Domain.UseCases.PaceCalcUseCase
+import com.example.fitnessapp.Domain.Wrapper.Resource
 import com.example.fitnessapp.ui.UiStates.TrackingUiState
 import com.example.runtracker.ui.screens.TrackingScreen
 import com.google.android.gms.common.api.ResolvableApiException
@@ -86,6 +87,12 @@ class TrackingViewModel @Inject constructor(
                         _uiEvent.emit(TrackingUiEvent.RequestEnableLocation(readiness.exception))
                     }
                     is LocationReadiness.NotResolvable -> {
+                        _uiEvent.emit(TrackingUiEvent.ShowLocationError)
+                    }
+                }
+                runRepo.runEvents.collect { event ->
+                    if (event is Resource.Error) {
+                        LocationReadiness.NotResolvable
                         _uiEvent.emit(TrackingUiEvent.ShowLocationError)
                     }
                 }

@@ -2,6 +2,7 @@ package com.example.runtracker.ui.screens
 
 import android.app.Activity
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.*
@@ -52,7 +53,8 @@ fun TrackingScreen(navController: NavController) {
                     event.exception.startResolutionForResult(activity!!, 1001)
                 }
                 is TrackingUiEvent.ShowLocationError -> {
-                    // Handle later
+                    Log.d("lokation", "Location error reaching UI")
+                    Toast.makeText(context, "Enable Location", Toast.LENGTH_LONG)
                 }
             }
         }
