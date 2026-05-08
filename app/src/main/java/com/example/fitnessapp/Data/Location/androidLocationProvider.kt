@@ -89,8 +89,18 @@ class androidLocationProvider @Inject constructor(
                 super.onLocationAvailability(availability)
                 if (!availability.isLocationAvailable) {
                     // This is triggered when the user turns off GPS mid-run
-                    Log.d("lokation", "Hardware disabled mid-stream")
-                    trySend(Resource.Error(Exception("Location hardware disabled")))
+                    val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as android.location.LocationManager
+                    val isGpsEnabled = locationManager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER)
+                    val isNetworkEnabled = locationManager.isProviderEnabled(android.location.LocationManager.NETWORK_PROVIDER)
+
+                    if (!isGpsEnabled && !isNetworkEnabled) {
+                        Log.d("lokation", "Hardware REALLY disabled mid-stream")
+                        trySend(Resource.Error(Exception("Location hardware disabled")))
+                    } else {
+                        // This was likely a stale event or a momentary signal loss,
+                        // but hardware is still ON. We ignore this to prevent the "double start" bug.
+                        Log.d("lokation", "Ignored stale 'unavailable' event - Hardware is actually ON")
+                    }
                 }
             }
         }

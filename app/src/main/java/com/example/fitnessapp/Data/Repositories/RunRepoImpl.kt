@@ -75,9 +75,10 @@ class RunRepoImpl @Inject constructor(
             androidLocationProvider.locationDataStream.collect { point ->
                 when(point) {
                     is Resource.Error -> {
+                        Log.d("lokation", "Location Error caught")
                         _runEvents.emit(Resource.Error(point.exception))
-                        Log.d("lokation", "Location Error caught and run event emitted")
-                        stopRun()
+                        Log.d("lokation", "run event emitted")
+                        //topRun()
                     }
                     is Resource.Success<*> -> {
                         addLocationPoint(point.data as LocationPoints)
@@ -99,7 +100,7 @@ class RunRepoImpl @Inject constructor(
 
 
 
-        if (finalRun.currentDistance > 0 || finalRun.route.isNotEmpty()) {
+        if (finalRun.currentDistance > 0) {
             val finalRunEntity = RunEntity(
                 startTime = finalRun.startTime,
                 endTime = System.currentTimeMillis(),
@@ -109,10 +110,11 @@ class RunRepoImpl @Inject constructor(
             )
             runDAO.insertRun(finalRunEntity)
             _activeRun.value = null
-            _runEvents.emit(Resource.Success(Unit))
-            Log.d("repo", "Run saved to DB")
+
+            Log.d("runn", "Run saved to DB")
         } else {
-            Log.d("repo", "Run discarded - no data collected")
+            _activeRun.value = null
+            Log.d("runn", "Run discarded - no data collected")
         }
     }
 

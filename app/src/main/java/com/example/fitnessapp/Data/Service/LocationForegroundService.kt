@@ -55,7 +55,7 @@ class LocationForegroundService : Service() {
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Default) // to launch the stoprun function
 
     private var runCollectorJob: Job? = null
-    private var eventJob : Job? = null;
+
 
     companion object {
         const val ACTION_START_RUN = "ACTION_START_RUN"
@@ -132,15 +132,15 @@ class LocationForegroundService : Service() {
         }
         runRepo.startRun() // this calls the android Location provider from the repository and crash happens if location is disabled
 
-        eventJob?.cancel()
-        eventJob = serviceScope.launch {
-            runRepo.runEvents.collect { event ->
-                if (event is Resource.Error) {
-                    Log.d("servicee", "runevent caught")
-                    stopRunForeground()
-                }
-            }
-        }
+//        eventJob?.cancel()
+//        eventJob = serviceScope.launch {
+//            runRepo.runEvents.collect { event ->
+//                if (event is Resource.Error) {
+//                    Log.d("servicee", "runevent caught")
+//                    stopRunForeground()
+//                }
+//            }
+//        }
 
         // collecting flow to update the notification live
         runCollectorJob?.cancel()

@@ -24,6 +24,7 @@ import com.example.runtracker.ui.screens.TrackingScreen
 import com.google.android.gms.common.api.ResolvableApiException
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -51,6 +52,8 @@ class TrackingViewModel @Inject constructor(
 
     private val _uiEvent = MutableSharedFlow<TrackingUiEvent>()
     val uiEvent = _uiEvent.asSharedFlow()
+
+    private var eventJob : Job? = null;
 
 
     // it takes in the cold StateFlow from the repo and converts it into a hot StateFlow that is exposed to the UI
@@ -81,7 +84,6 @@ class TrackingViewModel @Inject constructor(
                 when(readiness) { //
                     is LocationReadiness.Ready -> {
                         _uiEvent.emit(TrackingUiEvent.StartRunService)
-
                     }
                     is LocationReadiness.Resolvable -> {
                         _uiEvent.emit(TrackingUiEvent.RequestEnableLocation(readiness.exception))
@@ -90,10 +92,14 @@ class TrackingViewModel @Inject constructor(
                         _uiEvent.emit(TrackingUiEvent.ShowLocationError)
                     }
                 }
-                runRepo.runEvents.collect { event ->
-                    if (event is Resource.Error) {
-                        _uiEvent.emit(TrackingUiEvent.ShowLocationError)
-                    }
+            }
+        }
+
+        eventJob?.cancel()
+        eventJob = viewModelScope.launch {
+            runRepo.runEvents.collect { event ->
+                if (event is Resource.Error) {
+                    _uiEvent.emit(TrackingUiEvent.ShowLocationError)
                 }
             }
         }
@@ -107,6 +113,8 @@ class TrackingViewModel @Inject constructor(
     }
 
     fun stopRun() {
+        eventJob?.cancel()
+        eventJob = null
         val intent = Intent(context, LocationForegroundService::class.java).apply {
             action = LocationForegroundService.Companion.ACTION_STOP_RUN
         }

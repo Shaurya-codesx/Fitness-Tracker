@@ -55,6 +55,8 @@ fun TrackingScreen(navController: NavController) {
                 is TrackingUiEvent.ShowLocationError -> {
                     Log.d("lokation", "Location error reaching UI")
                     Toast.makeText(context, "Enable Location", Toast.LENGTH_LONG)
+                    trackingViewModel.stopRun()
+
                 }
             }
         }
