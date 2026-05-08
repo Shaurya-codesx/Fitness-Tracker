@@ -92,7 +92,6 @@ class TrackingViewModel @Inject constructor(
                 }
                 runRepo.runEvents.collect { event ->
                     if (event is Resource.Error) {
-                        LocationReadiness.NotResolvable
                         _uiEvent.emit(TrackingUiEvent.ShowLocationError)
                     }
                 }
