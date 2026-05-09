@@ -54,7 +54,10 @@ class TrackingViewModel @Inject constructor(
     private val _uiEvent = MutableSharedFlow<TrackingUiEvent>()
     val uiEvent = _uiEvent.asSharedFlow()
 
-    private var eventJob : Job? = null;
+
+    init {
+        observeRunEvents()
+    }
 
 
     // it takes in the cold StateFlow from the repo and converts it into a hot StateFlow that is exposed to the UI
@@ -95,12 +98,21 @@ class TrackingViewModel @Inject constructor(
                 }
             }
         }
+    }
 
-        eventJob?.cancel()
-        eventJob = viewModelScope.launch {
+
+    private fun observeRunEvents() {
+        viewModelScope.launch {
             runRepo.runEvents.collect { event ->
-                if (event is RunEvents.LocationDisabled) {
-                    _uiEvent.emit(TrackingUiEvent.ShowLocationError)
+                Log.d("runEvent", "Event received in VM: $event")
+                when(event) {
+                    is RunEvents.LocationDisabled -> {
+                        _uiEvent.emit(TrackingUiEvent.ShowLocationError)
+                    }
+                    is RunEvents.NoMovement -> {
+                        Log.d("runEvent", "No movement detected log")
+                        _uiEvent.emit(TrackingUiEvent.ShowNoMovementDialogue)
+                    }
                 }
             }
         }
@@ -114,8 +126,7 @@ class TrackingViewModel @Inject constructor(
     }
 
     fun stopRun() {
-        eventJob?.cancel()
-        eventJob = null
+
         val intent = Intent(context, LocationForegroundService::class.java).apply {
             action = LocationForegroundService.Companion.ACTION_STOP_RUN
         }

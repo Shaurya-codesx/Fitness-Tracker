@@ -38,7 +38,7 @@ class RunRepoImpl @Inject constructor(
 
 
     private val _runEvents = MutableSharedFlow<RunEvents>()
-    override val runEvents = _runEvents.asSharedFlow()
+    override val runEvents : Flow<RunEvents> = _runEvents
 
 
     // a coroutine Scope is simply like a container that contains all the coroutines in that scope,it simply manages when can a coroutine start, cancelled, keeps track
@@ -79,10 +79,8 @@ class RunRepoImpl @Inject constructor(
             androidLocationProvider.locationDataStream.collect { point ->
                 when(point) {
                     is Resource.Error -> {
-                        Log.d("lokation", "Location Error caught")
+                        Log.d("runEvent", "Location Disabled run event emitted")
                         _runEvents.emit(RunEvents.LocationDisabled)
-                        Log.d("lokation", "run event emitted")
-                        //topRun()
                     }
                     is Resource.Success<*> -> {
                         addLocationPoint(point.data as LocationPoints)
@@ -113,13 +111,11 @@ class RunRepoImpl @Inject constructor(
                 isSynced = false
             )
             runDAO.insertRun(finalRunEntity)
-            _activeRun.value = null
-
-            Log.d("runn", "Run saved to DB")
         } else {
-            _activeRun.value = null
-            Log.d("runn", "Run discarded - no data collected")
+            _runEvents.emit(RunEvents.NoMovement)
+            Log.d("runEvent", "Run discarded - no movement run event")
         }
+        _activeRun.value = null
     }
 
     override fun getAllRuns(): Flow<List<RunEntity>> {

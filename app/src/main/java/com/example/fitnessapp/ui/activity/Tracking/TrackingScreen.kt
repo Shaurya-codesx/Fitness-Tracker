@@ -56,7 +56,10 @@ fun TrackingScreen(navController: NavController) {
                     Log.d("lokation", "Location error reaching UI")
                     Toast.makeText(context, "Enable Location", Toast.LENGTH_LONG)
                     trackingViewModel.stopRun()
-
+                }
+                is TrackingUiEvent.ShowNoMovementDialogue -> {
+                    Log.d("hello", "No movement caught")
+                    // Handle later
                 }
             }
         }

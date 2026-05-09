@@ -6,4 +6,5 @@ sealed class TrackingUiEvent {
     data class RequestEnableLocation(val exception: ResolvableApiException) : TrackingUiEvent()
     object ShowLocationError : TrackingUiEvent()
     object StartRunService : TrackingUiEvent()
+    object ShowNoMovementDialogue : TrackingUiEvent()
 }
