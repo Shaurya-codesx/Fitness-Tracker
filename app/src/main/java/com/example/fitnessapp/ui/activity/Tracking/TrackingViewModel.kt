@@ -20,6 +20,7 @@ import com.example.fitnessapp.Domain.UseCases.ConvertTimeUseCase
 import com.example.fitnessapp.Domain.UseCases.PaceCalcUseCase
 import com.example.fitnessapp.Domain.Wrapper.Resource
 import com.example.fitnessapp.ui.UiStates.TrackingUiState
+import com.example.fitnessapp.ui.activity.RunHistory.RunEvents
 import com.example.runtracker.ui.screens.TrackingScreen
 import com.google.android.gms.common.api.ResolvableApiException
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -98,7 +99,7 @@ class TrackingViewModel @Inject constructor(
         eventJob?.cancel()
         eventJob = viewModelScope.launch {
             runRepo.runEvents.collect { event ->
-                if (event is Resource.Error) {
+                if (event is RunEvents.LocationDisabled) {
                     _uiEvent.emit(TrackingUiEvent.ShowLocationError)
                 }
             }

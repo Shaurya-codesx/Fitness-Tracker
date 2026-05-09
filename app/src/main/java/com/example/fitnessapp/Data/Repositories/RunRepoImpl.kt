@@ -10,6 +10,7 @@ import com.example.fitnessapp.Domain.LocationDataSource
 import com.example.fitnessapp.Domain.UseCases.CalcDistanceUseCase
 import com.example.fitnessapp.Domain.RunRepository
 import com.example.fitnessapp.Domain.Wrapper.Resource
+import com.example.fitnessapp.ui.activity.RunHistory.RunEvents
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -19,6 +20,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -33,8 +35,10 @@ class RunRepoImpl @Inject constructor(
     private val _activeRun = MutableStateFlow<ActiveRun?>(null) // so this private variable is mutable for us to change it, and the public is read only
     override val activeRun : StateFlow<ActiveRun?> = _activeRun
 
-    private val _runEvents = MutableSharedFlow<Resource<Unit>>()
-    override val runEvents: Flow<Resource<Unit>> = _runEvents
+
+
+    private val _runEvents = MutableSharedFlow<RunEvents>()
+    override val runEvents = _runEvents.asSharedFlow()
 
 
     // a coroutine Scope is simply like a container that contains all the coroutines in that scope,it simply manages when can a coroutine start, cancelled, keeps track
@@ -76,7 +80,7 @@ class RunRepoImpl @Inject constructor(
                 when(point) {
                     is Resource.Error -> {
                         Log.d("lokation", "Location Error caught")
-                        _runEvents.emit(Resource.Error(point.exception))
+                        _runEvents.emit(RunEvents.LocationDisabled)
                         Log.d("lokation", "run event emitted")
                         //topRun()
                     }
