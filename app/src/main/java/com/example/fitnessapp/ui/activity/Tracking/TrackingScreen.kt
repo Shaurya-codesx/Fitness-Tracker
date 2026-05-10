@@ -16,6 +16,8 @@ import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Stop
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,6 +30,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.fitnessapp.ui.UiStates.TrackingUiState
+import com.example.fitnessapp.ui.activity.Tracking.NoMovementAlertDialog
 import com.example.fitnessapp.ui.activity.Tracking.OsmMapview
 import com.example.fitnessapp.ui.activity.Tracking.TrackingUiEvent
 import com.example.fitnessapp.ui.activity.Tracking.TrackingViewModel
@@ -39,6 +42,13 @@ fun TrackingScreen(navController: NavController) {
     val trackingViewModel: TrackingViewModel = hiltViewModel()
     val uiState by trackingViewModel.trackingUiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
+
+    var showNoMovementDialog by remember { mutableStateOf(false) }
+    if (showNoMovementDialog) {
+        NoMovementAlertDialog(onDismiss = { showNoMovementDialog = false })
+    }
+
+
 
     LaunchedEffect(Unit) {
         trackingViewModel.uiEvent.collect { event ->
@@ -59,6 +69,7 @@ fun TrackingScreen(navController: NavController) {
                 }
                 is TrackingUiEvent.ShowNoMovementDialogue -> {
                     Log.d("hello", "No movement caught")
+                    showNoMovementDialog = true
                     // Handle later
                 }
             }
@@ -77,7 +88,12 @@ fun TrackingScreen(navController: NavController) {
                  },
         onBack = { navController.navigateUp() }
     )
+
+
+
 }
+
+
 
 // ─── Screen Content ───────────────────────────────────────────────────────────
 

@@ -104,7 +104,6 @@ class TrackingViewModel @Inject constructor(
     private fun observeRunEvents() {
         viewModelScope.launch {
             runRepo.runEvents.collect { event ->
-                Log.d("runEvent", "Event received in VM: $event")
                 when(event) {
                     is RunEvents.LocationDisabled -> {
                         _uiEvent.emit(TrackingUiEvent.ShowLocationError)
