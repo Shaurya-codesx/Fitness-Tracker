@@ -16,6 +16,7 @@ import com.example.fitnessapp.Data.Location.androidLocationProvider
 import com.example.fitnessapp.Data.Service.LocationForegroundService
 import com.example.fitnessapp.Data.Service.LocationReadiness
 import com.example.fitnessapp.Domain.RunRepository
+import com.example.fitnessapp.Domain.TrackingRunRepository
 import com.example.fitnessapp.Domain.UseCases.ConvertTimeUseCase
 import com.example.fitnessapp.Domain.UseCases.PaceCalcUseCase
 import com.example.fitnessapp.Domain.Wrapper.Resource
@@ -39,7 +40,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class TrackingViewModel @Inject constructor(
-    private val runRepo : RunRepository,
+//    private val runRepo : RunRepository,
+    private val trackingRepo : TrackingRunRepository,
     private val convertTimeUseCase: ConvertTimeUseCase,
     private val paceCalcUseCase: PaceCalcUseCase,
     private val locationProvider : androidLocationProvider,
@@ -61,7 +63,7 @@ class TrackingViewModel @Inject constructor(
 
 
     // it takes in the cold StateFlow from the repo and converts it into a hot StateFlow that is exposed to the UI
-    val trackingUiState: StateFlow<TrackingUiState> = runRepo.activeRun
+    val trackingUiState: StateFlow<TrackingUiState> = trackingRepo.activeRun
         .map { run ->
         if (run != null) {
             TrackingUiState(
@@ -103,7 +105,7 @@ class TrackingViewModel @Inject constructor(
 
     private fun observeRunEvents() {
         viewModelScope.launch {
-            runRepo.runEvents.collect { event ->
+            trackingRepo.runEvents.collect { event ->
                 when(event) {
                     is RunEvents.LocationDisabled -> {
                         _uiEvent.emit(TrackingUiEvent.ShowLocationError)

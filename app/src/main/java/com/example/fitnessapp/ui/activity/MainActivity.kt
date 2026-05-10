@@ -1,11 +1,13 @@
 package com.example.fitnessapp.ui.activity
 
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -56,6 +58,7 @@ class MainActivity : ComponentActivity() {
 }
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun appRun() {
     val navController : NavHostController = rememberNavController()

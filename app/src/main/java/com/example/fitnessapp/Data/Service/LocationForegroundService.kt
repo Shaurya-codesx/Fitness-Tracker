@@ -20,6 +20,7 @@ import androidx.core.app.ServiceCompat
 import androidx.core.content.PermissionChecker
 import com.example.fitnessapp.Data.Repositories.RunRepoImpl
 import com.example.fitnessapp.Domain.RunRepository
+import com.example.fitnessapp.Domain.TrackingRunRepository
 import com.example.fitnessapp.Domain.UseCases.ConvertTimeUseCase
 import com.example.fitnessapp.Domain.Wrapper.Resource
 import com.example.fitnessapp.R
@@ -35,7 +36,9 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class LocationForegroundService : Service() {
     @Inject
-    lateinit var runRepo : RunRepository
+    lateinit var trackingRepo : TrackingRunRepository
+//    @Inject
+//    lateinit var runRepo : RunRepository
     @Inject
     lateinit var convertTimeUseCase: ConvertTimeUseCase
 
@@ -130,13 +133,13 @@ class LocationForegroundService : Service() {
             stopSelf()
             return
         }
-        runRepo.startRun() // this calls the android Location provider from the repository and crash happens if location is disabled
+        trackingRepo.startRun() // this calls the android Location provider from the repository and crash happens if location is disabled
 
 
         // collecting flow to update the notification live
         runCollectorJob?.cancel()
         runCollectorJob = serviceScope.launch {
-            runRepo.activeRun.collect { run ->
+            trackingRepo.activeRun.collect { run ->
                 if (run == null){
                     runCollectorJob?.cancel()
                     return@collect
@@ -153,7 +156,7 @@ class LocationForegroundService : Service() {
 
     private fun stopRunForeground() {
         serviceScope.launch {
-            runRepo.stopRun()
+            trackingRepo.stopRun()
             runCollectorJob?.cancel()
             runCollectorJob = null
             stopForeground(STOP_FOREGROUND_REMOVE)

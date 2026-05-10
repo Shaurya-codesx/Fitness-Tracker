@@ -12,23 +12,6 @@ import kotlinx.coroutines.flow.StateFlow
 interface RunRepository { // this repository holds the data for the active run session and exposes it to viewModel
     // this is a repository that states what all things can be done in activeRun session, no implementation
 
-    val activeRun : StateFlow<ActiveRun?>
-    // stateFlow is a observable data holder that always holds the current value of something, here it holds the current values of the activeRun object and its properties
-    // whenever this changes, the observer gets notified of the change and can update itself, so no manual callbacks needed
-
-    /*StateFlow emits new value.             Even if no UI is observing, it still holds state.
-    ViewModel receives it.                   That’s important for:
-    ViewModel maps to UiState.                  Background tracking, Rotation
-    UI re-renders.                              Multiple collectors (UI + notification)*/
-
-
-    val runEvents : Flow<RunEvents>
-    fun startRun()
-
-    suspend fun stopRun()
-
-    fun addLocationPoint(point : LocationPoints)
-
     fun getAllRuns() : Flow<List<RunEntity>>
 
     fun getRunsInRange(startTime: Long, endTime: Long) : Flow<List<RunEntity>>
