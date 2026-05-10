@@ -1,5 +1,12 @@
 package com.example.runtracker.ui.screens
 
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -19,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -27,19 +35,25 @@ import androidx.navigation.NavController
 import com.example.fitnessapp.ui.UiStates.RunUiModel
 import com.example.fitnessapp.ui.activity.RunHistory.RunFilter
 import com.example.fitnessapp.ui.activity.RunHistory.RunHistoryViewModel
-
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import kotlin.text.format
 
 
 // ─── Filter chips data ────────────────────────────────────────────────────────
 
-private val filterOptions = listOf("All runs", "This week", "This month")
+private val filterOptions = listOf("This week", "This month", "All runs")
+@RequiresApi(Build.VERSION_CODES.O)
+val currentMonthYear = LocalDate.now().format(DateTimeFormatter.ofPattern("MMMM yyyy"))
 
 // ─── Screen Entry Point ───────────────────────────────────────────────────────
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun RunHistoryScreenM3(navController: NavController) {
     val runHistoryViewModel: RunHistoryViewModel = hiltViewModel()
-    var selectedFilter by rememberSaveable{ mutableStateOf("All runs") }
+    var selectedFilter by rememberSaveable{ mutableStateOf("This week") }
+    var showFilters by rememberSaveable { mutableStateOf(false) }
 
     val uiState by runHistoryViewModel.runHistoryUiState.collectAsStateWithLifecycle()
 
@@ -76,23 +90,32 @@ fun RunHistoryScreenM3(navController: NavController) {
 
             // Top bar
             item {
-                RunHistoryTopBar(totalRuns = uiState.runs.size)
+                RunHistoryTopBar(
+                    totalRuns = uiState.runs.size,
+                    onToggleFilters = { showFilters = !showFilters }
+                )
             }
 
             // Filter chips
             item {
-                FilterChipRow(
-                    options = filterOptions,
-                    selected = selectedFilter,
-                    onSelect = {
-                        selectedFilter = it
-                        when(selectedFilter) {
-                            "All runs" -> {runHistoryViewModel.onFilterSelected(RunFilter.ALL)}
-                            "This week" -> {runHistoryViewModel.onFilterSelected(RunFilter.WEEK)}
-                            "This month" -> {runHistoryViewModel.onFilterSelected(RunFilter.MONTH)}
+                AnimatedVisibility(
+                    visible = showFilters,
+                    enter = expandVertically() + fadeIn(),
+                    exit = shrinkVertically() + fadeOut()
+                ) {
+                    FilterChipRow(
+                        options = filterOptions,
+                        selected = selectedFilter,
+                        onSelect = {
+                            selectedFilter = it
+                            when(selectedFilter) {
+                                "All runs" -> {runHistoryViewModel.onFilterSelected(RunFilter.ALL)}
+                                "This week" -> {runHistoryViewModel.onFilterSelected(RunFilter.WEEK)}
+                                "This month" -> {runHistoryViewModel.onFilterSelected(RunFilter.MONTH)}
+                            }
                         }
-                    }
-                )
+                    )
+                }
             }
 
             // Summary cards
@@ -115,7 +138,7 @@ fun RunHistoryScreenM3(navController: NavController) {
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    TextButton(onClick = {}) {
+                    TextButton(onClick = {selectedFilter = "All runs"}) {
                         Text("See all", color = MaterialTheme.colorScheme.primary)
                     }
                 }
@@ -142,8 +165,9 @@ fun RunHistoryScreenM3(navController: NavController) {
 
 // ─── Top Bar ──────────────────────────────────────────────────────────────────
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-private fun RunHistoryTopBar(totalRuns: Int) {
+private fun RunHistoryTopBar(totalRuns: Int, onToggleFilters: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -160,7 +184,7 @@ private fun RunHistoryTopBar(totalRuns: Int) {
             )
             Spacer(modifier = Modifier.height(2.dp))
             Text(
-                text = "March 2026 · $totalRuns sessions",
+                text = "$currentMonthYear · $totalRuns sessions",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -168,7 +192,7 @@ private fun RunHistoryTopBar(totalRuns: Int) {
 
         // Tonal icon button
         FilledTonalIconButton(
-            onClick = {},
+            onClick = {onToggleFilters()},
             shape = CircleShape,
             colors = IconButtonDefaults.filledTonalIconButtonColors(
                 containerColor = MaterialTheme.colorScheme.secondaryContainer,

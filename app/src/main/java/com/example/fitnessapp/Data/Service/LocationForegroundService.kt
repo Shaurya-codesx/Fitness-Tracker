@@ -132,15 +132,6 @@ class LocationForegroundService : Service() {
         }
         runRepo.startRun() // this calls the android Location provider from the repository and crash happens if location is disabled
 
-//        eventJob?.cancel()
-//        eventJob = serviceScope.launch {
-//            runRepo.runEvents.collect { event ->
-//                if (event is Resource.Error) {
-//                    Log.d("servicee", "runevent caught")
-//                    stopRunForeground()
-//                }
-//            }
-//        }
 
         // collecting flow to update the notification live
         runCollectorJob?.cancel()

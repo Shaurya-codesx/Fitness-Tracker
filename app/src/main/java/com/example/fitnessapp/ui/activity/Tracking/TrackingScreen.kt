@@ -70,7 +70,6 @@ fun TrackingScreen(navController: NavController) {
                 is TrackingUiEvent.ShowNoMovementDialogue -> {
                     Log.d("hello", "No movement caught")
                     showNoMovementDialog = true
-                    // Handle later
                 }
             }
         }
