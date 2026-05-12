@@ -33,6 +33,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.fitnessapp.ui.activity.Stats.StatsScreen
 
 import com.example.fitnessapp.ui.activity.Tracking.OsmMapview
 import com.example.fitnessapp.ui.theme.FitnessAppTheme
@@ -65,6 +66,7 @@ fun appRun() {
     NavHost(navController, startDestination = "runHistory") {
         composable("runHistory", content = {RunHistoryScreenM3(navController)})
         composable("trackingScreen", content = { TrackingScreen(navController) })
+        composable("statsScreen", content = { StatsScreen(navController) })
         composable(
             route = "runDetails/{runId}",
             arguments = listOf(navArgument("runId") { type = NavType.LongType })

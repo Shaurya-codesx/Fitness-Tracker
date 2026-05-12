@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.fitnessapp.ui.UiStates.RunUiModel
 import com.example.fitnessapp.ui.activity.RunHistory.RunFilter
 import com.example.fitnessapp.ui.activity.RunHistory.RunHistoryViewModel
@@ -78,7 +79,7 @@ fun RunHistoryScreenM3(navController: NavController) {
             )
         },
         floatingActionButtonPosition = FabPosition.Center,
-        bottomBar = { RunHistoryBottomBar() }
+        bottomBar = { RunHistoryBottomBar(navController) }
     ) { innerPadding ->
 
         LazyColumn(
@@ -444,7 +445,7 @@ private fun VerticalStatDivider() {
 // ─── Bottom Bar ───────────────────────────────────────────────────────────────
 
 @Composable
-private fun RunHistoryBottomBar() {
+private fun RunHistoryBottomBar(navController: NavController) {
     NavigationBar(
         containerColor = MaterialTheme.colorScheme.secondaryContainer,
         tonalElevation = 0.dp,
@@ -473,7 +474,11 @@ private fun RunHistoryBottomBar() {
         )
         NavigationBarItem(
             selected = false,
-            onClick = {},
+            onClick = {
+                navController.navigate("statsScreen") {
+                    popUpTo("runHistory")
+                }
+            },
             icon = { Text("📊", fontSize = 20.sp) },
             label = { Text("Stats") },
             colors = NavigationBarItemDefaults.colors(
