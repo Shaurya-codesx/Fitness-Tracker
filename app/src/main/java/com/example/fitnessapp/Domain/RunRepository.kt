@@ -20,4 +20,6 @@ interface RunRepository { // this repository holds the data for the active run s
 
     fun getDistAndDurationInRange(startTime : Long, endTime : Long) : Flow<DistAndDuration>
 
+    fun getNoOfRuns(startTime: Long, endTime: Long) : Flow<Int>
+
 }

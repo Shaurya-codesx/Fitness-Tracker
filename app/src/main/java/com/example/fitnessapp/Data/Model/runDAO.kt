@@ -31,4 +31,7 @@ interface runDAO {
             "FROM runs\n" +
             "WHERE startTime BETWEEN :startTime AND :endTime")
     fun getDistAndDurationInRange (startTime : Long, endTime : Long) : Flow<DistAndDuration> //COALESCE replaces the null values with default ones
+
+    @Query("Select count(*) from runs where startTime BETWEEN :startTime AND :endTime")
+    fun getNoOfRuns (startTime: Long, endTime: Long) : Flow<Int>
 }

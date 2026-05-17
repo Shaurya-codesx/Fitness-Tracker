@@ -42,6 +42,13 @@ class RunRepoImpl @Inject constructor(
         return runDAO.getDistAndDurationInRange(startTime, endTime)
     }
 
+    override fun getNoOfRuns(
+        startTime: Long,
+        endTime: Long
+    ): Flow<Int> {
+        return runDAO.getNoOfRuns(startTime, endTime)
+    }
+
     override fun getRunsInRange(startTime: Long, endTime: Long): Flow<List<RunEntity>> {
         return runDAO.getRunsInRange(startTime, endTime)
     }
