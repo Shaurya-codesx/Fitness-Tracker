@@ -2,6 +2,7 @@ package com.example.fitnessapp.ui.activity.Stats
 
 import androidx.compose.animation.core.copy
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,11 +25,12 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.example.fitnessapp.ui.UiStates.StatsUIState
 
 @Composable
 fun StatsScreen (navController: NavController) {
     val statsViewModel : StatsViewModel = hiltViewModel()
-    val statsUIState  by statsViewModel.statsUiState.collectAsStateWithLifecycle()
+    val uiState  by statsViewModel.statsUiState.collectAsStateWithLifecycle()
 
     Column(
         modifier = Modifier
@@ -41,16 +44,26 @@ fun StatsScreen (navController: NavController) {
             modifier = Modifier.padding(bottom = 24.dp)
         )
 
-        // Displaying the Stats in a Grid-like layout using a custom helper
-        StatItem(label = "Total Distance", value = statsUIState.totalDistance)
-        StatItem(label = "Total Time", value = statsUIState.totalTime)
-        StatItem(label = "Average Pace", value = statsUIState.totalAvgPace)
-        StatItem(label = "Total Runs", value = statsUIState.totalRuns)
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Example: Filter Chips (to trigger the onFilterSelected mentioned earlier)
-        // You can add your Row of FilterChips here to update the data
+        when (val state = uiState) {
+            is StatsUIState.Loading -> {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator() // Material 3 Loading Spinner
+                }
+            }
+            is StatsUIState.Success -> {
+                val data = state.data
+                // Display your cards
+                StatItem(label = "Total Distance", value = data.totalDistance)
+                StatItem(label = "Total Time", value = data.totalTime)
+                StatItem(label = "Avg Pace", value = data.totalAvgPace)
+                StatItem(label = "Total Runs", value = data.totalRuns)
+            }
+            is StatsUIState.Error -> {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(text = "Error: ${state.message}", color = MaterialTheme.colorScheme.error)
+                }
+            }
+        }
     }
 }
 
