@@ -1,10 +1,13 @@
 package com.example.fitnessapp.ui.UiStates
 
+import com.example.fitnessapp.Data.Model.WeeklyDistances
+
 data class StatsData (
     val totalDistance : String ="",
     val totalTime : String = "",
     val totalAvgPace : String = "",
-    val totalRuns : String = ""
+    val totalRuns : String = "",
+    val weeklyDistanceData : List<WeeklyDistances> = emptyList()
 )
 
 
