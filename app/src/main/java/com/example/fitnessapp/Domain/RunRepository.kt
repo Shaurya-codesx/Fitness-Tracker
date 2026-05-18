@@ -4,6 +4,7 @@ import com.example.fitnessapp.Data.Model.DistAndDuration
 import com.example.fitnessapp.Data.Model.Entities.ActiveRun
 import com.example.fitnessapp.Data.Model.Entities.RunEntity
 import com.example.fitnessapp.Data.Model.LocationPoints
+import com.example.fitnessapp.Data.Model.WeeklyDistances
 import com.example.fitnessapp.Domain.Wrapper.Resource
 import com.example.fitnessapp.ui.activity.RunHistory.RunEvents
 import kotlinx.coroutines.flow.Flow
@@ -22,4 +23,5 @@ interface RunRepository { // this repository holds the data for the active run s
 
     fun getNoOfRuns(startTime: Long, endTime: Long) : Flow<Int>
 
+    fun getWeeklyDistances(startTime: Long, endTime: Long) : Flow<List<WeeklyDistances>>
 }

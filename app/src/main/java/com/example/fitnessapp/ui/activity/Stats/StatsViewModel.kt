@@ -29,7 +29,7 @@ class StatsViewModel @Inject constructor(
     private val convertTimeUseCase: ConvertTimeUseCase
 ) : ViewModel() {
 
-    private val selectedFilter = MutableStateFlow(RunFilter.ALL)
+    private val selectedFilter = MutableStateFlow(RunFilter.WEEK)
      fun onFilterSelected(filter : RunFilter) {
         selectedFilter.value = filter
     }

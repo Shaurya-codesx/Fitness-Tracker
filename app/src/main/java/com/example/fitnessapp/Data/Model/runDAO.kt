@@ -34,4 +34,15 @@ interface runDAO {
 
     @Query("Select count(*) from runs where startTime BETWEEN :startTime AND :endTime")
     fun getNoOfRuns (startTime: Long, endTime: Long) : Flow<Int>
+
+    @Query("""
+        SELECT 
+            strftime('%Y-%m-%d', startTime / 1000, 'unixepoch', 'localtime') AS day, 
+            SUM(distanceInMeters) AS totalDistance 
+        FROM runs 
+        WHERE startTime BETWEEN :startTime AND :endTime 
+        GROUP BY day 
+        ORDER BY day ASC
+    """)
+    fun getWeeklyDistances(startTime: Long, endTime: Long): Flow<List<WeeklyDistances>>
 }
