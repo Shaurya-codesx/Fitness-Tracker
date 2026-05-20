@@ -54,6 +54,7 @@ class StatsViewModel @Inject constructor(
                 weeklyDistanceHelper(dbList, weekStart, weekEnd)
                     .combine(statsFlow) {fullList, stats ->
                         Pair(fullList, stats)
+
                     }.combine(totalRuns) {pair, totalRuns ->
                         Triple(pair.first, pair.second, totalRuns)
                     }
