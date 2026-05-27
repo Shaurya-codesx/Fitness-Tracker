@@ -57,6 +57,7 @@ class StatsViewModel @Inject constructor(
 
                     }.combine(totalRuns) {pair, totalRuns ->
                         Triple(pair.first, pair.second, totalRuns)
+
                     }
             }
         }
