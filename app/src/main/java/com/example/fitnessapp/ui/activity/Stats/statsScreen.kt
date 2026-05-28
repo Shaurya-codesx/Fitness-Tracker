@@ -44,6 +44,7 @@ import com.patrykandpatrick.vico.compose.cartesian.layer.rememberLineCartesianLa
 // Add this import for the line component
 import com.patrykandpatrick.vico.compose.common.component.rememberLineComponent
 import androidx.compose.foundation.shape.RoundedCornerShape
+import com.example.fitnessapp.ui.components.BottomBar
 import com.patrykandpatrick.vico.core.common.shape.Corner
 import com.patrykandpatrick.vico.core.common.shape.Shape
 import com.patrykandpatrick.vico.core.cartesian.layer.ColumnCartesianLayer
@@ -91,6 +92,7 @@ fun StatsScreen(navController: NavController) {
                 }
             }
         }
+        BottomBar(navController)
     }
 }
 

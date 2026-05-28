@@ -26,19 +26,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.example.fitnessapp.ui.UiStates.RunUiModel
 import com.example.fitnessapp.ui.activity.RunHistory.RunFilter
 import com.example.fitnessapp.ui.activity.RunHistory.RunHistoryViewModel
+import com.example.fitnessapp.ui.components.BottomBar
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import kotlin.text.format
 
 
 // ─── Filter chips data ────────────────────────────────────────────────────────
@@ -79,7 +77,7 @@ fun RunHistoryScreenM3(navController: NavController) {
             )
         },
         floatingActionButtonPosition = FabPosition.Center,
-        bottomBar = { RunHistoryBottomBar(navController) }
+        bottomBar = { BottomBar(navController) }
     ) { innerPadding ->
 
         LazyColumn(
@@ -442,60 +440,6 @@ private fun VerticalStatDivider() {
     )
 }
 
-// ─── Bottom Bar ───────────────────────────────────────────────────────────────
-
-@Composable
-private fun RunHistoryBottomBar(navController: NavController) {
-    NavigationBar(
-        containerColor = MaterialTheme.colorScheme.secondaryContainer,
-        tonalElevation = 0.dp,
-        modifier = Modifier
-            .padding(horizontal = 16.dp, vertical = 12.dp)
-            .clip(RoundedCornerShape(28.dp))
-    ) {
-        NavigationBarItem(
-            selected = false,
-            onClick = {},
-            icon = { Text("🏠", fontSize = 20.sp) },
-            label = { Text("Home") },
-            colors = NavigationBarItemDefaults.colors(
-                indicatorColor = MaterialTheme.colorScheme.primaryContainer
-            )
-        )
-        NavigationBarItem(
-            selected = true,
-            onClick = {},
-            icon = { Text("🏃", fontSize = 20.sp) },
-            label = { Text("History") },
-            colors = NavigationBarItemDefaults.colors(
-                indicatorColor = MaterialTheme.colorScheme.primaryContainer,
-                selectedTextColor = MaterialTheme.colorScheme.onPrimaryContainer
-            )
-        )
-        NavigationBarItem(
-            selected = false,
-            onClick = {
-                navController.navigate("statsScreen") {
-                    popUpTo("runHistory")
-                }
-            },
-            icon = { Text("📊", fontSize = 20.sp) },
-            label = { Text("Stats") },
-            colors = NavigationBarItemDefaults.colors(
-                indicatorColor = MaterialTheme.colorScheme.primaryContainer
-            )
-        )
-        NavigationBarItem(
-            selected = false,
-            onClick = {},
-            icon = { Text("👤", fontSize = 20.sp) },
-            label = { Text("Profile") },
-            colors = NavigationBarItemDefaults.colors(
-                indicatorColor = MaterialTheme.colorScheme.primaryContainer
-            )
-        )
-    }
-}
 
 // ─── Empty State ──────────────────────────────────────────────────────────────
 
