@@ -17,6 +17,12 @@ class GetRunRangeUseCase @Inject constructor() {
                     0L to now
                 }
 
+                RunFilter.DAY -> {
+                    calendar.timeInMillis = now
+                    resetToStartOfDay(calendar) // Uses your existing helper function
+                    calendar.timeInMillis to now
+                }
+
                 RunFilter.WEEK -> {
                     calendar.timeInMillis = now
                     // set to first day of week (Monday)

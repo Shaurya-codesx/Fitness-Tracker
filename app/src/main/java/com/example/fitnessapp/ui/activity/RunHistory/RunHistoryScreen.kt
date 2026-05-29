@@ -41,7 +41,7 @@ import java.time.format.DateTimeFormatter
 
 // ─── Filter chips data ────────────────────────────────────────────────────────
 
-private val filterOptions = listOf("This week", "This month", "All runs")
+private val filterOptions = listOf("Today", "This week", "This month", "All runs")
 @RequiresApi(Build.VERSION_CODES.O)
 val currentMonthYear = LocalDate.now().format(DateTimeFormatter.ofPattern("MMMM yyyy"))
 
@@ -51,7 +51,7 @@ val currentMonthYear = LocalDate.now().format(DateTimeFormatter.ofPattern("MMMM 
 @Composable
 fun RunHistoryScreenM3(navController: NavController) {
     val runHistoryViewModel: RunHistoryViewModel = hiltViewModel()
-    var selectedFilter by rememberSaveable{ mutableStateOf("This week") }
+    var selectedFilter by rememberSaveable{ mutableStateOf("Today") }
     var showFilters by rememberSaveable { mutableStateOf(false) }
 
     val uiState by runHistoryViewModel.runHistoryUiState.collectAsStateWithLifecycle()
@@ -109,6 +109,7 @@ fun RunHistoryScreenM3(navController: NavController) {
                             selectedFilter = it
                             when(selectedFilter) {
                                 "All runs" -> {runHistoryViewModel.onFilterSelected(RunFilter.ALL)}
+                                "Today" -> {runHistoryViewModel.onFilterSelected(RunFilter.DAY)}
                                 "This week" -> {runHistoryViewModel.onFilterSelected(RunFilter.WEEK)}
                                 "This month" -> {runHistoryViewModel.onFilterSelected(RunFilter.MONTH)}
                             }
