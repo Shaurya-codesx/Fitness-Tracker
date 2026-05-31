@@ -30,6 +30,7 @@ class RunHistoryViewModel @Inject constructor(
     private val selectedFilter = MutableStateFlow(RunFilter.DAY)
     fun onFilterSelected(filter: RunFilter) { // this function changes the value of the selected filter when a new filter is selected
         selectedFilter.value = filter
+
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
