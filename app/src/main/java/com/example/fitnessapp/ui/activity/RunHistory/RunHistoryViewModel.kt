@@ -37,7 +37,6 @@ class RunHistoryViewModel @Inject constructor(
     val runHistoryUiState: StateFlow<RunHistoryUiState> =
         selectedFilter
             .flatMapLatest { filter -> // when ever the selectedFilter value changes from the ui, this block runs with the new filter value
-                //
                 val (startTime, endTime) = getRange(filter)
 
                 val(monthStart, monthEnd) = getRange(RunFilter.MONTH)
