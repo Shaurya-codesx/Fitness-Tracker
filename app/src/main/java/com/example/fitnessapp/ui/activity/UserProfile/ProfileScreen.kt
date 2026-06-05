@@ -21,24 +21,23 @@ import com.example.fitnessapp.ui.components.BottomBar
 fun ProfileScreen(
     navController: NavController
 ) {
-
-    val viewModel : ProfileViewModel = hiltViewModel()
-    // Observe the database state (Success, Loading, Error)
+    val viewModel: ProfileViewModel = hiltViewModel()
     val profileState by viewModel.profileState.collectAsState()
-
-    // Observe the current text field values from the ViewModel
     val uiState by viewModel.uiState.collectAsState()
 
     // Local state to toggle between viewing and editing
     var isEditing by remember { mutableStateOf(false) }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(title = { Text("User Profile") })
-        },
-        bottomBar = {
-            BottomBar(navController)
+    // Logic to force edit mode if the state is Empty
+    LaunchedEffect(profileState) {
+        if (profileState is ProfileState.Empty) {
+            isEditing = true
         }
+    }
+
+    Scaffold(
+        topBar = { TopAppBar(title = { Text("User Profile") }) },
+        bottomBar = { BottomBar(navController) }
     ) { paddingValues ->
         Box(
             modifier = Modifier
@@ -49,15 +48,25 @@ fun ProfileScreen(
         ) {
             when (val state = profileState) {
                 is ProfileState.Loading -> CircularProgressIndicator()
-                is ProfileState.Error -> Text("Error: ${state.message}", color = MaterialTheme.colorScheme.error)
-                is ProfileState.Success -> {
+
+                is ProfileState.Error -> Text("Error: ${state.message}")
+
+                is ProfileState.Empty, is ProfileState.Success -> {
                     Column(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
+                        if (profileState is ProfileState.Empty) {
+                            Text(
+                                "Welcome! Please set up your profile.",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+
                         if (isEditing) {
-                            // EDIT MODE: TextFields
+                            // --- EDIT MODE (Same as before) ---
                             OutlinedTextField(
                                 value = uiState.name,
                                 onValueChange = { viewModel.onNameChange(it) },
@@ -88,8 +97,8 @@ fun ProfileScreen(
                                 Spacer(Modifier.width(8.dp))
                                 Text("Save Profile")
                             }
-                        } else {
-                            // DISPLAY MODE: Static Text
+                        } else if (state is ProfileState.Success) {
+                            // --- DISPLAY MODE ---
                             ProfileInfoRow(label = "Name", value = state.data.name)
                             ProfileInfoRow(label = "Weight", value = "${state.data.weight} kg")
                             ProfileInfoRow(label = "Height", value = "${state.data.height} cm")

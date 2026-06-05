@@ -8,6 +8,7 @@ data class ProfileUiState (
 
 sealed class ProfileState {
     object Loading : ProfileState()
+    object Empty : ProfileState()
     data class Success(val data: ProfileUiState) : ProfileState()
     data class Error(val message: String) : ProfileState()
 }

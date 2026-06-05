@@ -35,7 +35,7 @@ class ProfileViewModel @Inject constructor(
             }
             .combine(_uiState) { profile, currentUiState ->
                 if (profile == null) {
-                    ProfileState.Loading
+                    ProfileState.Empty
                 } else {
                     // When data first loads, if our local state is empty, populate it
                     if (currentUiState.name.isEmpty()) {
