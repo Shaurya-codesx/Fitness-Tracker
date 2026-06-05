@@ -11,5 +11,5 @@ data class UserProfile (
     val id : Int = 1,
     val name : String,
     val weightKG: Float,
-    val heightCM: Float
+    val heightCM: Int
 )

@@ -63,7 +63,11 @@ fun BottomBar(navController: NavController) {
         )
         NavigationBarItem(
             selected = false,
-            onClick = {},
+            onClick = {
+                navController.navigate("profileScreen") {
+                    popUpTo("runHistory")
+                }
+            },
             icon = { Text("👤", fontSize = 20.sp) },
             label = { Text("Profile") },
             colors = NavigationBarItemDefaults.colors(

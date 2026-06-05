@@ -3,9 +3,11 @@ package com.example.fitnessapp.DI
 import com.example.fitnessapp.Data.Location.androidLocationProvider
 import com.example.fitnessapp.Data.Repositories.RunRepoImpl
 import com.example.fitnessapp.Data.Repositories.TrackingRepoImpl
+import com.example.fitnessapp.Data.Repositories.UserProfileRepoImpl
 import com.example.fitnessapp.Domain.LocationDataSource
 import com.example.fitnessapp.Domain.RunRepository
 import com.example.fitnessapp.Domain.TrackingRunRepository
+import com.example.fitnessapp.Domain.UserProfileRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -38,4 +40,13 @@ abstract class TrackingRepositoryModule {
     abstract fun bindTrackingRepository(
         trackingRepoImpl: TrackingRepoImpl
     ): TrackingRunRepository
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class UserProfileRepositoryModule {
+    @Binds
+    abstract fun bindUserProfileRepository(
+        userProfileRepoImpl : UserProfileRepoImpl
+    ) : UserProfileRepository
 }

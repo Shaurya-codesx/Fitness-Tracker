@@ -14,6 +14,6 @@ interface UserProfileDAO {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun saveProfile(userProfile : UserProfile)
 
-    @Query("SELECT * FROM User_Data")
+    @Query("SELECT * FROM User_Data WHERE id = 1")
     fun getProfile() : Flow<UserProfile?>
 }
