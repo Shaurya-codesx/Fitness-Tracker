@@ -114,10 +114,6 @@ class LocationForegroundService : Service() {
 //            return
 //        }
 
-
-
-
-
         Log.d("servicee", "notification built")
 
         try {

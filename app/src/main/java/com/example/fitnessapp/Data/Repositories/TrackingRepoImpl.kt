@@ -5,6 +5,7 @@ import com.example.fitnessapp.Data.Model.Entities.ActiveRun
 import com.example.fitnessapp.Data.Model.Entities.RunEntity
 import com.example.fitnessapp.Data.Model.LocationPoints
 import com.example.fitnessapp.Data.Model.runDAO
+import com.example.fitnessapp.Data.StepCounter.StepTracker
 import com.example.fitnessapp.Domain.LocationDataSource
 import com.example.fitnessapp.Domain.TrackingRunRepository
 import com.example.fitnessapp.Domain.UseCases.CalcDistanceUseCase
@@ -27,7 +28,8 @@ import javax.inject.Singleton
 class TrackingRepoImpl @Inject constructor(
     private val runDAO : runDAO,
     private val calcDistanceUseCase : CalcDistanceUseCase,
-    private val androidLocationProvider: LocationDataSource
+    private val androidLocationProvider: LocationDataSource,
+    private val stepTracker: StepTracker
 ) : TrackingRunRepository {
 
     private val _activeRun = MutableStateFlow<ActiveRun?>(null) // so this private variable is mutable for us to change it, and the public is read only
@@ -45,6 +47,7 @@ class TrackingRepoImpl @Inject constructor(
     private val repositoryScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var timerJob : Job? = null
     private var locationCollectionJob : Job? = null
+    private var stepTrackerJob : Job? = null
 
 
     override fun startRun() {
@@ -67,6 +70,13 @@ class TrackingRepoImpl @Inject constructor(
                 val updatedTime = (System.currentTimeMillis() - current.startTime)
                 _activeRun.value = current.copy(elapsedTime = updatedTime)
                 Log.d("timerCheck", "elapsed time : ${_activeRun.value?.elapsedTime}")
+            }
+        }
+
+        stepTrackerJob?.cancel()
+        stepTrackerJob = repositoryScope.launch {
+            stepTracker.getSteps().collect { steps ->
+                Log.d("StepsTracker", "current steps = $steps")
             }
         }
 
@@ -94,6 +104,9 @@ class TrackingRepoImpl @Inject constructor(
 
         locationCollectionJob?.cancel()
         locationCollectionJob = null
+
+        stepTrackerJob?.cancel()
+        stepTrackerJob = null
 
         val finalRun = _activeRun.value ?: return
 
