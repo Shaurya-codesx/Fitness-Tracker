@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -59,6 +60,7 @@ class TrackingRepoImpl @Inject constructor(
             startTime = System.currentTimeMillis(),
             elapsedTime = 0,
             currentDistance = 0f,
+            currentSteps = 0,
             route = emptyList(),
             trackingStatus = true
         )
@@ -76,7 +78,10 @@ class TrackingRepoImpl @Inject constructor(
         stepTrackerJob?.cancel()
         stepTrackerJob = repositoryScope.launch {
             stepTracker.getSteps().collect { steps ->
-                Log.d("StepsTracker", "current steps = $steps")
+                _activeRun.update { currentRun->
+                    currentRun?.copy(currentSteps = steps)
+                }
+                Log.d("StepsTracker", "current steps = $_activeRun.currentSteps")
             }
         }
 
@@ -117,6 +122,7 @@ class TrackingRepoImpl @Inject constructor(
                 startTime = finalRun.startTime,
                 endTime = System.currentTimeMillis(),
                 distanceInMeters = finalRun.currentDistance,
+                stepsTaken = finalRun.currentSteps,
                 route = finalRun.route,
                 isSynced = false
             )

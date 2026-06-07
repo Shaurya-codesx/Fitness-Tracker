@@ -11,6 +11,8 @@ data class RunEntity(
     val startTime : Long,
     val endTime : Long,
     val distanceInMeters : Float,
+    val stepsTaken : Int,
+    val caloriesBurned : Float = 0f,
     val route : List<LocationPoints>, // List of points, each element of the list has a lat, long, and time which creates the route
     val isSynced : Boolean
 )

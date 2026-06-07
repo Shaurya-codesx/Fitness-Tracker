@@ -8,7 +8,7 @@ import android.content.Context
 import com.example.fitnessapp.Data.Model.Entities.RunEntity
 import com.example.fitnessapp.Data.Model.Entities.UserProfile
 
-@Database(entities = [RunEntity::class, UserProfile::class], version = 4)
+@Database(entities = [RunEntity::class, UserProfile::class], version = 5)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() { // inherits from RoomDatabase class
     abstract fun getDAO() : runDAO
