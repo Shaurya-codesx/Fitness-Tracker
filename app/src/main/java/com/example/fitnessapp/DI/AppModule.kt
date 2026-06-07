@@ -6,6 +6,7 @@ import com.example.fitnessapp.Data.Location.androidLocationProvider
 import com.example.fitnessapp.Data.Repositories.RunRepoImpl
 import com.example.fitnessapp.Data.Repositories.TrackingRepoImpl
 import com.example.fitnessapp.Data.Repositories.UserProfileRepoImpl
+import com.example.fitnessapp.Data.StepCounter.MockStepFlow
 import com.example.fitnessapp.Data.StepCounter.StepTracker
 import com.example.fitnessapp.Data.StepCounter.StepTrackerImplementation
 import com.example.fitnessapp.Domain.LocationDataSource
@@ -18,7 +19,29 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import javax.inject.Qualifier
 import javax.inject.Singleton
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class MockTracker
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class MainTracker
+
+// DI for Mock flow of steps to repo while run starts
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class MockStepsModule {
+    @Binds
+    @Singleton
+    @MockTracker
+    abstract fun bindMockSteps(
+        mockStepFlow: MockStepFlow
+    ) : StepTracker
+}
+
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -62,6 +85,7 @@ abstract class UserProfileRepositoryModule {
 abstract class StepTrackerModule {
     @Binds
     @Singleton
+    @MainTracker
     abstract fun bindStepTracker(
         stepTrackerImplementation: StepTrackerImplementation
     ): StepTracker

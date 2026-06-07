@@ -1,6 +1,7 @@
 package com.example.fitnessapp.Data.Repositories
 
 import android.util.Log
+import com.example.fitnessapp.DI.MockTracker
 import com.example.fitnessapp.Data.Model.Entities.ActiveRun
 import com.example.fitnessapp.Data.Model.Entities.RunEntity
 import com.example.fitnessapp.Data.Model.LocationPoints
@@ -30,7 +31,7 @@ class TrackingRepoImpl @Inject constructor(
     private val runDAO : runDAO,
     private val calcDistanceUseCase : CalcDistanceUseCase,
     private val androidLocationProvider: LocationDataSource,
-    private val stepTracker: StepTracker
+    @MockTracker private val stepTracker: StepTracker
 ) : TrackingRunRepository {
 
     private val _activeRun = MutableStateFlow<ActiveRun?>(null) // so this private variable is mutable for us to change it, and the public is read only
@@ -81,7 +82,7 @@ class TrackingRepoImpl @Inject constructor(
                 _activeRun.update { currentRun->
                     currentRun?.copy(currentSteps = steps)
                 }
-                Log.d("StepsTracker", "current steps = $_activeRun.currentSteps")
+                Log.d("StepsTracker", "current steps = ${_activeRun.value?.currentSteps}")
             }
         }
 
