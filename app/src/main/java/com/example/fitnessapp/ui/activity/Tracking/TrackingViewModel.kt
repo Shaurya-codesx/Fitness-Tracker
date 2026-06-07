@@ -70,6 +70,7 @@ class TrackingViewModel @Inject constructor(
                 startTime = convertTimeUseCase(run.startTime),
                 timerValue = convertTimeUseCase.timerFormat(run.elapsedTime),
                 currentDistance = "%.2f".format(run.currentDistance/1000),
+                currentSteps = run.currentSteps.toString(),
                 currentPace = paceCalcUseCase(run.currentDistance, run.elapsedTime),
                 route = run.route
             )
