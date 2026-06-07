@@ -6,7 +6,7 @@ data class ActiveRun(
     val startTime : Long,
     val elapsedTime : Long,
     val currentDistance : Float,
-    val currentSteps : Int = 0,
+    val currentSteps : Int,
     val route : List<LocationPoints>,
     val trackingStatus : Boolean = false
 )
