@@ -47,6 +47,7 @@ class TrackingRepoImpl @Inject constructor(
     // a job simply means a running coroutine task, Dispatcher means the thread on which the coroutine can run         Dispatchers.Main → UI thread
     //                                                                                                                 Dispatchers.IO → database / network
     //                                                                                                                 Dispatchers.Default → CPU work
+
     private val repositoryScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var timerJob : Job? = null
     private var locationCollectionJob : Job? = null
