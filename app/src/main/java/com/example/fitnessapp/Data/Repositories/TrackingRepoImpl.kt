@@ -119,7 +119,6 @@ class TrackingRepoImpl @Inject constructor(
         val finalRun = _activeRun.value ?: return
 
 
-
         if (finalRun.currentDistance > 0) {
             val finalRunEntity = RunEntity(
                 startTime = finalRun.startTime,
