@@ -1,16 +1,20 @@
 package com.example.fitnessapp.Data.Repositories
 
 import android.util.Log
+import androidx.lifecycle.asLiveData
 import com.example.fitnessapp.DI.MainTracker
 import com.example.fitnessapp.DI.MockTracker
 import com.example.fitnessapp.Data.Model.Entities.ActiveRun
 import com.example.fitnessapp.Data.Model.Entities.RunEntity
 import com.example.fitnessapp.Data.Model.LocationPoints
+import com.example.fitnessapp.Data.Model.UserProfileDAO
 import com.example.fitnessapp.Data.Model.runDAO
 import com.example.fitnessapp.Data.StepCounter.StepTracker
 import com.example.fitnessapp.Domain.LocationDataSource
 import com.example.fitnessapp.Domain.TrackingRunRepository
 import com.example.fitnessapp.Domain.UseCases.CalcDistanceUseCase
+import com.example.fitnessapp.Domain.UseCases.CalculateCaloriesUseCase
+import com.example.fitnessapp.Domain.UserProfileRepository
 import com.example.fitnessapp.Domain.Wrapper.Resource
 import com.example.fitnessapp.ui.activity.RunHistory.RunEvents
 import kotlinx.coroutines.CoroutineScope
@@ -30,8 +34,10 @@ import javax.inject.Singleton
 @Singleton
 class TrackingRepoImpl @Inject constructor(
     private val runDAO : runDAO,
+    private val userProfileRepository: UserProfileRepository,
     private val calcDistanceUseCase : CalcDistanceUseCase,
     private val androidLocationProvider: LocationDataSource,
+    private val calcCalories : CalculateCaloriesUseCase,
     @MockTracker private val stepTracker: StepTracker
 ) : TrackingRunRepository {
 
@@ -40,6 +46,8 @@ class TrackingRepoImpl @Inject constructor(
 
     private val _runEvents = MutableSharedFlow<RunEvents>()
     override val runEvents : Flow<RunEvents> = _runEvents
+
+    private val userProfile = userProfileRepository.getUserProfile().asLiveData()
 
 
     // a coroutine Scope is simply like a container that contains all the coroutines in that scope,it simply manages when can a coroutine start, cancelled, keeps track
@@ -125,10 +133,16 @@ class TrackingRepoImpl @Inject constructor(
                 endTime = System.currentTimeMillis(),
                 distanceInMeters = finalRun.currentDistance,
                 stepsTaken = finalRun.currentSteps,
+                caloriesBurned = calcCalories(
+                    distanceMeters = finalRun.currentDistance,
+                    durationMillis = finalRun.elapsedTime,
+                    weightKG = userProfile.value?.weightKG ?: 70f // default weight
+                ),
                 route = finalRun.route,
                 isSynced = false
             )
             runDAO.insertRun(finalRunEntity)
+            Log.d("calories", "calories = ${finalRunEntity.caloriesBurned}")
         } else {
             _runEvents.emit(RunEvents.NoMovement)
             Log.d("runEvent", "Run discarded - no movement run event")
