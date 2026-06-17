@@ -30,4 +30,9 @@ class ConvertTimeUseCase @Inject constructor() {
         }
     }
 
+    fun formatDate(timeMillis: Long): String {
+        val sdf = SimpleDateFormat("EEEE, MMM, d", Locale.getDefault())
+        return sdf.format(Date(timeMillis))
+    }
+
 }

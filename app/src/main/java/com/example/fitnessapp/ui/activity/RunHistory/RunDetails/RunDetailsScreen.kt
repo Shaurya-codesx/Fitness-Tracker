@@ -1,6 +1,5 @@
 package com.example.runtracker.ui.screens
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -9,9 +8,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.ErrorOutline
-import androidx.compose.material.icons.rounded.Refresh
+import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -54,7 +51,7 @@ fun RunDetailsScreen(navController: NavController) {
                 is RunDetailsState.Loading -> RunDetailLoadingState()
                 is RunDetailsState.Error -> RunDetailErrorState(onRetry = {})
                 is RunDetailsState.Success -> {
-                    val data = (uiState as RunDetailsState.Success).data // understand this line
+                    val data = (uiState as RunDetailsState.Success).data
                     RunDetailSuccessState(data = data)
                 }
             }
@@ -69,24 +66,22 @@ fun RunDetailsScreen(navController: NavController) {
 private fun RunDetailTopBar(onBack: () -> Unit) {
     TopAppBar(
         title = {
-            Column {
-                Text(
-                    text = "Run details",
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Normal),
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
+            Text(
+                text = "Run Summary",
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold),
+                color = MaterialTheme.colorScheme.onSurface
+            )
         },
         navigationIcon = {
-            FilledTonalIconButton(
+            IconButton(
                 onClick = onBack,
-                shape = CircleShape,
-                colors = IconButtonDefaults.filledTonalIconButtonColors(
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                )
+                modifier = Modifier.padding(start = 8.dp)
             ) {
-                Icon(Icons.Rounded.ArrowBack, contentDescription = "Back")
+                Icon(
+                    Icons.Rounded.ArrowBack,
+                    contentDescription = "Back",
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(
@@ -103,28 +98,73 @@ private fun RunDetailSuccessState(data: RunDetailsUiState) {
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(bottom = 32.dp)
+            .padding(horizontal = 16.dp)
+            .padding(bottom = 32.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // ── Route Map  ──────────────────────────────────────────
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 18.dp)
-                .padding(top = 14.dp)
-                .height(400.dp)
-                .clip(RoundedCornerShape(24.dp))
-                .background(MaterialTheme.colorScheme.secondaryContainer),
-            contentAlignment = Alignment.Center
-        ) {
-            miniMapView(routeList = data.routeList)
-        }
+        Spacer(modifier = Modifier.height(8.dp))
 
-        // ── Hero Card — Distance + Duration ───────────────────────────────
+        // ── Route Map ─────────────────────────────────────────────────────
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 18.dp)
-                .padding(top = 14.dp),
+                .height(280.dp),
+            shape = RoundedCornerShape(28.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(RoundedCornerShape(28.dp))
+            ) {
+                miniMapView(routeList = data.routeList)
+
+                // Subtle gradient overlay at bottom for better text contrast
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(60.dp)
+                        .align(Alignment.BottomCenter)
+                        .background(
+                            Brush.verticalGradient(
+                                colors = listOf(
+                                    Color.Transparent,
+                                    MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)
+                                )
+                            )
+                        )
+                )
+            }
+        }
+
+        // ── Date Badge ────────────────────────────────────────────────────
+        Surface(
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+            shape = RoundedCornerShape(50),
+            color = MaterialTheme.colorScheme.secondaryContainer
+        ) {
+            Row(
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(
+                    Icons.Rounded.CalendarToday,
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp),
+                    tint = MaterialTheme.colorScheme.onSecondaryContainer
+                )
+                Text(
+                    text = data.date,
+                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium),
+                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                )
+            }
+        }
+
+        // ── Hero Card — Distance + Duration (asymmetric style) ────────────
+        Card(
+            modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(24.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary)
         ) {
@@ -137,10 +177,16 @@ private fun RunDetailSuccessState(data: RunDetailsUiState) {
             ) {
                 Column {
                     Text(
-                        text = data.distance + " Km",
-                        style = MaterialTheme.typography.displaySmall.copy(fontWeight = FontWeight.Medium),
+                        text = data.distance,
+                        style = MaterialTheme.typography.displaySmall.copy(fontWeight = FontWeight.Bold),
                         color = MaterialTheme.colorScheme.onPrimary
                     )
+                    Text(
+                        text = "km",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.85f)
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = "Total distance",
                         style = MaterialTheme.typography.bodySmall,
@@ -153,12 +199,12 @@ private fun RunDetailSuccessState(data: RunDetailsUiState) {
                     color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.15f)
                 ) {
                     Column(
-                        modifier = Modifier.padding(horizontal = 18.dp, vertical = 12.dp),
+                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 14.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
                             text = data.duration,
-                            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Medium),
+                            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold),
                             color = MaterialTheme.colorScheme.onPrimary
                         )
                         Text(
@@ -171,83 +217,165 @@ private fun RunDetailSuccessState(data: RunDetailsUiState) {
             }
         }
 
-        // ── Stats Grid — Pace + Run ID ─────────────────────────────────────
+        // ── Key Metrics Grid: Pace, Steps, Calories ───────────────────────
+        Text(
+            text = "Performance",
+            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+            modifier = Modifier.padding(start = 4.dp, top = 8.dp)
+        )
+
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 18.dp)
-                .padding(top = 12.dp),
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            StatCard(
-                label = "Avg pace",
+            // Pace Card
+            MetricCard(
+                icon = Icons.Rounded.Speed,
+                label = "Avg Pace",
                 value = data.avgPace,
-                subLabel = "min / km",
+                unit = "min/km",
                 containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                labelColor = MaterialTheme.colorScheme.primary,
-                valueColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
                 modifier = Modifier.weight(1f)
             )
-            StatCard(
-                label = "Run ID",
-                value = "#${data.runId}",
-                subLabel = "Session ID",
-                containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                labelColor = MaterialTheme.colorScheme.tertiary,
-                valueColor = MaterialTheme.colorScheme.onTertiaryContainer,
+
+            // Steps Card
+            MetricCard(
+                icon = Icons.Rounded.DirectionsWalk,
+                label = "Steps",
+                value = data.stepsTaken,
+                unit = "steps",
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.weight(1f)
+            )
+
+            // Calories Card
+            MetricCard(
+                icon = Icons.Rounded.LocalFireDepartment,
+                label = "Calories",
+                value = data.caloriesBurned,
+                unit = "kcal",
+                containerColor = MaterialTheme.colorScheme.errorContainer,
+                contentColor = MaterialTheme.colorScheme.onErrorContainer,
                 modifier = Modifier.weight(1f)
             )
         }
 
-        // ── Time Card — Start & End ────────────────────────────────────────
+        // ── Time Details Card ─────────────────────────────────────────────
+        Text(
+            text = "Timeline",
+            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+            modifier = Modifier.padding(start = 4.dp, top = 8.dp)
+        )
+
         Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 18.dp)
-                .padding(top = 12.dp),
-            shape = RoundedCornerShape(20.dp),
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(24.dp),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceContainerLow
-            ),
-            border = androidx.compose.foundation.BorderStroke(
-                1.dp,
-                MaterialTheme.colorScheme.outlineVariant
             )
         ) {
-            Column(modifier = Modifier.padding(horizontal = 18.dp, vertical = 14.dp)) {
-                TimeRow(
-                    dotColor = MaterialTheme.colorScheme.primary,
-                    label = "Started",
-                    value = data.startTime
+            Column(
+                modifier = Modifier.padding(20.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                // Started
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Surface(
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
+                        modifier = Modifier.size(44.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                Icons.Rounded.PlayArrow,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(22.dp)
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Started",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = data.startTime,
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                }
+
+                // Divider
+                HorizontalDivider(
+                    modifier = Modifier.padding(start = 62.dp),
+                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
                 )
-                // Connector line
-                Box(
-                    modifier = Modifier
-                        .padding(start = 4.dp, top = 4.dp, bottom = 4.dp)
-                        .width(1.dp)
-                        .height(20.dp)
-                        .background(MaterialTheme.colorScheme.outlineVariant)
-                )
-                TimeRow(
-                    dotColor = MaterialTheme.colorScheme.error,
-                    label = "Finished",
-                    value = data.endTime
-                )
+
+                // Finished
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Surface(
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.error.copy(alpha = 0.15f),
+                        modifier = Modifier.size(44.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                Icons.Rounded.Flag,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.size(22.dp)
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Finished",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = data.endTime,
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                }
             }
         }
+
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }
 
-// ─── Sub-composables ──────────────────────────────────────────────────────────
+// ─── Metric Card Component ──────────────────────────────────────────────────
 
 @Composable
-private fun StatCard(
+private fun MetricCard(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
     label: String,
     value: String,
-    subLabel: String,
+    unit: String,
     containerColor: Color,
-    labelColor: Color,
-    valueColor: Color,
+    contentColor: Color,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -255,54 +383,36 @@ private fun StatCard(
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = containerColor)
     ) {
-        Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp)) {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelMedium,
-                color = labelColor
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Icon(
+                icon,
+                contentDescription = null,
+                modifier = Modifier.size(24.dp),
+                tint = contentColor
             )
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(10.dp))
             Text(
                 text = value,
-                style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Medium),
-                color = valueColor,
-                maxLines = 1
+                style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+                color = contentColor
             )
-            Spacer(modifier = Modifier.height(2.dp))
             Text(
-                text = subLabel,
-                style = MaterialTheme.typography.bodySmall,
-                color = valueColor.copy(alpha = 0.65f)
+                text = unit,
+                style = MaterialTheme.typography.labelSmall,
+                color = contentColor.copy(alpha = 0.7f)
             )
-        }
-    }
-}
-
-@Composable
-private fun TimeRow(dotColor: Color, label: String, value: String) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Box(
-                modifier = Modifier
-                    .size(10.dp)
-                    .clip(CircleShape)
-                    .background(dotColor)
-            )
+            Spacer(modifier = Modifier.height(6.dp))
             Text(
                 text = label,
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium),
+                color = contentColor.copy(alpha = 0.85f)
             )
         }
-        Text(
-            text = value,
-            style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.onSurface
-        )
     }
 }
 
@@ -311,9 +421,9 @@ private fun TimeRow(dotColor: Color, label: String, value: String) {
 @Composable
 private fun RunDetailLoadingState() {
     val shimmerColors = listOf(
-        MaterialTheme.colorScheme.secondaryContainer,
-        MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.4f),
-        MaterialTheme.colorScheme.secondaryContainer
+        MaterialTheme.colorScheme.surfaceVariant,
+        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+        MaterialTheme.colorScheme.surfaceVariant
     )
     val transition = rememberInfiniteTransition(label = "shimmer")
     val translateAnim by transition.animateFloat(
@@ -334,69 +444,69 @@ private fun RunDetailLoadingState() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(bottom = 32.dp)
+            .padding(horizontal = 16.dp)
+            .padding(top = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Map placeholder shimmer
+        // Map shimmer
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 18.dp)
-                .padding(top = 14.dp)
-                .height(200.dp)
-                .clip(RoundedCornerShape(24.dp))
+                .height(280.dp)
+                .clip(RoundedCornerShape(28.dp))
                 .background(shimmerBrush)
         )
-        // Hero card shimmer
+
+        // Date badge shimmer
         Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 18.dp)
-                .padding(top = 14.dp)
-                .height(90.dp)
-                .clip(RoundedCornerShape(24.dp))
+                .align(Alignment.CenterHorizontally)
+                .width(140.dp)
+                .height(36.dp)
+                .clip(RoundedCornerShape(50))
                 .background(shimmerBrush)
         )
-        // Stat grid shimmer
+
+        // Hero cards shimmer
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 18.dp)
-                .padding(top = 12.dp),
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .height(90.dp)
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(shimmerBrush)
-            )
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .height(90.dp)
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(shimmerBrush)
-            )
+            repeat(2) {
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(160.dp)
+                        .clip(RoundedCornerShape(24.dp))
+                        .background(shimmerBrush)
+                )
+            }
         }
-        // Time card shimmer
+
+        // Metrics shimmer
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            repeat(3) {
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(130.dp)
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(shimmerBrush)
+                )
+            }
+        }
+
+        // Timeline shimmer
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 18.dp)
-                .padding(top = 12.dp)
-                .height(90.dp)
-                .clip(RoundedCornerShape(20.dp))
+                .height(180.dp)
+                .clip(RoundedCornerShape(24.dp))
                 .background(shimmerBrush)
         )
-        // Text shimmer lines
-        Column(
-            modifier = Modifier.padding(horizontal = 18.dp, vertical = 14.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            Box(modifier = Modifier.fillMaxWidth(0.6f).height(14.dp).clip(RoundedCornerShape(8.dp)).background(shimmerBrush))
-            Box(modifier = Modifier.fillMaxWidth(0.4f).height(14.dp).clip(RoundedCornerShape(8.dp)).background(shimmerBrush))
-        }
     }
 }
 
@@ -414,27 +524,29 @@ private fun RunDetailErrorState(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        // Error icon in tonal container
-        Box(
-            modifier = Modifier
-                .size(80.dp)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.errorContainer),
-            contentAlignment = Alignment.Center
+        Surface(
+            shape = CircleShape,
+            color = MaterialTheme.colorScheme.errorContainer,
+            modifier = Modifier.size(80.dp)
         ) {
-            Icon(
-                imageVector = Icons.Rounded.ErrorOutline,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onErrorContainer,
-                modifier = Modifier.size(36.dp)
-            )
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    Icons.Rounded.ErrorOutline,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onErrorContainer,
+                    modifier = Modifier.size(40.dp)
+                )
+            }
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
         Text(
             text = "Couldn't load run",
-            style = MaterialTheme.typography.titleLarge,
+            style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.SemiBold),
             color = MaterialTheme.colorScheme.onSurface
         )
 
@@ -444,22 +556,20 @@ private fun RunDetailErrorState(
             text = message.ifBlank { "We couldn't load your run data. Please check your connection and try again." },
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-            lineHeight = 22.sp
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center
         )
 
-        Spacer(modifier = Modifier.height(28.dp))
+        Spacer(modifier = Modifier.height(32.dp))
 
         Button(
             onClick = onRetry,
-            shape = RoundedCornerShape(999.dp),
+            shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
+                containerColor = MaterialTheme.colorScheme.primary
             )
         ) {
             Icon(
-                imageVector = Icons.Rounded.Refresh,
+                Icons.Rounded.Refresh,
                 contentDescription = null,
                 modifier = Modifier.size(18.dp)
             )

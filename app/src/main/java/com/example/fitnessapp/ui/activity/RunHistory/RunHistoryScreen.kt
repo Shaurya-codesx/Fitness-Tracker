@@ -367,7 +367,7 @@ fun RunSessionCardM3(run: RunUiModel, onClick: (Long) -> Unit) {
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
-                        text = "${run.startTime} – ${run.endTime}",
+                        text = run.date,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

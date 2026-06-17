@@ -48,9 +48,12 @@ class RunDetailsViewModel @Inject constructor(
                     runId = run.id,
                     startTime = convertTimeUseCase(run.startTime),
                     endTime = convertTimeUseCase(run.endTime),
+                    date = convertTimeUseCase.formatDate(run.startTime),
                     duration = convertTimeUseCase.timerFormat(duration),
                     distance = "%.2f".format(run.distanceInMeters/1000) ,
                     avgPace = avgPace,
+                    stepsTaken = run.stepsTaken.toString(),
+                    caloriesBurned = "%.1f".format(run.caloriesBurned),
                     routeList = run.route
                 )
 
