@@ -245,7 +245,7 @@ private fun RunDetailSuccessState(data: RunDetailsUiState) {
                 label = "Steps",
                 value = data.stepsTaken,
                 unit = "steps",
-                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                containerColor = MaterialTheme.colorScheme.tertiaryContainer,
                 contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.weight(1f)
             )
