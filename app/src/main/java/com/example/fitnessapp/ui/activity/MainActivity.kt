@@ -37,7 +37,7 @@ import com.example.fitnessapp.ui.activity.Tracking.OsmMapview
 import com.example.fitnessapp.ui.theme.FitnessAppTheme
 import com.example.fitnessapp.ui.activity.Tracking.TrackingViewModel
 import com.example.fitnessapp.ui.activity.UserProfile.ProfileScreen
-import com.example.fittracker.ui.stats.StatsScreen
+import com.example.fitnessapp.ui.activity.stats.StatsScreen
 import com.example.runtracker.ui.screens.RunDetailsScreen
 import com.example.runtracker.ui.screens.RunHistoryScreenM3
 import com.example.runtracker.ui.screens.TrackingScreen
