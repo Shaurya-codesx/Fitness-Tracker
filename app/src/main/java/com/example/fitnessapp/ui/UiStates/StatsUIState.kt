@@ -4,10 +4,9 @@ import com.example.fitnessapp.Data.Model.WeeklyDistances
 
 data class StatsData (
     val totalDistance : String ="",
-    val totalTime : String = "",
-    val totalAvgPace : String = "",
+    val totalCalories : String = "",
+    val totalSteps : String = "",
     val totalRuns : String = "",
-    val weeklyDistanceData : List<WeeklyDistances> = emptyList()
 )
 
 

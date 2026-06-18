@@ -45,4 +45,15 @@ interface runDAO {
         ORDER BY day ASC
     """)
     fun getWeeklyDistances(startTime: Long, endTime: Long): Flow<List<WeeklyDistances>>
+
+    @Query("""
+    SELECT 
+        COALESCE(SUM(distanceInMeters), 0.0) AS totalDistance, 
+        COALESCE(SUM(stepsTaken), 0) AS totalSteps, 
+        COALESCE(SUM(caloriesBurned), 0.0) AS totalCalories,
+        COUNT(*) AS totalRuns
+    FROM runs 
+    WHERE startTime BETWEEN :startTime AND :endTime
+""")
+    fun analyticsDataInRange(startTime: Long, endTime: Long) : Flow<analyticsData>
 }
