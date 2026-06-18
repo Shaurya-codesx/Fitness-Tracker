@@ -1,233 +1,553 @@
-package com.example.fitnessapp.ui.activity.Stats
+package com.example.fittracker.ui.stats
 
-import android.os.Build
-import androidx.annotation.RequiresApi
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.*
+import androidx.compose.material.icons.rounded.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.example.fitnessapp.Data.Model.WeeklyDistances
+import com.example.fitnessapp.ui.UiStates.StatsData
 import com.example.fitnessapp.ui.UiStates.StatsUIState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
-import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import com.example.fitnessapp.ui.activity.RunHistory.RunFilter
-import com.example.fitnessapp.ui.components.BottomBar
+import com.example.fitnessapp.ui.activity.Stats.StatsViewModel
 
-// ... (imports remain the same)
+// ─────────────────────────────────────────────────────────────────
+//  Entry point
+// ─────────────────────────────────────────────────────────────────
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StatsScreen(navController: NavController) {
-    val statsViewModel: StatsViewModel = hiltViewModel()
-    val uiState by statsViewModel.statsUIState.collectAsStateWithLifecycle()
-
-    val filterChips = listOf("Today", "This week", "This month", "All runs")
-    var selectedFilter by rememberSaveable { mutableStateOf("Today") }
+    val viewModel : StatsViewModel = hiltViewModel()
+    val uiState by viewModel.statsUIState.collectAsStateWithLifecycle()
+    val selectedFilter by viewModel.selectedFilter.collectAsStateWithLifecycle()
 
     Scaffold(
-        bottomBar = {
-            BottomBar(navController)
-        }
+        topBar = { StatsTopBar() },
+        containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .verticalScroll(rememberScrollState())
         ) {
-            when (val state = uiState) {
-                is StatsUIState.Loading -> {
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                }
-                is StatsUIState.Error -> {
-                    Text(
-                        text = state.message,
-                        color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                }
-                is StatsUIState.Success -> {
-                    val data = state.data
-                    // REMOVED .verticalScroll(rememberScrollState()) to prevent crash
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        item {
-                            Text(
-                                text = "Statistics",
-                                fontSize = 24.sp,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.padding(bottom = 8.dp)
-                            )
-                        }
+            // Filter chip row
+            FilterRow(
+                selected = selectedFilter,
+                onSelect = viewModel::onFilterSelected
+            )
 
-                        item {
-                            FilterChipRow(
-                                options = filterChips,
-                                selected = selectedFilter,
-                                onSelect = {
-                                    selectedFilter = it
-                                    when(it) { // Cleaned up when logic
-                                        "All runs" -> statsViewModel.onFilterSelected(RunFilter.ALL)
-                                        "Today" -> statsViewModel.onFilterSelected(RunFilter.DAY)
-                                        "This week" -> statsViewModel.onFilterSelected(RunFilter.WEEK)
-                                        "This month" -> statsViewModel.onFilterSelected(RunFilter.MONTH)
-                                    }
-                                }
-                            )
-                        }
+            Spacer(Modifier.height(8.dp))
 
-                        // Stats Grid - Row 1
-                        item {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(16.dp)
-                            ) {
-                                StatCard(modifier = Modifier.weight(1f), label = "Distance", value = data.totalDistance)
-                                StatCard(modifier = Modifier.weight(1f), label = "Calories", value = data.totalCalories)
-                            }
-                        }
-
-                        // Stats Grid - Row 2
-                        item {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(16.dp)
-                            ) {
-                                StatCard(modifier = Modifier.weight(1f), label = "Steps", value = data.totalSteps)
-                                StatCard(modifier = Modifier.weight(1f), label = "Total Runs", value = data.totalRuns)
-                            }
-                        }
-
-                        // Navigation Buttons
-                        item {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(top = 16.dp),
-                                verticalArrangement = Arrangement.spacedBy(12.dp)
-                            ) {
-                                NavigationButton(text = "Health Trends") {
-                                    /* Handle Navigation */
-                                }
-                                NavigationButton(text = "Personal Bests") {
-                                    /* Handle Navigation */
-                                }
-                            }
-                        }
-                    }
+            // Content area — animated crossfade between states
+            AnimatedContent(
+                targetState = uiState,
+                transitionSpec = {
+                    fadeIn(tween(300)) togetherWith fadeOut(tween(200))
+                },
+                label = "stats_content"
+            ) { state ->
+                when (state) {
+                    is StatsUIState.Loading -> StatsLoadingContent()
+                    is StatsUIState.Error   -> StatsErrorContent(message = state.message)
+                    is StatsUIState.Success -> StatsSuccessContent(data = state.data)
                 }
             }
         }
     }
 }
 
+// ─────────────────────────────────────────────────────────────────
+//  Top Bar
+// ─────────────────────────────────────────────────────────────────
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun StatsTopBar() {
+    TopAppBar(
+        title = {
+            Text(
+                text = "Statistics",
+                style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold)
+            )
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.background,
+            titleContentColor = MaterialTheme.colorScheme.onBackground
+        )
+    )
+}
+
+// ─────────────────────────────────────────────────────────────────
+//  Filter chips
+// ─────────────────────────────────────────────────────────────────
+
+private val filters = listOf(
+    RunFilter.DAY   to "Today",
+    RunFilter.WEEK  to "This week",
+    RunFilter.MONTH to "This month",
+    RunFilter.ALL   to "All runs"
+)
 
 @Composable
-fun StatCard(modifier: Modifier = Modifier, label: String, value: String) {
-    Card(
-        modifier = modifier.height(100.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
+private fun FilterRow(
+    selected: RunFilter,
+    onSelect: (RunFilter) -> Unit
+) {
+    ScrollableTabRow(
+        selectedTabIndex = filters.indexOfFirst { it.first == selected }.coerceAtLeast(0),
+        edgePadding = 16.dp,
+        divider = {},
+        indicator = {},           // we handle selection inside each chip
+        containerColor = Color.Transparent,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        filters.forEach { (filter, label) ->
+            val isSelected = filter == selected
+            FilterChip(
+                selected = isSelected,
+                onClick = { onSelect(filter) },
+                label = {
+                    Text(
+                        text = label,
+                        style = MaterialTheme.typography.labelLarge
+                    )
+                },
+                colors = FilterChipDefaults.filterChipColors(
+                    selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                    selectedLabelColor     = MaterialTheme.colorScheme.onPrimaryContainer,
+                    containerColor         = MaterialTheme.colorScheme.surfaceVariant,
+                    labelColor             = MaterialTheme.colorScheme.onSurfaceVariant
+                ),
+                border = FilterChipDefaults.filterChipBorder(
+                    enabled          = true,
+                    selected         = isSelected,
+                    borderColor      = Color.Transparent,
+                    selectedBorderColor = Color.Transparent
+                ),
+                modifier = Modifier.padding(end = 8.dp)
+            )
+        }
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────
+//  Success content
+// ─────────────────────────────────────────────────────────────────
+
+@Composable
+private fun StatsSuccessContent(data: StatsData) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        // Hero card – Distance gets the spotlight
+        HeroStatCard(
+            label    = "Distance",
+            value    = data.totalDistance,
+            icon     = Icons.Rounded.DirectionsRun,
+            gradient = listOf(
+                MaterialTheme.colorScheme.primary,
+                MaterialTheme.colorScheme.tertiary
+            )
+        )
+
+        // 3-metric row underneath
+        Row(
+            modifier            = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            SmallStatCard(
+                modifier = Modifier.weight(1f),
+                label    = "Calories",
+                value    = data.totalCalories,
+                icon     = Icons.Outlined.LocalFireDepartment,
+                tint     = MaterialTheme.colorScheme.error
+            )
+            SmallStatCard(
+                modifier = Modifier.weight(1f),
+                label    = "Steps",
+                value    = data.totalSteps,
+                icon     = Icons.Outlined.DoNotStep,
+                tint     = MaterialTheme.colorScheme.secondary
+            )
+            SmallStatCard(
+                modifier = Modifier.weight(1f),
+                label    = "Runs",
+                value    = data.totalRuns,
+                icon     = Icons.Outlined.FitnessCenter,
+                tint     = MaterialTheme.colorScheme.tertiary
+            )
+        }
+
+        Spacer(Modifier.height(8.dp))
+
+        // Action cards
+        ActionCard(
+            title    = "Health Trends",
+            subtitle = "View your progress over time",
+            icon     = Icons.Outlined.TrendingUp,
+            onClick  = { /* navigate */ }
+        )
+        ActionCard(
+            title    = "Personal Bests",
+            subtitle = "Your all-time records",
+            icon     = Icons.Outlined.EmojiEvents,
+            onClick  = { /* navigate */ }
+        )
+
+        Spacer(Modifier.height(16.dp))
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────
+//  Hero stat card (Distance)
+// ─────────────────────────────────────────────────────────────────
+
+@Composable
+private fun HeroStatCard(
+    label   : String,
+    value   : String,
+    icon    : ImageVector,
+    gradient: List<Color>
+) {
+    val infiniteTransition = rememberInfiniteTransition(label = "hero_gradient")
+    val gradientShift by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue  = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(4000, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
         ),
-        shape = RoundedCornerShape(16.dp)
+        label = "shift"
+    )
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(160.dp)
+            .clip(RoundedCornerShape(28.dp))
+            .background(
+                Brush.linearGradient(
+                    colors = gradient,
+                    start  = Offset(0f, gradientShift * 400f),
+                    end    = Offset(400f + gradientShift * 200f, 400f)
+                )
+            )
+            .padding(24.dp)
+    ) {
+        // Background decorative icon
+        Icon(
+            imageVector        = icon,
+            contentDescription = null,
+            tint               = Color.White.copy(alpha = 0.12f),
+            modifier           = Modifier
+                .size(120.dp)
+                .align(Alignment.BottomEnd)
+                .offset(x = 16.dp, y = 16.dp)
+        )
+
+        Column(
+            modifier = Modifier.align(Alignment.CenterStart),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                Icon(
+                    imageVector        = icon,
+                    contentDescription = null,
+                    tint               = Color.White.copy(alpha = 0.85f),
+                    modifier           = Modifier.size(18.dp)
+                )
+                Text(
+                    text  = label.uppercase(),
+                    color = Color.White.copy(alpha = 0.85f),
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        letterSpacing = 1.5.sp
+                    )
+                )
+            }
+            Text(
+                text  = value,
+                color = Color.White,
+                style = MaterialTheme.typography.displayMedium.copy(
+                    fontWeight = FontWeight.ExtraBold
+                )
+            )
+        }
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────
+//  Small stat card
+// ─────────────────────────────────────────────────────────────────
+
+@Composable
+private fun SmallStatCard(
+    modifier : Modifier = Modifier,
+    label    : String,
+    value    : String,
+    icon     : ImageVector,
+    tint     : Color
+) {
+    Card(
+        modifier = modifier.height(110.dp),
+        shape    = RoundedCornerShape(20.dp),
+        colors   = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(12.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(14.dp),
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(text = label, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Text(text = value, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            Box(
+                modifier = Modifier
+                    .size(36.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(tint.copy(alpha = 0.12f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector        = icon,
+                    contentDescription = null,
+                    tint               = tint,
+                    modifier           = Modifier.size(20.dp)
+                )
+            }
+            Column {
+                Text(
+                    text  = value,
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1
+                )
+                Text(
+                    text  = label,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
     }
 }
 
+// ─────────────────────────────────────────────────────────────────
+//  Action card (Health Trends / Personal Bests)
+// ─────────────────────────────────────────────────────────────────
+
 @Composable
-fun NavigationButton(text: String, onClick: () -> Unit) {
+private fun ActionCard(
+    title   : String,
+    subtitle: String,
+    icon    : ImageVector,
+    onClick : () -> Unit
+) {
     Card(
-        onClick = onClick,
+        onClick   = onClick,
+        shape     = RoundedCornerShape(20.dp),
+        colors    = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        modifier  = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier            = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 18.dp),
+            verticalAlignment   = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(
+                verticalAlignment    = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(14.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(44.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.18f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector        = icon,
+                        contentDescription = null,
+                        tint               = MaterialTheme.colorScheme.onSecondaryContainer,
+                        modifier           = Modifier.size(22.dp)
+                    )
+                }
+                Column {
+                    Text(
+                        text  = title,
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                    Text(
+                        text  = subtitle,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f)
+                    )
+                }
+            }
+            Icon(
+                imageVector        = Icons.Rounded.ChevronRight,
+                contentDescription = null,
+                tint               = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.6f),
+                modifier           = Modifier.size(20.dp)
+            )
+        }
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────
+//  Loading state — shimmer skeleton
+// ─────────────────────────────────────────────────────────────────
+
+@Composable
+private fun StatsLoadingContent() {
+    val shimmerTransition = rememberInfiniteTransition(label = "shimmer")
+    val shimmerAlpha by shimmerTransition.animateFloat(
+        initialValue  = 0.3f,
+        targetValue   = 0.7f,
+        animationSpec = infiniteRepeatable(
+            animation  = tween(900, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "alpha"
+    )
+
+    val shimmerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = shimmerAlpha * 0.15f)
+
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .height(56.dp),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primary
-        )
+            .padding(horizontal = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text(
-                text = text,
-                color = MaterialTheme.colorScheme.onPrimary,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 16.sp
+        // Hero skeleton
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(160.dp)
+                .clip(RoundedCornerShape(28.dp))
+                .background(shimmerColor)
+        )
+
+        // Small cards skeleton row
+        Row(
+            modifier              = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            repeat(3) {
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(110.dp)
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(shimmerColor)
+                )
+            }
+        }
+
+        // Action card skeletons
+        repeat(2) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(72.dp)
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(shimmerColor)
             )
         }
     }
 }
 
+// ─────────────────────────────────────────────────────────────────
+//  Error state
+// ─────────────────────────────────────────────────────────────────
 
 @Composable
-private fun FilterChipRow(
-    options: List<String>,
-    selected: String,
-    onSelect: (String) -> Unit
-) {
-    LazyRow(
-        contentPadding = PaddingValues(horizontal = 20.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier.padding(top = 12.dp)
+private fun StatsErrorContent(message: String) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 32.dp, vertical = 48.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        items(options) { option ->
-            FilterChip(
-                selected = option == selected,
-                onClick = { onSelect(option) },
-                label = { Text(option) },
-                shape = RoundedCornerShape(8.dp),
-                colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-                    selectedLabelColor = MaterialTheme.colorScheme.onSecondaryContainer
-                )
+        Box(
+            modifier = Modifier
+                .size(72.dp)
+                .clip(RoundedCornerShape(20.dp))
+                .background(MaterialTheme.colorScheme.errorContainer),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector        = Icons.Rounded.ErrorOutline,
+                contentDescription = null,
+                tint               = MaterialTheme.colorScheme.onErrorContainer,
+                modifier           = Modifier.size(36.dp)
             )
+        }
+
+        Text(
+            text      = "Something went wrong",
+            style     = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+            color     = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center
+        )
+
+        Text(
+            text      = message,
+            style     = MaterialTheme.typography.bodyMedium,
+            color     = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
+        )
+
+        Button(
+            onClick = { /* viewModel.retry() if you expose it */ },
+            shape   = RoundedCornerShape(14.dp),
+            colors  = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.error
+            )
+        ) {
+            Icon(
+                imageVector        = Icons.Rounded.Refresh,
+                contentDescription = null,
+                modifier           = Modifier.size(18.dp)
+            )
+            Spacer(Modifier.width(8.dp))
+            Text("Try again")
         }
     }
 }
