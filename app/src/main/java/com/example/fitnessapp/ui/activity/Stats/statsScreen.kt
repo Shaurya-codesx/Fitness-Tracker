@@ -38,7 +38,11 @@ import com.example.fitnessapp.ui.components.BottomBar
 @Composable
 fun StatsScreen(
     navController: NavController,
-    onHealthTrendsClick: () -> Unit = {},
+    onHealthTrendsClick: () -> Unit = {
+        navController.navigate("healthTrendsScreen"){
+            popUpTo("statsScreen")
+        }
+    },
     onPersonalBestsClick: () -> Unit = {},
 ) {
     val viewModel : StatsViewModel = hiltViewModel()
