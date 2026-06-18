@@ -157,7 +157,7 @@ private fun TrendListCard(
                 imageVector = Icons.Default.ChevronRight,
                 contentDescription = null,
                 tint = contentColor.copy(alpha = 0.55f),
-                modifier = Modifier.size(22.dp)
+                modifier = Modifier.size(45.dp)
             )
         }
     }
