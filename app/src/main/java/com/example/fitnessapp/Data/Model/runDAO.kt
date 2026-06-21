@@ -51,6 +51,7 @@ interface runDAO {
         COALESCE(SUM(distanceInMeters), 0.0) AS totalDistance, 
         COALESCE(SUM(stepsTaken), 0) AS totalSteps, 
         COALESCE(SUM(caloriesBurned), 0.0) AS totalCalories,
+        COALESCE(SUM(endTime - startTime), 0) AS totalDuration,
         COUNT(*) AS totalRuns
     FROM runs 
     WHERE startTime BETWEEN :startTime AND :endTime

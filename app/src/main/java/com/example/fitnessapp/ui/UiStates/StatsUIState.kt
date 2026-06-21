@@ -6,6 +6,7 @@ data class StatsData (
     val totalDistance : String ="",
     val totalCalories : String = "",
     val totalSteps : String = "",
+    val totalDuration : String = "",
     val totalRuns : String = "",
 )
 

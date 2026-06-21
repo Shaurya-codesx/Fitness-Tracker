@@ -3,6 +3,7 @@ package com.example.fitnessapp.ui.activity.Stats
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.fitnessapp.Domain.RunRepository
+import com.example.fitnessapp.Domain.UseCases.ConvertTimeUseCase
 import com.example.fitnessapp.Domain.UseCases.GetRunRangeUseCase
 import com.example.fitnessapp.ui.UiStates.StatsData
 import com.example.fitnessapp.ui.UiStates.StatsUIState
@@ -21,6 +22,7 @@ import javax.inject.Inject
 @HiltViewModel
 class StatsViewModel @Inject constructor(
     private val runRepo : RunRepository,
+    private val timeFormat : ConvertTimeUseCase,
     private val getRange : GetRunRangeUseCase
 ) : ViewModel() {
 
@@ -38,6 +40,7 @@ class StatsViewModel @Inject constructor(
                         totalDistance = "%.1f KM".format(data.totalDistance / 1000f),
                         totalCalories = "%.1f CAL".format(data.totalCalories),
                         totalSteps = data.totalSteps.toString(),
+                        totalDuration = timeFormat.formatDurationShort(data.totalDuration),
                         totalRuns = data.totalRuns.toString()
                     )
                     StatsUIState.Success(uiData) as StatsUIState

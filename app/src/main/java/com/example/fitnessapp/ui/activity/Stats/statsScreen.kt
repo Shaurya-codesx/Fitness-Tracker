@@ -115,17 +115,17 @@ fun StatsScreen(
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             PastelCard(
-                                icon = Icons.AutoMirrored.Filled.DirectionsRun,
-                                value = data.totalDistance,
-                                label = "Total Distance",
-                                bgColor = Color(0xFF3A5F8A),
-                                contentColor = Color.White,
+                                icon = Icons.Filled.EmojiEvents,
+                                value = data.totalRuns,
+                                label = "Total Runs",
+                                bgColor = Color(0xFFE0F0E8),
+                                contentColor = Color(0xFF3E6B58),
                                 modifier = Modifier.weight(1f)
                             )
                             PastelCard(
                                 icon = Icons.Filled.LocalFireDepartment,
                                 value = data.totalCalories,
-                                label = "Calories",
+                                label = "Calories Burned",
                                 bgColor = Color(0xFFF8E7D9),
                                 contentColor = Color(0xFF8B5E3C),
                                 modifier = Modifier.weight(1f)
@@ -145,11 +145,11 @@ fun StatsScreen(
                                 modifier = Modifier.weight(1f)
                             )
                             PastelCard(
-                                icon = Icons.Filled.EmojiEvents,
-                                value = data.totalRuns,
-                                label = "Total Runs",
-                                bgColor = Color(0xFFE0F0E8),
-                                contentColor = Color(0xFF3E6B58),
+                                icon = Icons.AutoMirrored.Filled.DirectionsRun,
+                                value = data.totalDuration,
+                                label = "Duration",
+                                bgColor = Color(0xFFB3EBF2),
+                                contentColor = Color(0xFF2E6C7B),
                                 modifier = Modifier.weight(1f)
                             )
                         }

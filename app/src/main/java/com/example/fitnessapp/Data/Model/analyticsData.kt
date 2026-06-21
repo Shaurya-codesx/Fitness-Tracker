@@ -4,5 +4,6 @@ data class analyticsData(
     val totalDistance : Float,
     val totalSteps : Int,
     val totalCalories : Float,
+    val totalDuration : Long,
     val totalRuns : Int
 )
