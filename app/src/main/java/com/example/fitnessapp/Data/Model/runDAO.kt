@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.fitnessapp.Data.Model.Entities.RunEntity
+import com.example.fitnessapp.ui.activity.RunHistory.RunFilter
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -45,6 +46,26 @@ interface runDAO {
         ORDER BY day ASC
     """)
     fun getWeeklyDistances(startTime: Long, endTime: Long): Flow<List<WeeklyDistances>>
+
+    @Query("""
+        SELECT 
+            CASE :filter
+                -- When viewing a WEEK, group the bars by DAY (e.g., '2026-06-21')
+                WHEN 'WEEK' THEN strftime('%Y-%m-%d', startTime / 1000, 'unixepoch', 'localtime')
+                
+                -- When viewing a MONTH, group the bars by WEEK OF THE YEAR (e.g., '2026-24')
+                WHEN 'MONTH' THEN strftime('%Y-%W', startTime / 1000, 'unixepoch', 'localtime')
+                
+                -- When viewing a YEAR, group the bars by MONTH (e.g., '2026-06')
+                WHEN 'YEAR' THEN strftime('%Y-%m', startTime / 1000, 'unixepoch', 'localtime')
+            END AS periodLabel,
+            SUM(stepsTaken) AS stepCount
+        FROM runs
+        WHERE startTime >= :startTime AND startTime <= :endTime
+        GROUP BY periodLabel
+        ORDER BY startTime ASC
+    """)
+    fun getStepsAnalytics(startTime: Long, endTime: Long, filter: String) : Flow<List<StepsModel>>
 
     @Query("""
     SELECT 

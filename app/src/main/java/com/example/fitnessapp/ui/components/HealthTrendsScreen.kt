@@ -25,7 +25,7 @@ import androidx.navigation.NavController
 fun HealthTrendsScreen(
     navController : NavController,
     // ← Just pass your click handlers here
-    onStepsClick: () -> Unit = {},
+    onStepsClick: () -> Unit = {navController.navigate("stepsScreen"){popUpTo("healthTrendsScreen")} },
     onDistanceClick: () -> Unit = {},
     onEnergyClick: () -> Unit = {},
     onPaceClick: () -> Unit = {},
