@@ -64,8 +64,8 @@ private val ChipSelectedText  = Color(0xFFFFFFFF)
 private val ChipUnselectedBg  = Color(0xFFE8E6F0)
 private val ChipUnselectedText= Color(0xFF5C5C7A)
 
-private val StatCardGreen     = Color(0xFFDFF2E1)
-private val StatCardOrange    = Color(0xFFFDEDD8)
+private val StatCardGreen     = Color(0xFFFDFD96)
+private val StatCardOrange    = Color(0xFFC3B1E1)
 private val StatCardTeal      = Color(0xFFD6F2EF)
 
 private val OnHeroText        = Color(0xFFFFFFFF)
