@@ -33,6 +33,12 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.automirrored.rounded.ArrowLeft
+import androidx.compose.material.icons.outlined.ArrowLeft
+import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.ArrowLeft
+import androidx.compose.material.icons.sharp.ArrowBack
+import androidx.navigation.NavController
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberAxisGuidelineComponent
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberAxisLabelComponent
@@ -76,7 +82,7 @@ private val SectionPadding    = 20.dp
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun StepsAnalyticsScreen() {
+fun StepsAnalyticsScreen(navController: NavController) {
     val viewModel: StepsViewModel = hiltViewModel()
     var selectedFilter by remember { mutableStateOf(FilterRange.WEEK) }
     val scope = rememberCoroutineScope()
@@ -111,6 +117,23 @@ fun StepsAnalyticsScreen() {
                 .padding(top = 24.dp, bottom = 32.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
+            Spacer(modifier = Modifier.height(10.dp))
+
+            // ── Back Button ──────────────────────────────────────────
+            IconButton(
+                onClick = { navController.navigateUp() },
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .background(ChipUnselectedBg) // Using existing light gray token
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.ArrowBack,
+                    contentDescription = "Back",
+                    tint = ChipUnselectedText,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
 
             // ── 1. Screen title ──────────────────────────────────────────
             Text(

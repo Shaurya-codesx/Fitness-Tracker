@@ -71,7 +71,7 @@ fun appRun() {
         composable("statsScreen", content = { StatsScreen(navController) })
         composable("profileScreen", content = { ProfileScreen(navController) })
         composable("healthTrendsScreen", content = { HealthTrendsScreen(navController) })
-        composable("stepsScreen", content = { StepsAnalyticsScreen() })
+        composable("stepsScreen", content = { StepsAnalyticsScreen(navController) })
         composable(
             route = "runDetails/{runId}",
             arguments = listOf(navArgument("runId") { type = NavType.LongType })
