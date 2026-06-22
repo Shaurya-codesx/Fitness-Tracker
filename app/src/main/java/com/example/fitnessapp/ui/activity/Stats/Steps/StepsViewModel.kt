@@ -25,7 +25,7 @@ class StepsViewModel @Inject constructor(
      * offset = -1 is the previous week/month/year, etc.
      */
     @RequiresApi(Build.VERSION_CODES.O)
-    fun getStepsDataForPage(filter: FilterRange, offset: Int): Flow<List<ChartData>> {
+    fun getStepsDataForPage(filter: FilterRange, offset: Int): Flow<StepsDataUiState> {
 
         // 1. Figure out the exact Start and End dates for this specific page
         val (startDate, endDate) = calculateDateRange(filter, offset)
@@ -41,7 +41,17 @@ class StepsViewModel @Inject constructor(
         return runRepository.getStepsAnalytics(startMillis, endMillis, filter.name)
             .map { rawDbResults ->
                 // This is the function we wrote earlier to fill in the zeros!
-                processChartData(rawDbResults, startDate, endDate, filter)
+                val chartData = processChartData(rawDbResults, startDate, endDate, filter)
+
+                val totalSteps = chartData.sumOf { it.value }
+                val daysInPeriod = getDaysInPeriod(filter, offset)
+                val dailyAverage = if (daysInPeriod > 0) totalSteps / daysInPeriod else 0
+
+                StepsDataUiState(
+                    chartData = chartData,
+                    dailyAverage = dailyAverage,
+                    totalSteps = totalSteps
+                )
             }
     }
 
@@ -72,6 +82,16 @@ class StepsViewModel @Inject constructor(
                 val endOfYear = targetYear.withDayOfYear(targetYear.lengthOfYear())
                 Pair(startOfYear, endOfYear)
             }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun getDaysInPeriod(filter: FilterRange, offset: Int): Int {
+        val today = LocalDate.now()
+        return when (filter) {
+            FilterRange.WEEK -> 7
+            FilterRange.MONTH -> today.plusMonths(offset.toLong()).lengthOfMonth()
+            FilterRange.YEAR -> today.plusYears(offset.toLong()).lengthOfYear()
         }
     }
 }
