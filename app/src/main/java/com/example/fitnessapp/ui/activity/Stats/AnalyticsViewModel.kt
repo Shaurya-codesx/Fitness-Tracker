@@ -1,4 +1,4 @@
-package com.example.fitnessapp.ui.activity.Stats.Steps
+package com.example.fitnessapp.ui.activity.Stats
 
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -6,14 +6,14 @@ import androidx.lifecycle.ViewModel
 import com.example.fitnessapp.Domain.RunRepository
 import com.example.fitnessapp.Domain.UseCases.GetDaysInRange
 import com.example.fitnessapp.Domain.UseCases.calculateDateRange
-import com.example.fitnessapp.ui.activity.Stats.FilterRange
+import com.example.fitnessapp.ui.activity.Stats.Distance.DistanceDataUiState
+import com.example.fitnessapp.ui.activity.Stats.Distance.processDistanceChartData
+import com.example.fitnessapp.ui.activity.Stats.Steps.StepsDataUiState
+import com.example.fitnessapp.ui.activity.Stats.Steps.processChartData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import java.time.DayOfWeek
-import java.time.LocalDate
 import java.time.ZoneId
-import java.time.temporal.TemporalAdjusters
 import javax.inject.Inject
 
 @HiltViewModel
@@ -59,5 +59,28 @@ class StepsViewModel @Inject constructor(
             }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun getDistanceDataForPage(filter: FilterRange, offset: Int): Flow<DistanceDataUiState> {
+        val (startDate, endDate) = calcDateRange(filter, offset)
+        val zoneId = ZoneId.systemDefault()
+        val startMillis = startDate.atStartOfDay(zoneId).toInstant().toEpochMilli()
+        val endMillis = endDate.plusDays(1).atStartOfDay(zoneId).toInstant().toEpochMilli() - 1
+
+        return runRepository.getDistanceAnalytics(startMillis, endMillis, filter.name)
+            .map { rawDbResults ->
+                val chartData = processDistanceChartData(rawDbResults, startDate, endDate, filter)
+
+                // Float math for distance
+                val totalDistance = chartData.map { it.value }.sum()
+                val daysInPeriod = getDaysInRange(filter, offset)
+                val dailyAverage = if (daysInPeriod > 0) totalDistance / daysInPeriod else 0f
+
+                DistanceDataUiState(
+                    chartData = chartData,
+                    dailyAverage = dailyAverage,
+                    totalDistance = totalDistance
+                )
+            }
+    }
 
 }

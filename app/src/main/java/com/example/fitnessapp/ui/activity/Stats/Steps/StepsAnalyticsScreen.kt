@@ -39,6 +39,7 @@ import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.ArrowLeft
 import androidx.compose.material.icons.sharp.ArrowBack
 import androidx.navigation.NavController
+import com.example.fitnessapp.ui.activity.Stats.StepsViewModel
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberAxisGuidelineComponent
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberAxisLabelComponent
