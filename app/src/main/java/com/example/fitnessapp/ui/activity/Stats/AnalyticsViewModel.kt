@@ -17,7 +17,7 @@ import java.time.ZoneId
 import javax.inject.Inject
 
 @HiltViewModel
-class StepsViewModel @Inject constructor(
+class AnalyticsViewModel @Inject constructor(
     private val runRepository: RunRepository,
     private val calcDateRange : calculateDateRange,
     private val getDaysInRange: GetDaysInRange,

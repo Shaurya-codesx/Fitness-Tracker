@@ -1,19 +1,23 @@
-package com.example.fitnessapp.ui.activity.Stats.Steps
+package com.example.fitnessapp.ui.activity.Stats.Distance
 
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.ChevronLeft
 import androidx.compose.material.icons.rounded.ChevronRight
-import androidx.compose.material.icons.rounded.DirectionsWalk
+import androidx.compose.material.icons.rounded.Map
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -25,21 +29,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.fitnessapp.ui.activity.Stats.FilterRange
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.util.Locale
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.automirrored.rounded.ArrowLeft
-import androidx.compose.material.icons.outlined.ArrowLeft
-import androidx.compose.material.icons.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.ArrowLeft
-import androidx.compose.material.icons.sharp.ArrowBack
 import androidx.navigation.NavController
 import com.example.fitnessapp.ui.activity.Stats.AnalyticsViewModel
+import com.example.fitnessapp.ui.activity.Stats.FilterRange
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberAxisGuidelineComponent
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberAxisLabelComponent
@@ -52,26 +44,29 @@ import com.patrykandpatrick.vico.core.cartesian.data.CartesianChartModel
 import com.patrykandpatrick.vico.core.cartesian.data.CartesianValueFormatter
 import com.patrykandpatrick.vico.core.cartesian.data.ColumnCartesianLayerModel
 import com.patrykandpatrick.vico.core.cartesian.layer.ColumnCartesianLayer
-import kotlinx.coroutines.launch
-import java.time.temporal.TemporalAdjusters
-import kotlinx.datetime.DayOfWeek
 import com.patrykandpatrick.vico.core.common.shape.Shape
+import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.temporal.TemporalAdjusters
+import java.util.Locale
+import kotlinx.datetime.DayOfWeek
 
 // ─────────────────────────────────────────────
-// Design Tokens – match your app's visual DNA
+// Design Tokens – Kept identical for UI consistency
 // ─────────────────────────────────────────────
-private val BackgroundColor   = Color(0xFFF2F1F8) // near-white lavender
-private val HeroCardColor     = Color(0xFF3B5A8A) // muted dark blue (hero card)
-private val HeroCardAccent    = Color(0xFF4F7AB3) // lighter blue for gradient end
+private val BackgroundColor   = Color(0xFFF2F1F8)
+private val HeroCardColor     = Color(0xFF3B5A8A)
+private val HeroCardAccent    = Color(0xFF4F7AB3)
 
 private val ChipSelectedBg    = Color(0xFF3B5A8A)
 private val ChipSelectedText  = Color(0xFFFFFFFF)
 private val ChipUnselectedBg  = Color(0xFFE8E6F0)
 private val ChipUnselectedText= Color(0xFF5C5C7A)
 
-private val StatCardGreen     = Color(0xFFDFF2E1) // soft pastel green
-private val StatCardOrange    = Color(0xFFFDEDD8) // soft pastel orange
-private val StatCardTeal      = Color(0xFFD6F2EF) // soft pastel teal
+private val StatCardGreen     = Color(0xFFDFF2E1)
+private val StatCardOrange    = Color(0xFFFDEDD8)
+private val StatCardTeal      = Color(0xFFD6F2EF)
 
 private val OnHeroText        = Color(0xFFFFFFFF)
 private val OnHeroSubText     = Color(0xFFB8CEDE)
@@ -83,7 +78,7 @@ private val SectionPadding    = 20.dp
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun StepsAnalyticsScreen(navController: NavController) {
+fun DistanceAnalyticsScreen(navController: NavController) {
     val viewModel: AnalyticsViewModel = hiltViewModel()
     var selectedFilter by remember { mutableStateOf(FilterRange.WEEK) }
     val scope = rememberCoroutineScope()
@@ -100,10 +95,10 @@ fun StepsAnalyticsScreen(navController: NavController) {
         getFormattedHeader(selectedFilter, currentOffset)
     }
 
-    // Collect the UI state for the current page to show summary stats above the pager
+    // Collect the UI state for Distance
     val currentUiState by viewModel
-        .getStepsDataForPage(selectedFilter, currentOffset)
-        .collectAsState(initial = StepsDataUiState())
+        .getDistanceDataForPage(selectedFilter, currentOffset)
+        .collectAsState(initial = DistanceDataUiState())
 
     Box(
         modifier = Modifier
@@ -126,7 +121,7 @@ fun StepsAnalyticsScreen(navController: NavController) {
                 modifier = Modifier
                     .size(40.dp)
                     .clip(CircleShape)
-                    .background(ChipUnselectedBg) // Using existing light gray token
+                    .background(ChipUnselectedBg)
             ) {
                 Icon(
                     imageVector = Icons.Rounded.ArrowBack,
@@ -138,7 +133,7 @@ fun StepsAnalyticsScreen(navController: NavController) {
 
             // ── 1. Screen title ──────────────────────────────────────────
             Text(
-                text = "Steps",
+                text = "Distance", // Updated Title
                 style = MaterialTheme.typography.headlineMedium.copy(
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF1A1A2E)
@@ -151,7 +146,7 @@ fun StepsAnalyticsScreen(navController: NavController) {
                 onFilterSelected = { selectedFilter = it }
             )
 
-            // ── 3. Hero summary card (dark blue, full width) ─────────────
+            // ── 3. Hero summary card ─────────────────────────────────────
             HeroSummaryCard(
                 headerText = headerText,
                 uiState = currentUiState,
@@ -174,11 +169,11 @@ fun StepsAnalyticsScreen(navController: NavController) {
                 ) { page ->
                     val pageOffset = page - initialPage
                     val uiState by viewModel
-                        .getStepsDataForPage(selectedFilter, pageOffset)
-                        .collectAsState(initial = StepsDataUiState())
+                        .getDistanceDataForPage(selectedFilter, pageOffset)
+                        .collectAsState(initial = DistanceDataUiState())
 
                     if (uiState.chartData.isNotEmpty()) {
-                        StepsBarChart(chartData = uiState.chartData)
+                        DistanceBarChart(chartData = uiState.chartData)
                     } else {
                         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                             CircularProgressIndicator(
@@ -202,7 +197,6 @@ fun StepsAnalyticsScreen(navController: NavController) {
 // ─────────────────────────────────────────────────────────────────────────────
 // Filter Chip Row
 // ─────────────────────────────────────────────────────────────────────────────
-
 @Composable
 private fun FilterChipRow(
     selectedFilter: FilterRange,
@@ -232,8 +226,7 @@ private fun FilterChipRow(
                 shadowElevation = 0.dp
             ) {
                 Text(
-                    text = filter.name.lowercase()
-                        .replaceFirstChar { it.uppercase() },
+                    text = filter.name.lowercase().replaceFirstChar { it.uppercase() },
                     style = MaterialTheme.typography.labelLarge.copy(
                         color = textColor,
                         fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal
@@ -247,13 +240,12 @@ private fun FilterChipRow(
 
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Hero Summary Card  (dark blue gradient, mirrors the 0.2 KM card in the app)
+// Hero Summary Card (Updated for Float and KM formatting)
 // ─────────────────────────────────────────────────────────────────────────────
-
 @Composable
 private fun HeroSummaryCard(
     headerText: String,
-    uiState: StepsDataUiState,
+    uiState: DistanceDataUiState,
     onPrevious: () -> Unit,
     onNext: () -> Unit
 ) {
@@ -261,15 +253,10 @@ private fun HeroSummaryCard(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(CardRadius))
-            .background(
-                Brush.linearGradient(
-                    colors = listOf(HeroCardColor, HeroCardAccent)
-                )
-            )
+            .background(Brush.linearGradient(colors = listOf(HeroCardColor, HeroCardAccent)))
             .padding(horizontal = 20.dp, vertical = 22.dp)
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            // Date navigation row
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -277,46 +264,27 @@ private fun HeroSummaryCard(
             ) {
                 IconButton(
                     onClick = onPrevious,
-                    modifier = Modifier
-                        .size(32.dp)
-                        .clip(CircleShape)
-                        .background(Color.White.copy(alpha = 0.12f))
+                    modifier = Modifier.size(32.dp).clip(CircleShape).background(Color.White.copy(alpha = 0.12f))
                 ) {
-                    Icon(
-                        imageVector = Icons.Rounded.ChevronLeft,
-                        contentDescription = "Previous",
-                        tint = OnHeroSubText,
-                        modifier = Modifier.size(20.dp)
-                    )
+                    Icon(Icons.Rounded.ChevronLeft, "Previous", tint = OnHeroSubText, modifier = Modifier.size(20.dp))
                 }
 
                 Text(
                     text = headerText,
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        color = OnHeroSubText,
-                        fontWeight = FontWeight.Medium
-                    )
+                    style = MaterialTheme.typography.titleLarge.copy(color = OnHeroSubText, fontWeight = FontWeight.Medium)
                 )
 
                 IconButton(
                     onClick = onNext,
-                    modifier = Modifier
-                        .size(32.dp)
-                        .clip(CircleShape)
-                        .background(Color.White.copy(alpha = 0.12f))
+                    modifier = Modifier.size(32.dp).clip(CircleShape).background(Color.White.copy(alpha = 0.12f))
                 ) {
-                    Icon(
-                        imageVector = Icons.Rounded.ChevronRight,
-                        contentDescription = "Next",
-                        tint = OnHeroSubText,
-                        modifier = Modifier.size(20.dp)
-                    )
+                    Icon(Icons.Rounded.ChevronRight, "Next", tint = OnHeroSubText, modifier = Modifier.size(20.dp))
                 }
             }
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Walk icon pill
+            // Updated Icon and Text
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(50))
@@ -328,7 +296,7 @@ private fun HeroSummaryCard(
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Rounded.DirectionsWalk,
+                        imageVector = Icons.Rounded.Map, // Map icon instead of Walk
                         contentDescription = null,
                         tint = OnHeroSubText,
                         modifier = Modifier.size(14.dp)
@@ -343,8 +311,9 @@ private fun HeroSummaryCard(
             Spacer(modifier = Modifier.height(4.dp))
 
             if (uiState.chartData.isNotEmpty()) {
+                // Formatting Float to 2 decimal places (e.g., 5.42)
                 Text(
-                    text = "%,d".format(uiState.dailyAverage),
+                    text = "%,.2f".format(uiState.dailyAverage),
                     style = MaterialTheme.typography.displaySmall.copy(
                         color = OnHeroText,
                         fontWeight = FontWeight.Bold,
@@ -352,7 +321,7 @@ private fun HeroSummaryCard(
                     )
                 )
                 Text(
-                    text = "steps / day",
+                    text = "km / day", // Updated unit string
                     style = MaterialTheme.typography.titleMedium.copy(color = OnHeroSubText)
                 )
             } else {
@@ -370,13 +339,12 @@ private fun HeroSummaryCard(
 
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Quick Stats Row  (pastel cards matching the Performance grid in the app)
+// Quick Stats Row (Updated for Float formatting and KM units)
 // ─────────────────────────────────────────────────────────────────────────────
-
 @Composable
-private fun QuickStatsRow(uiState: StepsDataUiState, selectedFilter: FilterRange) {
-    val totalSteps = uiState.chartData.sumOf { it.value }
-    val peakDay    = uiState.chartData.maxByOrNull { it.value }
+private fun QuickStatsRow(uiState: DistanceDataUiState, selectedFilter: FilterRange) {
+    // Utilize the totalDistance from the UiState to avoid manual summing in UI
+    val peakDay = uiState.chartData.maxByOrNull { it.value }
 
     val (peakLabel, activeLabel, activeUnit) = when (selectedFilter) {
         FilterRange.WEEK -> Triple("Peak day", "Active days", "days")
@@ -392,34 +360,28 @@ private fun QuickStatsRow(uiState: StepsDataUiState, selectedFilter: FilterRange
             modifier = Modifier.weight(1f),
             bgColor  = StatCardGreen,
             label    = "Total",
-            value    = "%,d".format(totalSteps),
-            unit     = "steps"
+            value    = "%,.2f".format(uiState.totalDistance), // Float Formatting
+            unit     = "km"
         )
         MiniStatCard(
             modifier = Modifier.weight(1f),
             bgColor  = StatCardOrange,
             label    = peakLabel,
             value    = peakDay?.displayLabel ?: "–",
-            unit     = "%,d steps".format(peakDay?.value ?: 0)
+            unit     = "%,.2f km".format(peakDay?.value ?: 0f) // Float Formatting
         )
         MiniStatCard(
             modifier = Modifier.weight(1f),
             bgColor  = StatCardTeal,
             label    = activeLabel,
-            value    = uiState.chartData.count { it.value > 0 }.toString(),
+            value    = uiState.chartData.count { it.value > 0f }.toString(), // Compare against Float
             unit     = activeUnit
         )
     }
 }
 
 @Composable
-private fun MiniStatCard(
-    modifier: Modifier = Modifier,
-    bgColor: Color,
-    label: String,
-    value: String,
-    unit: String
-) {
+private fun MiniStatCard(modifier: Modifier = Modifier, bgColor: Color, label: String, value: String, unit: String) {
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(16.dp))
@@ -427,53 +389,24 @@ private fun MiniStatCard(
             .padding(horizontal = 14.dp, vertical = 14.dp)
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text(
-                text  = label,
-                style = MaterialTheme.typography.labelSmall.copy(
-                    color = Color(0xFF5C5C7A),
-                    fontWeight = FontWeight.Medium
-                )
-            )
-            Text(
-                text  = value,
-                style = MaterialTheme.typography.titleMedium.copy(
-                    color = Color(0xFF1A1A2E),
-                    fontWeight = FontWeight.Bold
-                )
-            )
-            Text(
-                text  = unit,
-                style = MaterialTheme.typography.labelSmall.copy(
-                    color = Color(0xFF8888A8),
-                    fontSize = 10.sp
-                )
-            )
+            Text(label, style = MaterialTheme.typography.labelSmall.copy(color = Color(0xFF5C5C7A), fontWeight = FontWeight.Medium))
+            Text(value, style = MaterialTheme.typography.titleMedium.copy(color = Color(0xFF1A1A2E), fontWeight = FontWeight.Bold))
+            Text(unit, style = MaterialTheme.typography.labelSmall.copy(color = Color(0xFF8888A8), fontSize = 10.sp))
         }
     }
 }
 
-
 // ─────────────────────────────────────────────────────────────────────────────
-// Chart Card container
+// Chart Card & Pager Dots container
 // ─────────────────────────────────────────────────────────────────────────────
-
 @Composable
 private fun ChartCard(content: @Composable ColumnScope.() -> Unit) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(CardRadius))
-            .background(Color.White)
-            .padding(16.dp),
+        modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(CardRadius)).background(Color.White).padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         content = content
     )
 }
-
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Pager dots indicator
-// ─────────────────────────────────────────────────────────────────────────────
 
 @Composable
 private fun PagerDots(currentPage: Int, initialPage: Int) {
@@ -485,30 +418,24 @@ private fun PagerDots(currentPage: Int, initialPage: Int) {
                 modifier = Modifier
                     .size(if (isActive) 8.dp else 5.dp)
                     .clip(CircleShape)
-                    .background(
-                        if (isActive) HeroCardColor
-                        else Color(0xFFCCCCDD)
-                    )
+                    .background(if (isActive) HeroCardColor else Color(0xFFCCCCDD))
             )
         }
     }
 }
 
-
 // ─────────────────────────────────────────────────────────────────────────────
-// Bar Chart  (unchanged logic, styled via Vico column layer)
+// Bar Chart (Works seamlessly with Floats)
 // ─────────────────────────────────────────────────────────────────────────────
-
 @Composable
-fun StepsBarChart(chartData: List<ChartData>) {
-    // 1. Define the labels for the X-Axis using your data's displayLabel
+fun DistanceBarChart(chartData: List<ChartData>) {
     val bottomAxisValueFormatter = CartesianValueFormatter { x, _, _ ->
         chartData.getOrNull(x.toInt())?.displayLabel ?: ""
     }
 
     val model = CartesianChartModel(
         ColumnCartesianLayerModel.build {
-            series(chartData.map { it.value })
+            series(chartData.map { it.value }) // Vico natively handles Floats
         }
     )
 
@@ -516,11 +443,7 @@ fun StepsBarChart(chartData: List<ChartData>) {
         chart = rememberCartesianChart(
             rememberColumnCartesianLayer(
                 columnProvider = ColumnCartesianLayer.ColumnProvider.series(
-                    rememberLineComponent(
-                        color = HeroCardColor,
-                        thickness = 12.dp,
-                        shape = remember { Shape.rounded(allPercent = 25) }
-                    )
+                    rememberLineComponent(color = HeroCardColor, thickness = 12.dp, shape = remember { Shape.rounded(allPercent = 25) })
                 )
             ),
             startAxis = rememberStartAxis(
@@ -529,7 +452,6 @@ fun StepsBarChart(chartData: List<ChartData>) {
             ),
             bottomAxis = rememberBottomAxis(
                 label = rememberAxisLabelComponent(color = ChipUnselectedText),
-                // 2. Add the valueFormatter here to bring back Days/Weeks/Months labels
                 valueFormatter = bottomAxisValueFormatter,
                 guideline = null
             )
@@ -539,11 +461,9 @@ fun StepsBarChart(chartData: List<ChartData>) {
     )
 }
 
-
 // ─────────────────────────────────────────────────────────────────────────────
-// Date header helper  (unchanged logic)
+// Date header helper
 // ─────────────────────────────────────────────────────────────────────────────
-
 @RequiresApi(Build.VERSION_CODES.O)
 private fun getFormattedHeader(filter: FilterRange, offset: Int): String {
     val today = LocalDate.now()

@@ -1,4 +1,4 @@
-package com.example.fitnessapp.ui.activity.stats
+package com.example.fitnessapp.ui.activity.Stats
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -31,7 +31,6 @@ import androidx.navigation.NavController
 import com.example.fitnessapp.ui.UiStates.StatsData
 import com.example.fitnessapp.ui.UiStates.StatsUIState
 import com.example.fitnessapp.ui.activity.RunHistory.RunFilter
-import com.example.fitnessapp.ui.activity.Stats.StatsViewModel
 import com.example.fitnessapp.ui.components.BottomBar
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -407,4 +406,3 @@ private fun ErrorContent(message: String, onRetry: () -> Unit) {
         }
     }
 }
-

@@ -36,7 +36,7 @@ fun processDistanceChartData(
 
                 // Directly fetch the float or default to 0f
                 val distance = dbMap[dbKey]?.totalDistance ?: 0f
-                resultList.add(ChartData(label, distance))
+                resultList.add(ChartData(label, distance/1000))
             }
         }
         FilterRange.MONTH -> {
@@ -50,7 +50,7 @@ fun processDistanceChartData(
                 val dbKey = "${currentWeekStart.format(yearFormatter)}-${String.format("%02d", weekOfYear)}"
 
                 val distance = dbMap[dbKey]?.totalDistance ?: 0f
-                resultList.add(ChartData("Week $weekNumber", distance))
+                resultList.add(ChartData("Week $weekNumber", distance/1000))
 
                 currentWeekStart = currentWeekStart.plusWeeks(1)
                 weekNumber++
@@ -65,7 +65,7 @@ fun processDistanceChartData(
                 val label = monthDate.format(DateTimeFormatter.ofPattern("MMM", Locale.getDefault()))
 
                 val distance = dbMap[dbKey]?.totalDistance ?: 0f
-                resultList.add(ChartData(label, distance))
+                resultList.add(ChartData(label, distance/1000))
             }
         }
     }
