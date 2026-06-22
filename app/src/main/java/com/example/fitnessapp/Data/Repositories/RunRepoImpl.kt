@@ -5,9 +5,10 @@ import com.example.fitnessapp.Data.Model.DistAndDuration
 import com.example.fitnessapp.Data.Model.Entities.ActiveRun
 import com.example.fitnessapp.Data.Model.Entities.RunEntity
 import com.example.fitnessapp.Data.Model.LocationPoints
-import com.example.fitnessapp.Data.Model.StepsModel
+import com.example.fitnessapp.Data.Model.StatsDataClasses.DistanceModel
+import com.example.fitnessapp.Data.Model.StatsDataClasses.StepsModel
 import com.example.fitnessapp.Data.Model.WeeklyDistances
-import com.example.fitnessapp.Data.Model.analyticsData
+import com.example.fitnessapp.Data.Model.StatsDataClasses.analyticsData
 import com.example.fitnessapp.Data.Model.runDAO
 import com.example.fitnessapp.Domain.LocationDataSource
 import com.example.fitnessapp.Domain.UseCases.CalcDistanceUseCase
@@ -62,6 +63,14 @@ class RunRepoImpl @Inject constructor(
         filter: String
     ): Flow<List<StepsModel>> {
         return runDAO.getStepsAnalytics(startTime, endTime, filter)
+    }
+
+    override fun getDistanceAnalytics(
+        startTime: Long,
+        endTime: Long,
+        filter: String
+    ): Flow<List<DistanceModel>> {
+        return runDAO.getDistanceAnalytics(startTime, endTime, filter)
     }
 
     override fun getRunsInRange(startTime: Long, endTime: Long): Flow<List<RunEntity>> {

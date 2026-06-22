@@ -1,4 +1,4 @@
-package com.example.fitnessapp.Data.Model
+package com.example.fitnessapp.Data.Model.StatsDataClasses
 
 data class StepsModel (
     val periodLabel : String,

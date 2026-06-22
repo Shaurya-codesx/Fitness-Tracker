@@ -5,6 +5,9 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.fitnessapp.Data.Model.Entities.RunEntity
+import com.example.fitnessapp.Data.Model.StatsDataClasses.DistanceModel
+import com.example.fitnessapp.Data.Model.StatsDataClasses.StepsModel
+import com.example.fitnessapp.Data.Model.StatsDataClasses.analyticsData
 import com.example.fitnessapp.ui.activity.RunHistory.RunFilter
 import kotlinx.coroutines.flow.Flow
 
@@ -66,6 +69,25 @@ interface runDAO {
         ORDER BY startTime ASC
     """)
     fun getStepsAnalytics(startTime: Long, endTime: Long, filter: String) : Flow<List<StepsModel>>
+
+    @Query("""
+    SELECT 
+        CASE :filter
+            WHEN 'WEEK' THEN strftime('%Y-%m-%d', startTime / 1000, 'unixepoch', 'localtime')
+            WHEN 'MONTH' THEN strftime('%Y-%W', startTime / 1000, 'unixepoch', 'localtime')
+            WHEN 'YEAR' THEN strftime('%Y-%m', startTime / 1000, 'unixepoch', 'localtime')
+        END AS periodLabel,
+        SUM(distanceinmeters) AS totalDistance -- Assuming your column is still named this, or change to actual column name
+    FROM runs
+    WHERE startTime >= :startTime AND startTime <= :endTime
+    GROUP BY periodLabel
+    ORDER BY startTime ASC
+""")
+    fun getDistanceAnalytics(
+        startTime: Long,
+        endTime: Long,
+        filter: String
+    ): Flow<List<DistanceModel>>
 
     @Query("""
     SELECT 

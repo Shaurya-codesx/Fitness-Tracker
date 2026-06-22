@@ -4,6 +4,8 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import com.example.fitnessapp.Domain.RunRepository
+import com.example.fitnessapp.Domain.UseCases.GetDaysInRange
+import com.example.fitnessapp.Domain.UseCases.calculateDateRange
 import com.example.fitnessapp.ui.activity.Stats.FilterRange
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
@@ -16,7 +18,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class StepsViewModel @Inject constructor(
-    private val runRepository: RunRepository
+    private val runRepository: RunRepository,
+    private val calcDateRange : calculateDateRange,
+    private val getDaysInRange: GetDaysInRange,
 ) : ViewModel(){
 
     /**
@@ -28,7 +32,7 @@ class StepsViewModel @Inject constructor(
     fun getStepsDataForPage(filter: FilterRange, offset: Int): Flow<StepsDataUiState> {
 
         // 1. Figure out the exact Start and End dates for this specific page
-        val (startDate, endDate) = calculateDateRange(filter, offset)
+        val (startDate, endDate) = calcDateRange(filter, offset)
 
         // 2. Convert standard LocalDates into Unix Milliseconds for the Room Query
         val zoneId = ZoneId.systemDefault()
@@ -44,7 +48,7 @@ class StepsViewModel @Inject constructor(
                 val chartData = processChartData(rawDbResults, startDate, endDate, filter)
 
                 val totalSteps = chartData.sumOf { it.value }
-                val daysInPeriod = getDaysInPeriod(filter, offset)
+                val daysInPeriod = getDaysInRange(filter, offset)
                 val dailyAverage = if (daysInPeriod > 0) totalSteps / daysInPeriod else 0
 
                 StepsDataUiState(
@@ -55,43 +59,5 @@ class StepsViewModel @Inject constructor(
             }
     }
 
-    /**
-     * Helper function to do the calendar math.
-     */
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun calculateDateRange(filter: FilterRange, offset: Int): Pair<LocalDate, LocalDate> {
-        val today = LocalDate.now()
 
-        return when (filter) {
-            FilterRange.WEEK -> {
-                val targetWeek = today.plusWeeks(offset.toLong())
-                // Assuming your week starts on Monday
-                val startOfWeek = targetWeek.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-                val endOfWeek = startOfWeek.plusDays(6)
-                Pair(startOfWeek, endOfWeek)
-            }
-            FilterRange.MONTH -> {
-                val targetMonth = today.plusMonths(offset.toLong())
-                val startOfMonth = targetMonth.withDayOfMonth(1)
-                val endOfMonth = targetMonth.withDayOfMonth(targetMonth.lengthOfMonth())
-                Pair(startOfMonth, endOfMonth)
-            }
-            FilterRange.YEAR -> {
-                val targetYear = today.plusYears(offset.toLong())
-                val startOfYear = targetYear.withDayOfYear(1)
-                val endOfYear = targetYear.withDayOfYear(targetYear.lengthOfYear())
-                Pair(startOfYear, endOfYear)
-            }
-        }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun getDaysInPeriod(filter: FilterRange, offset: Int): Int {
-        val today = LocalDate.now()
-        return when (filter) {
-            FilterRange.WEEK -> 7
-            FilterRange.MONTH -> today.plusMonths(offset.toLong()).lengthOfMonth()
-            FilterRange.YEAR -> today.plusYears(offset.toLong()).lengthOfYear()
-        }
-    }
 }
