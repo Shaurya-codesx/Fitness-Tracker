@@ -26,13 +26,13 @@ import com.patrykandpatrick.vico.compose.cartesian.layer.rememberColumnCartesian
 import com.patrykandpatrick.vico.compose.cartesian.rememberCartesianChart
 import com.patrykandpatrick.vico.core.cartesian.data.CartesianChartModel
 import com.patrykandpatrick.vico.core.cartesian.data.ColumnCartesianLayerModel
+import kotlinx.datetime.DayOfWeek
+import java.time.temporal.TemporalAdjusters
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun StepsAnalyticsScreen(
-
-) {
+fun StepsAnalyticsScreen() {
     val viewModel: StepsViewModel = hiltViewModel()
     // 1. Manage the selected filter state
     var selectedFilter by remember { mutableStateOf(FilterRange.WEEK) }
@@ -157,8 +157,15 @@ private fun getFormattedHeader(filter: FilterRange, offset: Int): String {
     return when (filter) {
         FilterRange.WEEK -> {
             val targetWeek = today.plusWeeks(offset.toLong())
-            val formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy", Locale.getDefault())
-            "Week of ${targetWeek.format(formatter)}"
+
+            val startOfWeek = targetWeek.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+            val endOfWeek = startOfWeek.plusDays(6)
+
+            val monthDayFormatter = DateTimeFormatter.ofPattern("MMM dd", Locale.getDefault())
+            val yearFormatter = DateTimeFormatter.ofPattern("yyyy", Locale.getDefault())
+
+            // 3. Output format: "Jun 15 - Jun 21, 2026"
+            "${startOfWeek.format(monthDayFormatter)} - ${endOfWeek.format(monthDayFormatter)}, ${endOfWeek.format(yearFormatter)}"
         }
         FilterRange.MONTH -> {
             val targetMonth = today.plusMonths(offset.toLong())
