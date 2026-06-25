@@ -90,6 +90,16 @@ interface runDAO {
     ): Flow<List<DistanceModel>>
 
     @Query("""
+        SELECT distanceinmeters 
+        FROM runs
+        WHERE startTime >= :startTime AND startTime <= :endTime
+    """)
+    fun getRawDistancesForRange(
+        startTime: Long,
+        endTime: Long
+    ): Flow<List<Float>>
+
+    @Query("""
     SELECT 
         COALESCE(SUM(distanceInMeters), 0.0) AS totalDistance, 
         COALESCE(SUM(stepsTaken), 0) AS totalSteps, 

@@ -73,6 +73,10 @@ class RunRepoImpl @Inject constructor(
         return runDAO.getDistanceAnalytics(startTime, endTime, filter)
     }
 
+    override fun getRawDistancesForRange(startTime: Long, endTime: Long): Flow<List<Float>> {
+        return runDAO.getRawDistancesForRange(startTime, endTime)
+    }
+
     override fun getRunsInRange(startTime: Long, endTime: Long): Flow<List<RunEntity>> {
         return runDAO.getRunsInRange(startTime, endTime)
     }

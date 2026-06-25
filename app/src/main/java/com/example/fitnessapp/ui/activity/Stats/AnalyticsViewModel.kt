@@ -4,6 +4,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import com.example.fitnessapp.Domain.RunRepository
+import com.example.fitnessapp.Domain.UseCases.DistanceSplitCalculator
 import com.example.fitnessapp.Domain.UseCases.GetDaysInRange
 import com.example.fitnessapp.Domain.UseCases.calculateDateRange
 import com.example.fitnessapp.ui.activity.Stats.Distance.DistanceDataUiState
@@ -12,6 +13,7 @@ import com.example.fitnessapp.ui.activity.Stats.Steps.StepsDataUiState
 import com.example.fitnessapp.ui.activity.Stats.Steps.processChartData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import java.time.ZoneId
 import javax.inject.Inject
@@ -21,6 +23,7 @@ class AnalyticsViewModel @Inject constructor(
     private val runRepository: RunRepository,
     private val calcDateRange : calculateDateRange,
     private val getDaysInRange: GetDaysInRange,
+    private val calcDistanceSplit : DistanceSplitCalculator
 ) : ViewModel(){
 
     /**
@@ -66,21 +69,28 @@ class AnalyticsViewModel @Inject constructor(
         val startMillis = startDate.atStartOfDay(zoneId).toInstant().toEpochMilli()
         val endMillis = endDate.plusDays(1).atStartOfDay(zoneId).toInstant().toEpochMilli() - 1
 
-        return runRepository.getDistanceAnalytics(startMillis, endMillis, filter.name)
-            .map { rawDbResults ->
-                val chartData = processDistanceChartData(rawDbResults, startDate, endDate, filter)
 
-                // Float math for distance
-                val totalDistance = chartData.map { it.value }.sum()
-                val daysInPeriod = getDaysInRange(filter, offset)
-                val dailyAverage = if (daysInPeriod > 0) totalDistance / daysInPeriod else 0f
+        // Both DataFlow
+        val groupedDataFlow = runRepository.getDistanceAnalytics(startMillis, endMillis, filter.name)
+        val rawDistancesFlow = runRepository.getRawDistancesForRange(startMillis, endMillis)
 
-                DistanceDataUiState(
-                    chartData = chartData,
-                    dailyAverage = dailyAverage,
-                    totalDistance = totalDistance
-                )
-            }
+        return combine(groupedDataFlow, rawDistancesFlow) { rawDbResults, rawDistances ->
+
+            // Calculate the bar chart data
+            val chartData = processDistanceChartData(rawDbResults, startDate, endDate, filter)
+            val totalDistance = chartData.map { it.value }.sum()
+            val daysInPeriod = getDaysInRange(filter, offset)
+            val dailyAverage = if (daysInPeriod > 0) totalDistance / daysInPeriod else 0f
+
+            // Calculate the donut chart data
+            val splitData = calcDistanceSplit(rawDistances)
+
+            DistanceDataUiState(
+                chartData = chartData,
+                dailyAverage = dailyAverage,
+                totalDistance = totalDistance,
+                distanceSplit = splitData
+            )
+        }
     }
-
 }

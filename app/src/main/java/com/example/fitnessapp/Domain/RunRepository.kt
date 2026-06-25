@@ -32,5 +32,7 @@ interface RunRepository { // this repository holds the data for the active run s
 
     fun getDistanceAnalytics(startTime: Long, endTime: Long, filter: String) : Flow<List<DistanceModel>>
 
+    fun getRawDistancesForRange(startTime: Long, endTime: Long) : Flow<List<Float>>
+
     fun analyticsDataInRange(startTime: Long, endTime: Long) : Flow<analyticsData>
 }

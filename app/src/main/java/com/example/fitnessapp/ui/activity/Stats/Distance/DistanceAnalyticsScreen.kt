@@ -4,6 +4,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -25,11 +26,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.fitnessapp.Data.Model.StatsDataClasses.DistanceSplitData
 import com.example.fitnessapp.ui.activity.Stats.AnalyticsViewModel
 import com.example.fitnessapp.ui.activity.Stats.FilterRange
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
@@ -188,6 +192,10 @@ fun DistanceAnalyticsScreen(navController: NavController) {
                 // Page indicator dots
                 Spacer(modifier = Modifier.height(12.dp))
                 PagerDots(currentPage = pagerState.currentPage, initialPage = initialPage)
+            }
+
+            if (currentUiState.chartData.isNotEmpty()) {
+                DistanceSplitCard(splitData = currentUiState.distanceSplit)
             }
         }
     }
@@ -459,6 +467,114 @@ fun DistanceBarChart(chartData: List<ChartData>) {
         model = model,
         modifier = Modifier.fillMaxSize()
     )
+}
+
+
+@Composable
+fun DistanceSplitCard(splitData: DistanceSplitData) {
+    val hasData = splitData.lessThan5k > 0f || splitData.fiveTo10k > 0f || splitData.moreThan10k > 0f
+
+    // The dark background color from your image
+    val DarkCardBackground = Color(0xFFFFFFFF)
+    val LightText = Color.Black
+    val MutedText = Color(0xFF8888A8)
+
+    val ColorLessThan5k = Color(0xFF2ECC71)   // Green
+    val Color5To10k = Color(0xFF3B82F6)       // Blue
+    val ColorMoreThan10k = Color(0xFFF59E0B)  // Orange
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+            .background(DarkCardBackground) // Changed to dark
+            .padding(20.dp)
+    ) {
+        // 1. Titles
+        Text(
+            text = "Distance split",
+            style = MaterialTheme.typography.titleMedium.copy(
+                fontWeight = FontWeight.Bold,
+                color = LightText // Changed to white
+            )
+        )
+        Text(
+            text = "by run length",
+            style = MaterialTheme.typography.bodyMedium.copy(
+                color = MutedText
+            )
+        )
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        // 2. Native Canvas Donut Chart
+        Canvas(
+            modifier = Modifier
+                .size(180.dp)
+                .align(Alignment.CenterHorizontally)
+        ) {
+            val strokeWidth = 35.dp.toPx()
+            val stroke = Stroke(width = strokeWidth, cap = StrokeCap.Butt)
+            var startAngle = -90f
+
+            if (!hasData) {
+                drawArc(
+                    color = Color.DarkGray.copy(alpha = 0.3f), // Adjusted for dark mode
+                    startAngle = 0f,
+                    sweepAngle = 360f,
+                    useCenter = false,
+                    style = stroke
+                )
+            } else {
+                val sweep1 = (splitData.lessThan5k / 100f) * 360f
+                if (sweep1 > 0) {
+                    drawArc(color = ColorLessThan5k, startAngle = startAngle, sweepAngle = sweep1, useCenter = false, style = stroke)
+                    startAngle += sweep1
+                }
+
+                val sweep2 = (splitData.fiveTo10k / 100f) * 360f
+                if (sweep2 > 0) {
+                    drawArc(color = Color5To10k, startAngle = startAngle, sweepAngle = sweep2, useCenter = false, style = stroke)
+                    startAngle += sweep2
+                }
+
+                val sweep3 = (splitData.moreThan10k / 100f) * 360f
+                if (sweep3 > 0) {
+                    drawArc(color = ColorMoreThan10k, startAngle = startAngle, sweepAngle = sweep3, useCenter = false, style = stroke)
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        // 3. Legend
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            LegendItem(color = ColorLessThan5k, label = "< 5 km", percentage = splitData.lessThan5k)
+            LegendItem(color = Color5To10k, label = "5 – 10 km", percentage = splitData.fiveTo10k)
+            LegendItem(color = ColorMoreThan10k, label = "> 10 km", percentage = splitData.moreThan10k)
+        }
+    }
+}
+
+@Composable
+private fun LegendItem(color: Color, label: String, percentage: Float) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(
+            modifier = Modifier
+                .size(12.dp)
+                .clip(RoundedCornerShape(3.dp))
+                .background(color)
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+
+        Text(
+            text = "$label — ${percentage.toInt()}%",
+            style = MaterialTheme.typography.bodyMedium.copy(
+                color = Color(0xFF9494C9), // Changed to lighter gray for visibility
+                fontWeight = FontWeight.Medium
+            )
+        )
+    }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
