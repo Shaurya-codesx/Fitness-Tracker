@@ -1,0 +1,89 @@
+package com.example.fitnessapp.ui.activity.Stats.Pace
+
+import android.os.Build
+import androidx.annotation.RequiresApi
+import com.example.fitnessapp.Data.Model.StatsDataClasses.AvgPaceModel
+import com.example.fitnessapp.ui.activity.Stats.FilterRange
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.temporal.WeekFields
+import java.util.Locale
+
+
+data class ChartData(
+    val displayLabel: String,
+    val value: Float
+)
+
+@RequiresApi(Build.VERSION_CODES.O)
+fun processPaceChartData(
+    dbResults: List<AvgPaceModel>,
+    startDate: LocalDate,
+    endDate: LocalDate,
+    filter: FilterRange
+): List<ChartData> {
+    val dbMap = dbResults.associateBy { it.periodLabel }
+    val resultList = mutableListOf<ChartData>()
+
+    when (filter) {
+        FilterRange.WEEK -> {
+            for (i in 0..6) {
+                val currentDate = startDate.plusDays(i.toLong())
+                val dbKey = currentDate.toString()
+                val label = currentDate.format(DateTimeFormatter.ofPattern("EEE", Locale.getDefault()))
+
+                val rawModel = dbMap[dbKey]
+                val paceDecimal = calculatePaceDecimal(rawModel)
+
+                resultList.add(ChartData(label, paceDecimal))
+            }
+        }
+        FilterRange.MONTH -> {
+            val weekFields = WeekFields.of(Locale.getDefault())
+            var currentWeekStart = startDate
+            var weekNumber = 1
+
+            while (!currentWeekStart.isAfter(endDate)) {
+                val yearFormatter = DateTimeFormatter.ofPattern("YYYY")
+                val weekOfYear = currentWeekStart.get(weekFields.weekOfYear())
+                val dbKey = "${currentWeekStart.format(yearFormatter)}-${String.format("%02d", weekOfYear)}"
+
+                val rawModel = dbMap[dbKey]
+                val paceDecimal = calculatePaceDecimal(rawModel)
+
+                resultList.add(ChartData("Week $weekNumber", paceDecimal))
+                currentWeekStart = currentWeekStart.plusWeeks(1)
+                weekNumber++
+            }
+        }
+        FilterRange.YEAR -> {
+            for (i in 1..12) {
+                val monthString = String.format("%02d", i)
+                val dbKey = "${startDate.year}-$monthString"
+
+                val monthDate = LocalDate.of(startDate.year, i, 1)
+                val label = monthDate.format(DateTimeFormatter.ofPattern("MMM", Locale.getDefault()))
+
+                val rawModel = dbMap[dbKey]
+                val paceDecimal = calculatePaceDecimal(rawModel)
+
+                resultList.add(ChartData(label, paceDecimal))
+            }
+        }
+    }
+    return resultList
+}
+
+// Extracted the math formula to keep the loop clean
+private fun calculatePaceDecimal(rawModel: AvgPaceModel?): Float {
+    if (rawModel == null || rawModel.totalDistance <= 0f) return 0f
+
+    // 1. Convert duration to exact minutes (e.g., 25.5 mins)
+    val durationMinutes = rawModel.totalDuration / 60000f
+
+    // 2. Convert distance to Kilometers (REMOVE '/ 1000f' if DB already stores KM)
+    val distanceKm = rawModel.totalDistance / 1000f
+
+    // 3. Pace = Time / Distance (e.g., 25.5 / 5.0 = 5.1 min/km)
+    return durationMinutes / distanceKm
+}

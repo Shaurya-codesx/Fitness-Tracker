@@ -9,6 +9,8 @@ import com.example.fitnessapp.Domain.UseCases.GetDaysInRange
 import com.example.fitnessapp.Domain.UseCases.calculateDateRange
 import com.example.fitnessapp.ui.activity.Stats.Distance.DistanceDataUiState
 import com.example.fitnessapp.ui.activity.Stats.Distance.processDistanceChartData
+import com.example.fitnessapp.ui.activity.Stats.Pace.PaceDataUiState
+import com.example.fitnessapp.ui.activity.Stats.Pace.processPaceChartData
 import com.example.fitnessapp.ui.activity.Stats.Steps.StepsDataUiState
 import com.example.fitnessapp.ui.activity.Stats.Steps.processChartData
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -92,5 +94,37 @@ class AnalyticsViewModel @Inject constructor(
                 distanceSplit = splitData
             )
         }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun getPaceDataForPage(filter: FilterRange, offset: Int): Flow<PaceDataUiState> {
+        val (startDate, endDate) = calcDateRange(filter, offset)
+        val zoneId = ZoneId.systemDefault()
+        val startMillis = startDate.atStartOfDay(zoneId).toInstant().toEpochMilli()
+        val endMillis = endDate.plusDays(1).atStartOfDay(zoneId).toInstant().toEpochMilli() - 1
+
+        return runRepository.getPaceAnalytics(startMillis, endMillis, filter.name)
+            .map { rawDbResults ->
+
+                // 1. Generate the padded chart data
+                val chartData = processPaceChartData(rawDbResults, startDate, endDate, filter)
+
+                // 2. Calculate the TRUE overall average pace for this time period
+                val totalTimeMillis = rawDbResults.sumOf { it.totalDuration }
+                val totalDistanceMeters = rawDbResults.map { it.totalDistance }.sum() // map then sum to avoid Float issues
+
+                val overallAveragePace = if (totalDistanceMeters > 0f) {
+                    val totalMinutes = totalTimeMillis / 60000f
+                    val totalKm = totalDistanceMeters / 1000f // Again, adjust if already KM
+                    totalMinutes / totalKm
+                } else {
+                    0f
+                }
+
+                PaceDataUiState(
+                    chartData = chartData,
+                    averagePaceDecimal = overallAveragePace
+                )
+            }
     }
 }

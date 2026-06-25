@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.fitnessapp.Data.Model.Entities.RunEntity
+import com.example.fitnessapp.Data.Model.StatsDataClasses.AvgPaceModel
 import com.example.fitnessapp.Data.Model.StatsDataClasses.DistanceModel
 import com.example.fitnessapp.Data.Model.StatsDataClasses.StepsModel
 import com.example.fitnessapp.Data.Model.StatsDataClasses.analyticsData
@@ -98,6 +99,26 @@ interface runDAO {
         startTime: Long,
         endTime: Long
     ): Flow<List<Float>>
+
+    @Query("""
+        SELECT 
+            CASE :filter
+                WHEN 'WEEK' THEN strftime('%Y-%m-%d', startTime / 1000, 'unixepoch', 'localtime')
+                WHEN 'MONTH' THEN strftime('%Y-%W', startTime / 1000, 'unixepoch', 'localtime')
+                WHEN 'YEAR' THEN strftime('%Y-%m', startTime / 1000, 'unixepoch', 'localtime')
+            END AS periodLabel,
+            SUM(endTime - startTime) AS totalDuration, -- Math done directly in SQL
+            SUM(distanceinmeters) AS totalDistance
+        FROM runs
+        WHERE startTime >= :startTime AND startTime <= :endTime
+        GROUP BY periodLabel
+        ORDER BY startTime ASC
+    """)
+    fun getPaceAnalytics(
+        startTime: Long,
+        endTime: Long,
+        filter: String
+    ): Flow<List<AvgPaceModel>>
 
     @Query("""
     SELECT 
