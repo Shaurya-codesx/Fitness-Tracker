@@ -1,10 +1,10 @@
 package com.example.fitnessapp.Domain.UseCases
 
 import com.example.fitnessapp.ui.activity.Stats.Pace.ChartData
-import javax.inject.Inject
+
 import kotlin.math.roundToInt
 
-class PaceFormatterUseCase @Inject constructor() {
+object PaceFormatterUseCase{
 
     fun formatDecimalPaceToString(decimalPace: Float): String {
         if (decimalPace <= 0f) return "0:00"
