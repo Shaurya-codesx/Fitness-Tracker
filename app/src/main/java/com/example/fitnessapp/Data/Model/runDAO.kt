@@ -7,6 +7,7 @@ import androidx.room.Query
 import com.example.fitnessapp.Data.Model.Entities.RunEntity
 import com.example.fitnessapp.Data.Model.StatsDataClasses.AvgPaceModel
 import com.example.fitnessapp.Data.Model.StatsDataClasses.DistanceModel
+import com.example.fitnessapp.Data.Model.StatsDataClasses.RawRunModel
 import com.example.fitnessapp.Data.Model.StatsDataClasses.StepsModel
 import com.example.fitnessapp.Data.Model.StatsDataClasses.analyticsData
 import com.example.fitnessapp.ui.activity.RunHistory.RunFilter
@@ -119,6 +120,18 @@ interface runDAO {
         endTime: Long,
         filter: String
     ): Flow<List<AvgPaceModel>>
+
+    @Query("""
+    SELECT 
+        (endTime - startTime) AS durationMillis,
+        distanceinmeters AS distanceMeters
+    FROM runs
+    WHERE startTime >= :startTime AND startTime <= :endTime
+""")
+    fun getRawRunsForRange(
+        startTime: Long,
+        endTime: Long
+    ): Flow<List<RawRunModel>>
 
     @Query("""
     SELECT 

@@ -33,6 +33,11 @@ import com.example.fitnessapp.Domain.UseCases.PaceFormatterUseCase
 import com.example.fitnessapp.ui.activity.Stats.AnalyticsViewModel
 import com.example.fitnessapp.ui.activity.Stats.FilterRange
 
+import androidx.compose.foundation.Canvas
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
+import com.example.fitnessapp.Data.Model.StatsDataClasses.PaceSplitData
+
 import com.patrykandpatrick.vico.compose.cartesian.layer.rememberLineSpec
 import com.patrykandpatrick.vico.compose.common.component.rememberShapeComponent
 import com.patrykandpatrick.vico.core.common.shape.Shape
@@ -174,6 +179,10 @@ fun PaceAnalyticsScreen(navController: NavController) {
 
                 Spacer(modifier = Modifier.height(12.dp))
                 PagerDots(currentPage = pagerState.currentPage, initialPage = initialPage)
+            }
+
+            if (currentUiState.chartData.any { it.value > 0f }) {
+                PaceSplitCard(splitData = currentUiState.paceSplit)
             }
         }
     }
@@ -412,5 +421,114 @@ private fun getFormattedHeader(filter: FilterRange, offset: Int): String {
         FilterRange.YEAR -> {
             today.plusYears(offset.toLong()).year.toString()
         }
+    }
+}
+
+
+@Composable
+fun PaceSplitCard(splitData: PaceSplitData) {
+    val hasData = splitData.walkingPct > 0f || splitData.joggingPct > 0f || splitData.runningPct > 0f
+
+    // Updated colors to match the light theme of the screen
+    val CardBackground = Color.White
+    val TitleTextColor = Color(0xFF1A1A2E)
+    val SubTextColor   = ChipUnselectedText
+
+    // Theme-consistent colors for the chart zones
+    val ColorWalking = Color(0xFFFFB267) // Vibrant orange to match StatCardOrange theme
+    val ColorJogging = ChipSelectedBg    // Theme Blue
+    val ColorRunning = HeroCardColor     // Theme Green
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(CardRadius))
+            .background(CardBackground)
+            .padding(20.dp)
+    ) {
+        // 1. Titles
+        Text(
+            text = "Pace split",
+            style = MaterialTheme.typography.titleMedium.copy(
+                fontWeight = FontWeight.Bold,
+                color = TitleTextColor
+            )
+        )
+        Text(
+            text = "by pace zone",
+            style = MaterialTheme.typography.bodyMedium.copy(
+                color = SubTextColor
+            )
+        )
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        // 2. Native Canvas Donut Chart
+        Canvas(
+            modifier = Modifier
+                .size(180.dp)
+                .align(Alignment.CenterHorizontally)
+        ) {
+            val strokeWidth = 35.dp.toPx()
+            val stroke = Stroke(width = strokeWidth, cap = StrokeCap.Butt)
+            var startAngle = -90f
+
+            if (!hasData) {
+                drawArc(
+                    color = ChipUnselectedBg,
+                    startAngle = 0f,
+                    sweepAngle = 360f,
+                    useCenter = false,
+                    style = stroke
+                )
+            } else {
+                val sweep1 = (splitData.walkingPct / 100f) * 360f
+                if (sweep1 > 0) {
+                    drawArc(color = ColorWalking, startAngle = startAngle, sweepAngle = sweep1, useCenter = false, style = stroke)
+                    startAngle += sweep1
+                }
+
+                val sweep2 = (splitData.joggingPct / 100f) * 360f
+                if (sweep2 > 0) {
+                    drawArc(color = ColorJogging, startAngle = startAngle, sweepAngle = sweep2, useCenter = false, style = stroke)
+                    startAngle += sweep2
+                }
+
+                val sweep3 = (splitData.runningPct / 100f) * 360f
+                if (sweep3 > 0) {
+                    drawArc(color = ColorRunning, startAngle = startAngle, sweepAngle = sweep3, useCenter = false, style = stroke)
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        // 3. Legend
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            LegendItem(color = ColorWalking, label = "Walking (> 8:00/km)", percentage = splitData.walkingPct)
+            LegendItem(color = ColorJogging, label = "Jogging (6:00 - 8:00)", percentage = splitData.joggingPct)
+            LegendItem(color = ColorRunning, label = "Running (< 6:00/km)", percentage = splitData.runningPct)
+        }
+    }
+}
+
+@Composable
+private fun LegendItem(color: Color, label: String, percentage: Float) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(
+            modifier = Modifier
+                .size(12.dp)
+                .clip(RoundedCornerShape(3.dp))
+                .background(color)
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+
+        Text(
+            text = "$label — ${percentage.toInt()}%",
+            style = MaterialTheme.typography.bodyMedium.copy(
+                color = ChipUnselectedText,
+                fontWeight = FontWeight.Medium
+            )
+        )
     }
 }

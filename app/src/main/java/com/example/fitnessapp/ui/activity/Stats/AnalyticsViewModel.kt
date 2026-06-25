@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import com.example.fitnessapp.Domain.RunRepository
 import com.example.fitnessapp.Domain.UseCases.DistanceSplitCalculator
 import com.example.fitnessapp.Domain.UseCases.GetDaysInRange
+import com.example.fitnessapp.Domain.UseCases.PaceSplitCalculator
 import com.example.fitnessapp.Domain.UseCases.calculateDateRange
 import com.example.fitnessapp.ui.activity.Stats.Distance.DistanceDataUiState
 import com.example.fitnessapp.ui.activity.Stats.Distance.processDistanceChartData
@@ -25,7 +26,8 @@ class AnalyticsViewModel @Inject constructor(
     private val runRepository: RunRepository,
     private val calcDateRange : calculateDateRange,
     private val getDaysInRange: GetDaysInRange,
-    private val calcDistanceSplit : DistanceSplitCalculator
+    private val calcDistanceSplit : DistanceSplitCalculator,
+    private val calcPaceSplit : PaceSplitCalculator
 ) : ViewModel(){
 
     /**
@@ -103,28 +105,35 @@ class AnalyticsViewModel @Inject constructor(
         val startMillis = startDate.atStartOfDay(zoneId).toInstant().toEpochMilli()
         val endMillis = endDate.plusDays(1).atStartOfDay(zoneId).toInstant().toEpochMilli() - 1
 
-        return runRepository.getPaceAnalytics(startMillis, endMillis, filter.name)
-            .map { rawDbResults ->
+        // 1. Get both flows
+        val groupedDataFlow = runRepository.getPaceAnalytics(startMillis, endMillis, filter.name)
+        val rawRunsFlow = runRepository.getRawRunsForRange(startMillis, endMillis)
 
-                // 1. Generate the padded chart data
-                val chartData = processPaceChartData(rawDbResults, startDate, endDate, filter)
+        // 2. Combine them
+        return combine(groupedDataFlow, rawRunsFlow) { rawDbResults, rawRuns ->
 
-                // 2. Calculate the TRUE overall average pace for this time period
-                val totalTimeMillis = rawDbResults.sumOf { it.totalDuration }
-                val totalDistanceMeters = rawDbResults.map { it.totalDistance }.sum() // map then sum to avoid Float issues
+            // Calculate line chart data
+            val chartData = processPaceChartData(rawDbResults, startDate, endDate, filter)
 
-                val overallAveragePace = if (totalDistanceMeters > 0f) {
-                    val totalMinutes = totalTimeMillis / 60000f
-                    val totalKm = totalDistanceMeters / 1000f // Again, adjust if already KM
-                    totalMinutes / totalKm
-                } else {
-                    0f
-                }
+            val totalTimeMillis = rawDbResults.sumOf { it.totalDuration }
+            val totalDistanceMeters = rawDbResults.map { it.totalDistance }.sum()
 
-                PaceDataUiState(
-                    chartData = chartData,
-                    averagePaceDecimal = overallAveragePace
-                )
+            val overallAveragePace = if (totalDistanceMeters > 0f) {
+                val totalMinutes = totalTimeMillis / 60000f
+                val totalKm = totalDistanceMeters / 1000f
+                totalMinutes / totalKm
+            } else {
+                0f
             }
+
+            // Calculate donut chart data
+            val splitData = calcPaceSplit(rawRuns)
+
+            PaceDataUiState(
+                chartData = chartData,
+                averagePaceDecimal = overallAveragePace,
+                paceSplit = splitData // Pass the split data to the UI
+            )
+        }
     }
 }

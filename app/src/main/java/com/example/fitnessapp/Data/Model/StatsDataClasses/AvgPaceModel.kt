@@ -5,3 +5,8 @@ data class AvgPaceModel(
     val totalDuration: Long,
     val totalDistance: Float
 )
+
+data class RawRunModel(
+    val durationMillis: Long,
+    val distanceMeters: Float
+)
