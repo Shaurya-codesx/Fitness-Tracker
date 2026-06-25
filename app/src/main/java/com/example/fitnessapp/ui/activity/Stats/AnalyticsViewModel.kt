@@ -5,11 +5,14 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import com.example.fitnessapp.Domain.RunRepository
 import com.example.fitnessapp.Domain.UseCases.DistanceSplitCalculator
+import com.example.fitnessapp.Domain.UseCases.EnergySplitCalculator
 import com.example.fitnessapp.Domain.UseCases.GetDaysInRange
 import com.example.fitnessapp.Domain.UseCases.PaceSplitCalculator
 import com.example.fitnessapp.Domain.UseCases.calculateDateRange
 import com.example.fitnessapp.ui.activity.Stats.Distance.DistanceDataUiState
 import com.example.fitnessapp.ui.activity.Stats.Distance.processDistanceChartData
+import com.example.fitnessapp.ui.activity.Stats.Energy.EnergyUiState
+import com.example.fitnessapp.ui.activity.Stats.Energy.processEnergyChartData
 import com.example.fitnessapp.ui.activity.Stats.Pace.PaceDataUiState
 import com.example.fitnessapp.ui.activity.Stats.Pace.processPaceChartData
 import com.example.fitnessapp.ui.activity.Stats.Steps.StepsDataUiState
@@ -27,7 +30,8 @@ class AnalyticsViewModel @Inject constructor(
     private val calcDateRange : calculateDateRange,
     private val getDaysInRange: GetDaysInRange,
     private val calcDistanceSplit : DistanceSplitCalculator,
-    private val calcPaceSplit : PaceSplitCalculator
+    private val calcPaceSplit : PaceSplitCalculator,
+    private val calcEnergySplit : EnergySplitCalculator
 ) : ViewModel(){
 
     /**
@@ -133,6 +137,40 @@ class AnalyticsViewModel @Inject constructor(
                 chartData = chartData,
                 averagePaceDecimal = overallAveragePace,
                 paceSplit = splitData // Pass the split data to the UI
+            )
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun getEnergyDataForPage(filter: FilterRange, offset: Int): Flow<EnergyUiState> {
+        val (startDate, endDate) = calcDateRange(filter, offset)
+        val zoneId = ZoneId.systemDefault()
+        val startMillis = startDate.atStartOfDay(zoneId).toInstant().toEpochMilli()
+        val endMillis = endDate.plusDays(1).atStartOfDay(zoneId).toInstant().toEpochMilli() - 1
+
+        val groupedDataFlow = runRepository.getEnergyAnalytics(startMillis, endMillis, filter.name)
+        val rawCaloriesFlow = runRepository.getRawCaloriesForRange(startMillis, endMillis)
+
+        return combine(groupedDataFlow, rawCaloriesFlow) { rawDbResults, rawCalories ->
+
+            // 1. Process Bar Chart Data
+            // (You'll need a processEnergyChartData helper just like processDistanceChartData,
+            // but reading from the EnergyModel's totalCalories)
+            val chartData = processEnergyChartData(rawDbResults, startDate, endDate, filter)
+
+            // 2. Calculate Averages
+            val totalCalories = chartData.map { it.value }.sum()
+            val daysInPeriod = getDaysInRange(filter, offset)
+            val dailyAverage = if (daysInPeriod > 0) totalCalories / daysInPeriod else 0f
+
+            // 3. Calculate the Workout Intensity Split
+            val splitData = calcEnergySplit(rawCalories)
+
+            EnergyUiState(
+                chartData = chartData,
+                dailyAverage = dailyAverage,
+                totalCalories = totalCalories,
+                energySplit = splitData
             )
         }
     }

@@ -27,7 +27,7 @@ fun HealthTrendsScreen(
     // ← Just pass your click handlers here
     onStepsClick: () -> Unit = {navController.navigate("stepsScreen"){popUpTo("healthTrendsScreen")} },
     onDistanceClick: () -> Unit = {navController.navigate("distanceScreen"){popUpTo("healthTrendsScreen")}},
-    onEnergyClick: () -> Unit = {},
+    onEnergyClick: () -> Unit = {navController.navigate("EnergyScreen"){popUpTo("healthTrendsScreen")}},
     onPaceClick: () -> Unit = {navController.navigate("PaceScreen"){popUpTo("healthTrendsScreen")}},
 ) {
     Scaffold(

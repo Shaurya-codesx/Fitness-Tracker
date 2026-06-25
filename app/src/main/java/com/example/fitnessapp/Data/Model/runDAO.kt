@@ -7,6 +7,7 @@ import androidx.room.Query
 import com.example.fitnessapp.Data.Model.Entities.RunEntity
 import com.example.fitnessapp.Data.Model.StatsDataClasses.AvgPaceModel
 import com.example.fitnessapp.Data.Model.StatsDataClasses.DistanceModel
+import com.example.fitnessapp.Data.Model.StatsDataClasses.EnergyModel
 import com.example.fitnessapp.Data.Model.StatsDataClasses.RawRunModel
 import com.example.fitnessapp.Data.Model.StatsDataClasses.StepsModel
 import com.example.fitnessapp.Data.Model.StatsDataClasses.analyticsData
@@ -132,6 +133,37 @@ interface runDAO {
         startTime: Long,
         endTime: Long
     ): Flow<List<RawRunModel>>
+
+
+    @Query("""
+        SELECT 
+            CASE :filter
+                WHEN 'WEEK' THEN strftime('%Y-%m-%d', startTime / 1000, 'unixepoch', 'localtime')
+                WHEN 'MONTH' THEN strftime('%Y-%W', startTime / 1000, 'unixepoch', 'localtime')
+                WHEN 'YEAR' THEN strftime('%Y-%m', startTime / 1000, 'unixepoch', 'localtime')
+            END AS periodLabel,
+            SUM(caloriesBurned) AS totalCalories
+        FROM runs
+        WHERE startTime >= :startTime AND startTime <= :endTime
+        GROUP BY periodLabel
+        ORDER BY startTime ASC
+    """)
+    fun getEnergyAnalytics(
+        startTime: Long,
+        endTime: Long,
+        filter: String
+    ): Flow<List<EnergyModel>>
+
+    // 2. Raw query for the Intensity Donut Chart
+    @Query("""
+        SELECT caloriesBurned 
+        FROM runs
+        WHERE startTime >= :startTime AND startTime <= :endTime
+    """)
+    fun getRawCaloriesForRange(
+        startTime: Long,
+        endTime: Long
+    ): Flow<List<Float>>
 
     @Query("""
     SELECT 

@@ -7,6 +7,7 @@ import com.example.fitnessapp.Data.Model.Entities.RunEntity
 import com.example.fitnessapp.Data.Model.LocationPoints
 import com.example.fitnessapp.Data.Model.StatsDataClasses.AvgPaceModel
 import com.example.fitnessapp.Data.Model.StatsDataClasses.DistanceModel
+import com.example.fitnessapp.Data.Model.StatsDataClasses.EnergyModel
 import com.example.fitnessapp.Data.Model.StatsDataClasses.RawRunModel
 import com.example.fitnessapp.Data.Model.StatsDataClasses.StepsModel
 import com.example.fitnessapp.Data.Model.WeeklyDistances
@@ -93,6 +94,18 @@ class RunRepoImpl @Inject constructor(
 
     override fun getRawRunsForRange(startTime: Long, endTime: Long): Flow<List<RawRunModel>> {
         return runDAO.getRawRunsForRange(startTime, endTime)
+    }
+
+    override fun getEnergyAnalytics(
+        startTime: Long,
+        endTime: Long,
+        filter: String
+    ): Flow<List<EnergyModel>> {
+        return runDAO.getEnergyAnalytics(startTime, endTime, filter)
+    }
+
+    override fun getRawCaloriesForRange(startTime: Long, endTime: Long): Flow<List<Float>> {
+        return runDAO.getRawCaloriesForRange(startTime, endTime)
     }
 
     override fun analyticsDataInRange(startTime: Long, endTime: Long): Flow<analyticsData> {

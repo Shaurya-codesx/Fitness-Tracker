@@ -6,6 +6,7 @@ import com.example.fitnessapp.Data.Model.Entities.RunEntity
 import com.example.fitnessapp.Data.Model.LocationPoints
 import com.example.fitnessapp.Data.Model.StatsDataClasses.AvgPaceModel
 import com.example.fitnessapp.Data.Model.StatsDataClasses.DistanceModel
+import com.example.fitnessapp.Data.Model.StatsDataClasses.EnergyModel
 import com.example.fitnessapp.Data.Model.StatsDataClasses.RawRunModel
 import com.example.fitnessapp.Data.Model.StatsDataClasses.StepsModel
 import com.example.fitnessapp.Data.Model.WeeklyDistances
@@ -39,6 +40,10 @@ interface RunRepository { // this repository holds the data for the active run s
     fun getPaceAnalytics(startTime: Long, endTime: Long, filter: String) : Flow<List<AvgPaceModel>>
 
     fun getRawRunsForRange(startTime: Long, endTime: Long) : Flow<List<RawRunModel>>
+
+    fun getEnergyAnalytics(startTime: Long, endTime: Long, filter: String) : Flow<List<EnergyModel>>
+
+    fun getRawCaloriesForRange(startTime: Long, endTime: Long) : Flow<List<Float>>
 
     fun analyticsDataInRange(startTime: Long, endTime: Long) : Flow<analyticsData>
 }
