@@ -111,4 +111,25 @@ class RunRepoImpl @Inject constructor(
     override fun analyticsDataInRange(startTime: Long, endTime: Long): Flow<analyticsData> {
         return runDAO.analyticsDataInRange(startTime, endTime)
     }
+
+    // Personal Bests
+    override fun getRecordDistance(): Flow<Float?> {
+        return runDAO.getRecordDistance()
+    }
+
+    override fun getRecordDuration(): Flow<Long?> {
+        return runDAO.getRecordDuration()
+    }
+
+    override fun getRecordCalories(): Flow<Float?> {
+        return runDAO.getRecordCalories()
+    }
+
+    override fun getRecordSteps(): Flow<Int?> {
+        return runDAO.getRecordSteps()
+    }
+
+    override fun getRecordPaceRun(): Flow<RawRunModel?> {
+        return runDAO.getRecordPaceRun()
+    }
 }

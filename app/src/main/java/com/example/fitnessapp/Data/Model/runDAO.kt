@@ -176,4 +176,37 @@ interface runDAO {
     WHERE startTime BETWEEN :startTime AND :endTime
 """)
     fun analyticsDataInRange(startTime: Long, endTime: Long) : Flow<analyticsData>
+
+    // ─── PERSONAL BEST QUERIES ───────────────────────────────────────────────
+
+    // 1. Farthest Distance ever run (in meters)
+    @Query("SELECT MAX(distanceinmeters) FROM runs")
+    fun getRecordDistance(): Flow<Float?>
+
+    // 2. Longest Duration ever run (in milliseconds)
+    @Query("SELECT MAX(endTime - startTime) FROM runs")
+    fun getRecordDuration(): Flow<Long?>
+
+    // 3. Highest Calories burned in a single run
+    @Query("SELECT MAX(caloriesBurned) FROM runs")
+    fun getRecordCalories(): Flow<Float?>
+
+    // 4. Most Steps taken in a single run
+    @Query("SELECT MAX(stepsTaken) FROM runs")
+    fun getRecordSteps(): Flow<Int?>
+
+    // 5. Fastest Pace (lowest ratio of time to distance)
+    // We strictly filter for runs >= 1000 meters to ensure it is a valid run.
+    // We return the raw duration and distance to calculate the exact pace format in Kotlin.
+    @Query("""
+        SELECT 
+            (endTime - startTime) AS durationMillis,
+            distanceinmeters AS distanceMeters
+        FROM runs
+        WHERE distanceinmeters >= 1000
+        ORDER BY (CAST((endTime - startTime) AS REAL) / distanceinmeters) ASC
+        LIMIT 1
+    """)
+    fun getRecordPaceRun(): Flow<RawRunModel?>
+    // ^ Note: We are reusing the RawRunModel you already created for the Pace donut chart!
 }

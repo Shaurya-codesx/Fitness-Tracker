@@ -46,4 +46,12 @@ interface RunRepository { // this repository holds the data for the active run s
     fun getRawCaloriesForRange(startTime: Long, endTime: Long) : Flow<List<Float>>
 
     fun analyticsDataInRange(startTime: Long, endTime: Long) : Flow<analyticsData>
+
+
+    // Personal Best
+    fun getRecordDistance(): Flow<Float?>
+    fun getRecordDuration(): Flow<Long?>
+    fun getRecordCalories(): Flow<Float?>
+    fun getRecordSteps(): Flow<Int?>
+    fun getRecordPaceRun(): Flow<RawRunModel?>
 }
