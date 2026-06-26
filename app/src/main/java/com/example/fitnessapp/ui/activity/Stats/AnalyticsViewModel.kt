@@ -3,6 +3,7 @@ package com.example.fitnessapp.ui.activity.Stats
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.fitnessapp.Domain.RunRepository
 import com.example.fitnessapp.Domain.UseCases.DistanceSplitCalculator
 import com.example.fitnessapp.Domain.UseCases.EnergySplitCalculator
@@ -11,6 +12,7 @@ import com.example.fitnessapp.Domain.UseCases.PaceFormatterUseCase
 import com.example.fitnessapp.Domain.UseCases.PaceSplitCalculator
 import com.example.fitnessapp.Domain.UseCases.calculateDateRange
 import com.example.fitnessapp.ui.UiStates.PersonalBestUiState
+import com.example.fitnessapp.ui.UiStates.TrackingUiState
 import com.example.fitnessapp.ui.activity.Stats.Distance.DistanceDataUiState
 import com.example.fitnessapp.ui.activity.Stats.Distance.processDistanceChartData
 import com.example.fitnessapp.ui.activity.Stats.Energy.EnergyUiState
@@ -21,10 +23,13 @@ import com.example.fitnessapp.ui.activity.Stats.Steps.StepsDataUiState
 import com.example.fitnessapp.ui.activity.Stats.Steps.processChartData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.stateIn
 import java.time.ZoneId
 import java.util.Locale
 import java.util.concurrent.TimeUnit
@@ -38,7 +43,7 @@ class AnalyticsViewModel @Inject constructor(
     private val calcDistanceSplit : DistanceSplitCalculator,
     private val calcPaceSplit : PaceSplitCalculator,
     private val calcEnergySplit : EnergySplitCalculator
-) : ViewModel(){
+) : ViewModel() {
 
     /**
      * This function will be called by your Compose Pager for every page.
@@ -85,7 +90,8 @@ class AnalyticsViewModel @Inject constructor(
 
 
         // Both DataFlow
-        val groupedDataFlow = runRepository.getDistanceAnalytics(startMillis, endMillis, filter.name)
+        val groupedDataFlow =
+            runRepository.getDistanceAnalytics(startMillis, endMillis, filter.name)
         val rawDistancesFlow = runRepository.getRawDistancesForRange(startMillis, endMillis)
 
         return combine(groupedDataFlow, rawDistancesFlow) { rawDbResults, rawDistances ->
@@ -181,62 +187,64 @@ class AnalyticsViewModel @Inject constructor(
         }
     }
 
-    fun getPersonalBests(): Flow<PersonalBestUiState> {
-        return combine(
-            runRepository.getRecordDistance(),
-            runRepository.getRecordDuration(),
-            runRepository.getRecordCalories(),
-            runRepository.getRecordSteps(),
-            runRepository.getRecordPaceRun()
-        ) { distance, duration, calories, steps, fastestRun ->
-
-            // If all core metrics are null, the user has absolutely no runs logged yet.
-            if (distance == null && duration == null && calories == null && steps == null) {
-                return@combine PersonalBestUiState.Empty
-            }
-
-            // 1. Format Distance (Meters to Kilometers)
-            val distStr = if (distance != null && distance > 0f) {
-                String.format(Locale.getDefault(), "%.2f km", distance / 1000f)
-            } else "–"
-
-            // 2. Format Duration (Millis to "Xh Ym")
-            val durStr = if (duration != null && duration > 0L) {
-                val hours = TimeUnit.MILLISECONDS.toHours(duration)
-                val minutes = TimeUnit.MILLISECONDS.toMinutes(duration) % 60
-                if (hours > 0) "${hours}h ${minutes}m" else "${minutes}m"
-            } else "–"
-
-            // 3. Format Calories (Float to Int)
-            val calStr = if (calories != null && calories > 0f) {
-                "${calories.toInt()} kcal"
-            } else "–"
-
-            // 4. Format Steps
-            val stepStr = if (steps != null && steps > 0) {
-                "%,d steps".format(Locale.getDefault(), steps)
-            } else "–"
-
-            // 5. Format Pace (Using your existing Pace math!)
-            val paceStr = if (fastestRun != null && fastestRun.distanceMeters > 0f) {
-                val durationMins = fastestRun.durationMillis / 60000f
-                val distanceKm = fastestRun.distanceMeters / 1000f
-                val paceDecimal = durationMins / distanceKm
-                PaceFormatterUseCase.formatDecimalPaceToString(paceDecimal) + " /km"
-            } else "–"
-
-            // Return the bundled Success state
-            PersonalBestUiState.Success(
-                recordDistance = distStr,
-                recordDuration = durStr,
-                recordCalories = calStr,
-                recordSteps = stepStr,
-                recordPace = paceStr
-            )
+    val personalBests: StateFlow<PersonalBestUiState> = combine(
+        runRepository.getRecordDistance(),
+        runRepository.getRecordDuration(),
+        runRepository.getRecordCalories(),
+        runRepository.getRecordSteps(),
+        runRepository.getRecordPaceRun()
+    ) { distance, duration, calories, steps, fastestRun ->
+        // If all core metrics are null, the user has absolutely no runs logged yet.
+        if (distance == null && duration == null && calories == null && steps == null) {
+            return@combine PersonalBestUiState.Empty
         }
-            .onStart { emit(PersonalBestUiState.Loading) }
-            .catch { e ->
-                emit(PersonalBestUiState.Error(e.message ?: "An unexpected database error occurred"))
-            }
+
+        // 1. Format Distance (Meters to Kilometers)
+        val distStr = if (distance != null && distance > 0f) {
+            String.format(Locale.getDefault(), "%.2f km", distance / 1000f)
+        } else "–"
+
+        // 2. Format Duration (Millis to "Xh Ym")
+        val durStr = if (duration != null && duration > 0L) {
+            val hours = TimeUnit.MILLISECONDS.toHours(duration)
+            val minutes = TimeUnit.MILLISECONDS.toMinutes(duration) % 60
+            if (hours > 0) "${hours}h ${minutes}m" else "${minutes}m"
+        } else "–"
+
+        // 3. Format Calories (Float to Int)
+        val calStr = if (calories != null && calories > 0f) {
+            "${calories.toInt()} kcal"
+        } else "–"
+
+        // 4. Format Steps
+        val stepStr = if (steps != null && steps > 0) {
+            "%,d steps".format(Locale.getDefault(), steps)
+        } else "–"
+
+        // 5. Format Pace (Using your existing Pace math!)
+        val paceStr = if (fastestRun != null && fastestRun.distanceMeters > 0f) {
+            val durationMins = fastestRun.durationMillis / 60000f
+            val distanceKm = fastestRun.distanceMeters / 1000f
+            val paceDecimal = durationMins / distanceKm
+            PaceFormatterUseCase.formatDecimalPaceToString(paceDecimal) + " /km"
+        } else "–"
+
+        // Return the bundled Success state
+        PersonalBestUiState.Success(
+            recordDistance = distStr,
+            recordDuration = durStr,
+            recordCalories = calStr,
+            recordSteps = stepStr,
+            recordPace = paceStr
+        )
     }
+        .onStart { emit(PersonalBestUiState.Loading) }
+        .catch { e ->
+            emit(PersonalBestUiState.Error(e.message ?: "An unexpected database error occurred"))
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Companion.WhileSubscribed(5000),
+            initialValue = PersonalBestUiState.Loading
+        )
 }

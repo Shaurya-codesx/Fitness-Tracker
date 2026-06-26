@@ -42,7 +42,11 @@ fun StatsScreen(
             popUpTo("statsScreen")
         }
     },
-    onPersonalBestsClick: () -> Unit = {},
+    onPersonalBestsClick: () -> Unit = {
+        navController.navigate("PersonalBestScreen"){
+            popUpTo("statsScreen")
+        }
+    },
 ) {
     val viewModel : StatsViewModel = hiltViewModel()
     val uiState by viewModel.statsUIState.collectAsStateWithLifecycle()

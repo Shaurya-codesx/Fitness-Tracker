@@ -17,6 +17,7 @@ import androidx.navigation.navArgument
 import com.example.fitnessapp.ui.activity.Stats.Distance.DistanceAnalyticsScreen
 import com.example.fitnessapp.ui.activity.Stats.Energy.EnergyAnalyticsScreen
 import com.example.fitnessapp.ui.activity.Stats.Pace.PaceAnalyticsScreen
+import com.example.fitnessapp.ui.activity.Stats.PersonalBestsSection
 import com.example.fitnessapp.ui.activity.Stats.Steps.StepsAnalyticsScreen
 import com.example.fitnessapp.ui.activity.Tracking.OsmMapview
 import com.example.fitnessapp.ui.theme.FitnessAppTheme
@@ -59,6 +60,7 @@ fun appRun() {
         composable("distanceScreen", content = { DistanceAnalyticsScreen(navController) })
         composable("PaceScreen", content = { PaceAnalyticsScreen(navController) })
         composable("EnergyScreen", content = { EnergyAnalyticsScreen(navController) })
+        composable("PersonalBestScreen", content = { PersonalBestsSection(navController) })
         composable(
             route = "runDetails/{runId}",
             arguments = listOf(navArgument("runId") { type = NavType.LongType })
