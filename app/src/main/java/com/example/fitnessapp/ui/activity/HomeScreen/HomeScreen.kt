@@ -17,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.DirectionsRun
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.LocalFireDepartment
+import java.time.LocalTime
 import androidx.compose.material.icons.rounded.ModeEdit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -122,6 +123,16 @@ private fun DashboardContent(
     state: HomeUiState.Success,
     onEditGoalsClick: () -> Unit
 ) {
+    val greeting = remember {
+        val hour = LocalTime.now().hour
+        when (hour) {
+            in 5..11 -> "Good morning,"     // 5 AM to 11 AM
+            in 12..16 -> "Good afternoon,"  // 12 PM to 4 PM
+            in 17..22 -> "Good evening,"    // 5 PM to 10 PM
+            else -> "Late night run?"       // 11 PM to 4 AM (hours 23, 0, 1, 2, 3, 4)
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -138,7 +149,7 @@ private fun DashboardContent(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column {
-                Text("Good morning,", style = MaterialTheme.typography.bodyLarge.copy(color = TextSecondary))
+                Text(greeting, style = MaterialTheme.typography.bodyLarge.copy(color = TextSecondary))
                 Text(state.userName, style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold, color = TextPrimary))
             }
 
