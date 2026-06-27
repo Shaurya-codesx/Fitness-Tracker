@@ -16,4 +16,5 @@ interface UserProfileDAO {
 
     @Query("SELECT * FROM User_Data WHERE id = 1")
     fun getProfile() : Flow<UserProfile?>
+
 }

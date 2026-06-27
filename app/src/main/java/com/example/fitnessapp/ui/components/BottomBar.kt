@@ -27,7 +27,9 @@ fun BottomBar(navController: NavController) {
     ) {
         NavigationBarItem(
             selected = false,
-            onClick = {},
+            onClick = {
+                navController.navigate("HomeScreen")
+            },
             icon = { Text("🏠", fontSize = 20.sp) },
             label = { Text("Home") },
             colors = NavigationBarItemDefaults.colors(

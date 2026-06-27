@@ -209,4 +209,21 @@ interface runDAO {
     """)
     fun getRecordPaceRun(): Flow<RawRunModel?>
     // ^ Note: We are reusing the RawRunModel you already created for the Pace donut chart!
+
+
+    // For Home Screen
+    @Query("""
+        SELECT 
+            SUM(distanceinmeters) as totalDistanceMeters,
+            SUM(stepsTaken) as totalSteps,
+            SUM(caloriesBurned) as totalCalories
+        FROM runs
+        WHERE startTime >= :startOfDay AND startTime <= :endOfDay
+    """)
+    fun getTodayStats(startOfDay: Long, endOfDay: Long): Flow<TodayStats?>
+
+    // 3. Fetch all run start times for the Streak and Heatmap calculations
+    // Ordering by DESC so the most recent runs are at the top of the list
+    @Query("SELECT startTime FROM runs ORDER BY startTime DESC")
+    fun getAllRunStartTimes(): Flow<List<Long>>
 }

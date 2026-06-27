@@ -11,6 +11,7 @@ import com.example.fitnessapp.Data.Model.StatsDataClasses.RawRunModel
 import com.example.fitnessapp.Data.Model.StatsDataClasses.StepsModel
 import com.example.fitnessapp.Data.Model.WeeklyDistances
 import com.example.fitnessapp.Data.Model.StatsDataClasses.analyticsData
+import com.example.fitnessapp.Data.Model.TodayStats
 import com.example.fitnessapp.Domain.Wrapper.Resource
 import com.example.fitnessapp.ui.activity.RunHistory.RunEvents
 import kotlinx.coroutines.flow.Flow
@@ -54,4 +55,8 @@ interface RunRepository { // this repository holds the data for the active run s
     fun getRecordCalories(): Flow<Float?>
     fun getRecordSteps(): Flow<Int?>
     fun getRecordPaceRun(): Flow<RawRunModel?>
+
+    // Home Screen
+    fun getTodayStats(startOfDay: Long, endOfDay: Long): Flow<TodayStats?>
+    fun getAllRunStartTimes(): Flow<List<Long>>
 }

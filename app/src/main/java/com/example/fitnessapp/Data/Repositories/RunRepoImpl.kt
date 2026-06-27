@@ -12,6 +12,7 @@ import com.example.fitnessapp.Data.Model.StatsDataClasses.RawRunModel
 import com.example.fitnessapp.Data.Model.StatsDataClasses.StepsModel
 import com.example.fitnessapp.Data.Model.WeeklyDistances
 import com.example.fitnessapp.Data.Model.StatsDataClasses.analyticsData
+import com.example.fitnessapp.Data.Model.TodayStats
 import com.example.fitnessapp.Data.Model.runDAO
 import com.example.fitnessapp.Domain.LocationDataSource
 import com.example.fitnessapp.Domain.UseCases.CalcDistanceUseCase
@@ -131,5 +132,13 @@ class RunRepoImpl @Inject constructor(
 
     override fun getRecordPaceRun(): Flow<RawRunModel?> {
         return runDAO.getRecordPaceRun()
+    }
+
+    override fun getTodayStats(startOfDay: Long, endOfDay: Long): Flow<TodayStats?> {
+        return runDAO.getTodayStats(startOfDay, endOfDay)
+    }
+
+    override fun getAllRunStartTimes(): Flow<List<Long>> {
+        return runDAO.getAllRunStartTimes()
     }
 }

@@ -4,6 +4,7 @@ import android.content.Context
 import com.example.fitnessapp.Data.Model.AppDatabase
 import com.example.fitnessapp.Data.Model.UserProfileDAO
 import com.example.fitnessapp.Data.Model.runDAO
+import com.example.fitnessapp.ui.utils.GoalsPreferencesManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -31,4 +32,13 @@ object databaseModule {
     fun provideUserProfileDAO(db : AppDatabase) : UserProfileDAO {
         return db.getUserProfileDAO()
     }
+
+    @Provides
+    @Singleton
+    fun provideGoalsPreferencesManager(
+        @ApplicationContext context: Context
+    ): GoalsPreferencesManager {
+        return GoalsPreferencesManager(context)
+    }
+
 }
