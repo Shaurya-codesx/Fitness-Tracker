@@ -41,6 +41,7 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.YearMonth
 import androidx.compose.ui.geometry.Size
+import com.example.fitnessapp.ui.components.BottomBar
 
 // ─── THEME COLORS ────────────────────────────────────────────────────────
 private val BgColor = Color(0xFFF2F1F8)
@@ -71,6 +72,7 @@ fun HomeScreen(
         modifier = Modifier.fillMaxSize(),
         containerColor = BgColor,
         floatingActionButtonPosition = FabPosition.Center,
+        bottomBar = { BottomBar(navController) },
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = onStartRunClick,

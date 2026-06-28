@@ -48,4 +48,11 @@ class GoalsPreferencesManager(private val context: Context) {
             preferences[CALORIES_GOAL] = calories
         }
     }
+
+    // Wipes all saved goals on logout
+    suspend fun clearGoals() {
+        context.dataStore.edit { preferences ->
+            preferences.clear()
+        }
+    }
 }

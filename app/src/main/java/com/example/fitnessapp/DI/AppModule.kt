@@ -3,12 +3,14 @@ package com.example.fitnessapp.DI
 import android.content.Context
 import android.hardware.SensorManager
 import com.example.fitnessapp.Data.Location.androidLocationProvider
+import com.example.fitnessapp.Data.Repositories.AuthRepositoryImpl
 import com.example.fitnessapp.Data.Repositories.RunRepoImpl
 import com.example.fitnessapp.Data.Repositories.TrackingRepoImpl
 import com.example.fitnessapp.Data.Repositories.UserProfileRepoImpl
 import com.example.fitnessapp.Data.StepCounter.MockStepFlow
 import com.example.fitnessapp.Data.StepCounter.StepTracker
 import com.example.fitnessapp.Data.StepCounter.StepTrackerImplementation
+import com.example.fitnessapp.Domain.AuthRepository
 import com.example.fitnessapp.Domain.LocationDataSource
 import com.example.fitnessapp.Domain.RunRepository
 import com.example.fitnessapp.Domain.TrackingRunRepository
@@ -79,6 +81,16 @@ abstract class UserProfileRepositoryModule {
         userProfileRepoImpl : UserProfileRepoImpl
     ) : UserProfileRepository
 }
+
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class AuthRepositoryModule {
+    @Binds
+    abstract fun bindAuthRepository(
+        authRepositoryImpl: AuthRepositoryImpl
+    ): AuthRepository
+}
+
 
 @Module
 @InstallIn(SingletonComponent::class)

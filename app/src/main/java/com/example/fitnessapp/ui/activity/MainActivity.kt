@@ -14,13 +14,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.fitnessapp.Domain.AuthRepository
+import com.example.fitnessapp.ui.Auth.AuthScreen
 import com.example.fitnessapp.ui.activity.HomeScreen.HomeScreen
 import com.example.fitnessapp.ui.activity.Stats.Distance.DistanceAnalyticsScreen
 import com.example.fitnessapp.ui.activity.Stats.Energy.EnergyAnalyticsScreen
 import com.example.fitnessapp.ui.activity.Stats.Pace.PaceAnalyticsScreen
 import com.example.fitnessapp.ui.activity.Stats.PersonalBestsSection
 import com.example.fitnessapp.ui.activity.Stats.Steps.StepsAnalyticsScreen
-import com.example.fitnessapp.ui.activity.Tracking.OsmMapview
 import com.example.fitnessapp.ui.theme.FitnessAppTheme
 import com.example.fitnessapp.ui.activity.Tracking.TrackingViewModel
 import com.example.fitnessapp.ui.activity.UserProfile.ProfileScreen
@@ -30,28 +31,43 @@ import com.example.runtracker.ui.screens.RunDetailsScreen
 import com.example.runtracker.ui.screens.RunHistoryScreenM3
 import com.example.runtracker.ui.screens.TrackingScreen
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val trackingViewModel : TrackingViewModel by viewModels()
+
+    // 1. CHANGED: Injected the AuthRepository directly into your Activity
+    @Inject
+    lateinit var authRepository: AuthRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             FitnessAppTheme {
-                appRun()
+                // 2. CHANGED: Dynamically decide the starting route
+                val initialScreen = if (authRepository.currentUserUid != null) {
+                    "HomeScreen" // Logged in -> Go straight to dashboard
+                } else {
+                    "authScreen" // Logged out -> Show login
+                }
+
+                // 3. CHANGED: Passed the dynamic route into your composable
+                appRun(startDestination = initialScreen)
             }
         }
     }
 }
 
-
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun appRun() {
+// 4. CHANGED: Added startDestination as a parameter
+fun appRun(startDestination: String) {
     val navController : NavHostController = rememberNavController()
-    NavHost(navController, startDestination = "runHistory") {
+
+    // 5. CHANGED: Replaced the hardcoded "authScreen" with our dynamic variable
+    NavHost(navController, startDestination = startDestination) {
         composable("runHistory", content = {RunHistoryScreenM3(navController)})
         composable("trackingScreen", content = { TrackingScreen(navController) })
         composable("statsScreen", content = { StatsScreen(navController) })
@@ -63,6 +79,15 @@ fun appRun() {
         composable("EnergyScreen", content = { EnergyAnalyticsScreen(navController) })
         composable("PersonalBestScreen", content = { PersonalBestsSection(navController) })
         composable("HomeScreen", content = { HomeScreen(navController) { }})
+
+        composable("authScreen", content = {
+            AuthScreen {
+                navController.navigate("HomeScreen") {
+                    popUpTo("authScreen"){ inclusive = true }
+                }
+            }
+        })
+
         composable(
             route = "runDetails/{runId}",
             arguments = listOf(navArgument("runId") { type = NavType.LongType })
