@@ -1,5 +1,6 @@
 package com.example.fitnessapp.ui.activity
 
+import AuthScreen
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -15,7 +16,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.fitnessapp.Domain.AuthRepository
-import com.example.fitnessapp.ui.Auth.AuthScreen
 import com.example.fitnessapp.ui.activity.HomeScreen.HomeScreen
 import com.example.fitnessapp.ui.activity.Stats.Distance.DistanceAnalyticsScreen
 import com.example.fitnessapp.ui.activity.Stats.Energy.EnergyAnalyticsScreen

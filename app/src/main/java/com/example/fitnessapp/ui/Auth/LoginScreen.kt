@@ -1,5 +1,4 @@
-package com.example.fitnessapp.ui.Auth
-
+import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
@@ -18,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -26,30 +26,85 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.fitnessapp.ui.Auth.AuthViewModel
+import kotlinx.coroutines.flow.collectLatest
 
-// ─── THEME COLORS (Extracted from Screenshots) ───────────────────────
-private val BackgroundColor = Color(0xFFF9F9FC) // Very light off-white/gray
+// ─── THEME COLORS ────────────────────────────────────────────────────────
+private val BackgroundColor = Color(0xFFF9F9FC)
 private val SurfaceWhite = Color(0xFFFFFFFF)
-private val SlateBlue = Color(0xFF4A6085) // Matches the "Total distance" card
-private val LightBlueAccent = Color(0xFFE4EDFA) // Matches the "Avg Pace" card
+private val SlateBlue = Color(0xFF4A6085)
+private val LightBlueAccent = Color(0xFFE4EDFA)
 private val TextPrimary = Color(0xFF111111)
 private val TextSecondary = Color(0xFF757575)
-private val InputBackground = Color(0xFFF0F2F5) // Soft fill for text fields
+private val InputBackground = Color(0xFFF0F2F5)
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 fun AuthScreen(
+    viewModel: AuthViewModel = hiltViewModel(),
     onAuthSuccess: () -> Unit
 ) {
-    val viewModel: AuthViewModel = hiltViewModel()
     val uiState by viewModel.uiState.collectAsState()
     var passwordVisible by remember { mutableStateOf(false) }
+    val context = LocalContext.current // For the Toast
 
+    // Listen for Authentication Success
     LaunchedEffect(uiState.isSuccess) {
         if (uiState.isSuccess) {
             onAuthSuccess()
         }
     }
+
+    // Listen for Toasts (Forgot Password Events)
+    LaunchedEffect(Unit) {
+        viewModel.uiEvent.collectLatest { message ->
+            Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+        }
+    }
+
+    // ─── FORGOT PASSWORD DIALOG ────────────────────────────────────────
+    if (uiState.showResetDialog) {
+        AlertDialog(
+            onDismissRequest = viewModel::toggleResetDialog,
+            title = { Text("Reset Password", fontWeight = FontWeight.Bold, color = TextPrimary) },
+            text = {
+                Column {
+                    Text("Enter your email address and we will send you a link to reset your password.", color = TextSecondary, modifier = Modifier.padding(bottom = 16.dp))
+                    TextField(
+                        value = uiState.resetEmailInput,
+                        onValueChange = viewModel::onResetEmailChange,
+                        placeholder = { Text("Email address", color = TextSecondary) },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        shape = RoundedCornerShape(16.dp),
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = InputBackground,
+                            unfocusedContainerColor = InputBackground,
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent
+                        )
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = viewModel::sendPasswordResetEmail,
+                    colors = ButtonDefaults.buttonColors(containerColor = SlateBlue),
+                    shape = CircleShape
+                ) {
+                    Text("Send Link")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = viewModel::toggleResetDialog) {
+                    Text("Cancel", color = TextSecondary)
+                }
+            },
+            containerColor = SurfaceWhite
+        )
+    }
+    // ───────────────────────────────────────────────────────────────────
 
     Box(
         modifier = Modifier
@@ -148,6 +203,20 @@ fun AuthScreen(
                     )
                 )
 
+                // NEW: Forgot Password Text Button
+                if (uiState.isLoginMode) {
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.CenterEnd
+                    ) {
+                        TextButton(onClick = viewModel::toggleResetDialog) {
+                            Text("Forgot Password?", color = SlateBlue, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                        }
+                    }
+                } else {
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+
                 // Error Message
                 if (uiState.errorMessage != null) {
                     Text(
@@ -155,13 +224,13 @@ fun AuthScreen(
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.labelMedium,
                         modifier = Modifier
-                            .padding(top = 16.dp)
+                            .padding(top = 8.dp)
                             .fillMaxWidth(),
                         textAlign = TextAlign.Center
                     )
                 }
 
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
                 // Primary Action Button
                 Button(
@@ -171,7 +240,7 @@ fun AuthScreen(
                         .height(56.dp),
                     enabled = !uiState.isLoading,
                     colors = ButtonDefaults.buttonColors(containerColor = SlateBlue),
-                    shape = CircleShape // Pill shaped to match the "Today" active tab
+                    shape = CircleShape
                 ) {
                     if (uiState.isLoading) {
                         CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))

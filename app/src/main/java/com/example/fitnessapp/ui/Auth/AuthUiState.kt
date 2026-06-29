@@ -6,5 +6,7 @@ data class AuthUiState(
     val isLoginMode: Boolean = true, // True = Login, False = Register
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
-    val isSuccess: Boolean = false
+    val isSuccess: Boolean = false,
+    val showResetDialog: Boolean = false,
+    val resetEmailInput: String = ""
 )
