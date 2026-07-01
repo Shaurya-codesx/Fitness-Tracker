@@ -3,6 +3,7 @@ package com.example.fitnessapp.ui.activity.Onboarding
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.fitnessapp.Domain.UserProfileRepository // Adjust import if needed
+import com.example.fitnessapp.ui.utils.CloudSyncManager
 import com.example.fitnessapp.ui.utils.GoalsPreferencesManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -13,11 +14,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
 @HiltViewModel
 class OnboardingViewModel @Inject constructor(
     private val profileRepo: UserProfileRepository,
-    private val goalsManager: GoalsPreferencesManager // Your DataStore manager
+    private val goalsManager: GoalsPreferencesManager, // Your DataStore manager
+    private val cloudSyncManager: CloudSyncManager // <-- 1. Inject the new sync manager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(OnboardingUiState())
@@ -26,7 +27,7 @@ class OnboardingViewModel @Inject constructor(
     private val _uiEvent = MutableSharedFlow<String>()
     val uiEvent = _uiEvent.asSharedFlow()
 
-    // ─── INPUT HANDLERS (With strict filtering) ──────────────────────────
+    // ─── INPUT HANDLERS (Keep your exact input filtering logic) ───
     fun onNameChange(value: String) {
         val filtered = value.filter { it.isLetter() || it.isWhitespace() }
         _uiState.update { it.copy(name = filtered) }
@@ -52,18 +53,16 @@ class OnboardingViewModel @Inject constructor(
         _uiState.update { it.copy(calorieGoal = filtered) }
     }
 
-    // ─── SAVE LOGIC ──────────────────────────────────────────────────────
+    // ─── SAVE & PUSH LOGIC ───
     fun completeOnboarding() {
         val state = _uiState.value
 
-        // 1. Safe Parsing
         val parsedWeight = state.weight.toFloatOrNull() ?: 0f
         val parsedHeight = state.height.toIntOrNull() ?: 0
         val parsedSteps = state.stepGoal.toIntOrNull() ?: 0
         val parsedDistance = state.distanceGoal.toFloatOrNull() ?: 0f
         val parsedCalories = state.calorieGoal.toIntOrNull() ?: 0
 
-        // 2. Strict Validation
         if (state.name.isBlank() || parsedWeight <= 0f || parsedHeight <= 0 ||
             parsedSteps <= 0 || parsedDistance <= 0f || parsedCalories <= 0) {
             viewModelScope.launch { _uiEvent.emit("Please fill out all fields with valid numbers.") }
@@ -72,11 +71,21 @@ class OnboardingViewModel @Inject constructor(
 
         _uiState.update { it.copy(isLoading = true) }
 
-        // 3. Save to Room and DataStore simultaneously
         viewModelScope.launch {
             try {
+                // a) Save locally to Room and DataStore
                 profileRepo.saveUserProfile(state.name, parsedWeight, parsedHeight)
                 goalsManager.saveGoals(parsedSteps, parsedDistance, parsedCalories)
+
+                // b) <-- 2. Push to Firestore cloud instantly!
+                cloudSyncManager.pushInitialSetupToCloud(
+                    name = state.name,
+                    weight = parsedWeight,
+                    height = parsedHeight,
+                    steps = parsedSteps,
+                    distance = parsedDistance,
+                    calories = parsedCalories
+                )
 
                 _uiEvent.emit("Success") // Signal UI to navigate to Home
             } catch (e: Exception) {

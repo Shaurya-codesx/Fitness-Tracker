@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.example.fitnessapp.Data.Model.Entities.RunEntity
 import com.example.fitnessapp.Data.Model.StatsDataClasses.AvgPaceModel
 import com.example.fitnessapp.Data.Model.StatsDataClasses.DistanceModel
@@ -22,6 +23,12 @@ interface runDAO {
 
     @Query("DELETE FROM runs")
     suspend fun deleteRun()
+
+    @Query("SELECT * FROM runs WHERE isSynced = 0")
+    suspend fun getUnsyncedRuns(): List<RunEntity>
+
+    @Update
+    suspend fun updateRuns(runs: List<RunEntity>)
 
     @Query("SELECT * FROM runs ORDER BY startTime DESC")
     fun getAllRuns() : Flow<List<RunEntity>>

@@ -3,6 +3,7 @@ package com.example.fitnessapp.ui.Auth
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.fitnessapp.Domain.AuthRepository
+import com.example.fitnessapp.ui.utils.CloudSyncManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,13 +16,13 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val cloudSyncManager: CloudSyncManager // Injected for offline-first routing
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(_root_ide_package_.com.example.fitnessapp.ui.Auth.AuthUiState())
+    private val _uiState = MutableStateFlow(AuthUiState())
     val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()
 
-    // NEW: The Flare Gun for Toasts
     private val _uiEvent = MutableSharedFlow<String>()
     val uiEvent = _uiEvent.asSharedFlow()
 
@@ -33,6 +34,7 @@ class AuthViewModel @Inject constructor(
         _uiState.update { it.copy(passwordInput = password, errorMessage = null) }
     }
 
+    // ─── RESTORED: Toggle Mode ───
     fun toggleAuthMode() {
         _uiState.update {
             it.copy(
@@ -43,13 +45,11 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-    // ─── FORGOT PASSWORD LOGIC ──────────────────────────────────────────
-
+    // ─── RESTORED: Forgot Password Logic ───
     fun toggleResetDialog() {
         _uiState.update {
             it.copy(
                 showResetDialog = !it.showResetDialog,
-                // Pre-fill the reset email if they already started typing it in the main screen
                 resetEmailInput = if (!it.showResetDialog) it.emailInput else ""
             )
         }
@@ -70,15 +70,14 @@ class AuthViewModel @Inject constructor(
             val result = authRepository.sendPasswordResetEmail(email)
             result.onSuccess {
                 _uiEvent.emit("Reset link sent! Check your inbox.")
-                toggleResetDialog() // Close the dialog on success
+                toggleResetDialog()
             }.onFailure { error ->
                 _uiEvent.emit(error.localizedMessage ?: "Failed to send reset email")
             }
         }
     }
 
-    // ─── ORIGINAL SUBMIT LOGIC ──────────────────────────────────────────
-
+    // ─── SUBMIT LOGIC (With Cloud Sync Routing) ───
     fun submit() {
         val state = _uiState.value
         if (state.emailInput.isBlank() || state.passwordInput.isBlank()) {
@@ -96,6 +95,17 @@ class AuthViewModel @Inject constructor(
             }
 
             result.onSuccess {
+                if (state.isLoginMode) {
+                    val isReturningUser = cloudSyncManager.fetchAndRestoreUserData()
+                    if (isReturningUser) {
+                        _uiEvent.emit("ReturningUser") // Route straight to Home
+                    } else {
+                        _uiEvent.emit("NewUser") // Route to Onboarding
+                    }
+                } else {
+                    _uiEvent.emit("NewUser") // Brand new sign-ups always route to Onboarding
+                }
+
                 _uiState.update { it.copy(isLoading = false, isSuccess = true) }
             }.onFailure { error ->
                 _uiState.update {

@@ -42,6 +42,14 @@ class RunRepoImpl @Inject constructor(
         return runDAO.getAllRuns()
     }
 
+    override suspend fun getUnsyncedRuns(): List<RunEntity> {
+        return runDAO.getUnsyncedRuns()
+    }
+
+    override suspend fun updateRuns(runs: List<RunEntity>) {
+        runDAO.updateRuns(runs)
+    }
+
     override fun getRunById(id : Long): Flow<RunEntity> {
         return runDAO.getRunById(id)
     }

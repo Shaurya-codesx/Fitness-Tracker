@@ -22,6 +22,10 @@ interface RunRepository { // this repository holds the data for the active run s
 
     fun getAllRuns() : Flow<List<RunEntity>>
 
+    suspend fun getUnsyncedRuns(): List<RunEntity>
+
+    suspend fun updateRuns(runs: List<RunEntity>)
+
     fun getRunsInRange(startTime: Long, endTime: Long) : Flow<List<RunEntity>>
 
     fun getRunById(id : Long) : Flow<RunEntity>

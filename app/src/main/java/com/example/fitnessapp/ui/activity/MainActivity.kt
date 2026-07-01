@@ -81,13 +81,24 @@ fun appRun(startDestination: String) {
         composable("PersonalBestScreen", content = { PersonalBestsSection(navController) })
         composable("HomeScreen", content = { HomeScreen(navController) { }})
 
-        composable("authScreen", content = {
-            AuthScreen {
-                navController.navigate("onboardingScreen") {
-                    popUpTo("authScreen"){ inclusive = true }
+        // Inside your NavHost in MainActivity.kt...
+
+        composable("authScreen") {
+            AuthScreen(
+                onNavigateToHome = {
+                    navController.navigate("HomeScreen") {
+                        // Nuke the backstack so they can't hit back to login
+                        popUpTo("authScreen") { inclusive = true }
+                    }
+                },
+                onNavigateToOnboarding = {
+                    navController.navigate("onboardingScreen") {
+                        // Nuke the backstack so they can't hit back to login
+                        popUpTo("authScreen") { inclusive = true }
+                    }
                 }
-            }
-        })
+            )
+        }
 
         composable("onboardingScreen") {
             OnboardingScreen(

@@ -42,25 +42,27 @@ private val InputBackground = Color(0xFFF0F2F5)
 @Composable
 fun AuthScreen(
     viewModel: AuthViewModel = hiltViewModel(),
-    onAuthSuccess: () -> Unit
+    onNavigateToHome: () -> Unit,       // <-- NEW: For returning users
+    onNavigateToOnboarding: () -> Unit  // <-- NEW: For brand new users
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var passwordVisible by remember { mutableStateOf(false) }
     val context = LocalContext.current // For the Toast
 
-    // Listen for Authentication Success
-    LaunchedEffect(uiState.isSuccess) {
-        if (uiState.isSuccess) {
-            onAuthSuccess()
+    // ─── THE NEW EVENT LISTENER ───
+    // Notice how we completely removed the old `uiState.isSuccess` listener.
+    // Everything is now cleanly handled by the ViewModel's Flare Gun (uiEvent).
+    LaunchedEffect(Unit) {
+        viewModel.uiEvent.collectLatest { event ->
+            when (event) {
+                "ReturningUser" -> onNavigateToHome()
+                "NewUser" -> onNavigateToOnboarding()
+                else -> Toast.makeText(context, event, Toast.LENGTH_LONG).show() // Catches errors and Forgot Password toasts!
+            }
         }
     }
 
-    // Listen for Toasts (Forgot Password Events)
-    LaunchedEffect(Unit) {
-        viewModel.uiEvent.collectLatest { message ->
-            Toast.makeText(context, message, Toast.LENGTH_LONG).show()
-        }
-    }
+    // ... (The rest of your UI, Dialogs, and Form remains exactly the same below this line)
 
     // ─── FORGOT PASSWORD DIALOG ────────────────────────────────────────
     if (uiState.showResetDialog) {
