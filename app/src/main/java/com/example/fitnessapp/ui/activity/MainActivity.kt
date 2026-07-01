@@ -1,6 +1,7 @@
 package com.example.fitnessapp.ui.activity
 
 import AuthScreen
+import OnboardingScreen
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -82,11 +83,22 @@ fun appRun(startDestination: String) {
 
         composable("authScreen", content = {
             AuthScreen {
-                navController.navigate("HomeScreen") {
+                navController.navigate("onboardingScreen") {
                     popUpTo("authScreen"){ inclusive = true }
                 }
             }
         })
+
+        composable("onboardingScreen") {
+            OnboardingScreen(
+                onSetupComplete = {
+                    navController.navigate("HomeScreen") {
+                        // Clear the backstack so they can't hit back to return to Onboarding
+                        popUpTo("onboardingScreen") { inclusive = true }
+                    }
+                }
+            )
+        }
 
         composable(
             route = "runDetails/{runId}",
