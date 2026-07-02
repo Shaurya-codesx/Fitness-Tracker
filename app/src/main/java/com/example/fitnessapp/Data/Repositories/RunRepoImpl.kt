@@ -42,6 +42,15 @@ class RunRepoImpl @Inject constructor(
         return runDAO.getAllRuns()
     }
 
+    // Bulk insert function
+    override suspend fun insertRuns(runs: List<RunEntity>) {
+        runDAO.insertRuns(runs)
+    }
+
+    override suspend fun deleteRuns() {
+        runDAO.deleteRuns()
+    }
+
     override suspend fun getUnsyncedRuns(): List<RunEntity> {
         return runDAO.getUnsyncedRuns()
     }

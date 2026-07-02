@@ -26,4 +26,8 @@ class UserProfileRepoImpl @Inject constructor(
             )
         )
     }
+
+    override suspend fun deleteUserProfile() {
+        userProfileDao.deleteProfile()
+    }
 }

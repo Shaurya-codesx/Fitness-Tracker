@@ -1,6 +1,8 @@
 package com.example.fitnessapp.Data.Model
 
 import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.DeleteTable
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -21,8 +23,12 @@ interface runDAO {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertRun(run : RunEntity)
 
+    // Adds a whole list of runs at once (Used for restoring history)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertRuns(runs: List<RunEntity>)
+
     @Query("DELETE FROM runs")
-    suspend fun deleteRun()
+    suspend fun deleteRuns()
 
     @Query("SELECT * FROM runs WHERE isSynced = 0")
     suspend fun getUnsyncedRuns(): List<RunEntity>

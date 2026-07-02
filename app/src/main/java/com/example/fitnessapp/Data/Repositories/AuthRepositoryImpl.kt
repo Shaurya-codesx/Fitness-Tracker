@@ -1,7 +1,10 @@
 package com.example.fitnessapp.Data.Repositories
 
+import android.util.Log
 import com.example.fitnessapp.Data.Model.AppDatabase
 import com.example.fitnessapp.Domain.AuthRepository
+import com.example.fitnessapp.Domain.RunRepository
+import com.example.fitnessapp.Domain.UserProfileRepository
 import com.example.fitnessapp.ui.utils.GoalsPreferencesManager
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.tasks.await
@@ -10,7 +13,8 @@ import javax.inject.Inject
 // 2. The Implementation
 class AuthRepositoryImpl @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
-    private val database: AppDatabase, // Injecting your Room DB
+    private val userProfileRepo: UserProfileRepository,
+    private val runRepo : RunRepository,
     private val goalsManager: GoalsPreferencesManager // Injecting DataStore
 ) : AuthRepository {
 
@@ -59,9 +63,11 @@ class AuthRepositoryImpl @Inject constructor(
         firebaseAuth.signOut()
 
         // 2. Wipe the local Room database
-//        database.clearAllTables()
-//
-//        // 3. Wipe the local DataStore goals
-//        goalsManager.clearGoals()
+        userProfileRepo.deleteUserProfile()
+        runRepo.deleteRuns()
+        Log.d("logout", "all data deleted")
+
+        // 3. Wipe the local DataStore goals
+        goalsManager.clearGoals()
     }
 }

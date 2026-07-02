@@ -3,6 +3,7 @@ package com.example.fitnessapp.ui.Auth
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.fitnessapp.Domain.AuthRepository
+import com.example.fitnessapp.Domain.RunRepository
 import com.example.fitnessapp.ui.utils.CloudSyncManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -17,6 +18,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AuthViewModel @Inject constructor(
     private val authRepository: AuthRepository,
+    private val runRepo : RunRepository,
     private val cloudSyncManager: CloudSyncManager // Injected for offline-first routing
 ) : ViewModel() {
 
@@ -97,7 +99,13 @@ class AuthViewModel @Inject constructor(
             result.onSuccess {
                 if (state.isLoginMode) {
                     val isReturningUser = cloudSyncManager.fetchAndRestoreUserData()
+
                     if (isReturningUser) {
+                        // ─── THE FINAL PIECE: Fetch history in the background ───
+                        viewModelScope.launch {
+                            cloudSyncManager.fetchAndRestoreRunHistory(runRepo)
+                        }
+
                         _uiEvent.emit("ReturningUser") // Route straight to Home
                     } else {
                         _uiEvent.emit("NewUser") // Route to Onboarding
