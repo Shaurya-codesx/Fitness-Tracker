@@ -42,6 +42,9 @@ interface runDAO {
     @Query("SELECT * FROM runs WHERE id = :id")
     fun getRunById(id : Long) : Flow<RunEntity>
 
+    @Query("SELECT * FROM runs ORDER BY startTime DESC LIMIT 1")
+    suspend fun getLatestRun(): RunEntity?
+
     @Query("SELECT * FROM runs WHERE startTime BETWEEN :startTime AND :endTime ORDER BY startTime DESC")
     fun getRunsInRange(startTime : Long, endTime : Long) : Flow<List<RunEntity>>
 

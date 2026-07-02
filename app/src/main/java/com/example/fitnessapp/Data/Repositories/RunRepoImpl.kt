@@ -42,6 +42,10 @@ class RunRepoImpl @Inject constructor(
         return runDAO.getAllRuns()
     }
 
+    override suspend fun getLatestRun(): RunEntity? {
+        return runDAO.getLatestRun()
+    }
+
     // Bulk insert function
     override suspend fun insertRuns(runs: List<RunEntity>) {
         runDAO.insertRuns(runs)

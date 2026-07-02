@@ -24,6 +24,8 @@ interface RunRepository { // this repository holds the data for the active run s
 
     suspend fun insertRuns(runs: List<RunEntity>)
 
+    suspend fun getLatestRun() : RunEntity?
+
     suspend fun deleteRuns()
 
     suspend fun getUnsyncedRuns(): List<RunEntity>
