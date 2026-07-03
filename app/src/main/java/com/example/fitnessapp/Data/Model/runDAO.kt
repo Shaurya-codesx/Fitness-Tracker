@@ -70,33 +70,31 @@ interface runDAO {
     fun getWeeklyDistances(startTime: Long, endTime: Long): Flow<List<WeeklyDistances>>
 
     @Query("""
-        SELECT 
-            CASE :filter
-                -- When viewing a WEEK, group the bars by DAY (e.g., '2026-06-21')
-                WHEN 'WEEK' THEN strftime('%Y-%m-%d', startTime / 1000, 'unixepoch', 'localtime')
-                
-                -- When viewing a MONTH, group the bars by WEEK OF THE YEAR (e.g., '2026-24')
-                WHEN 'MONTH' THEN strftime('%Y-%W', startTime / 1000, 'unixepoch', 'localtime')
-                
-                -- When viewing a YEAR, group the bars by MONTH (e.g., '2026-06')
-                WHEN 'YEAR' THEN strftime('%Y-%m', startTime / 1000, 'unixepoch', 'localtime')
-            END AS periodLabel,
-            SUM(stepsTaken) AS stepCount
-        FROM runs
-        WHERE startTime >= :startTime AND startTime <= :endTime
-        GROUP BY periodLabel
-        ORDER BY startTime ASC
-    """)
+    SELECT 
+        CASE :filter
+            -- When viewing a WEEK or a MONTH, group the bars by DAY (e.g., '2026-07-03')
+            WHEN 'WEEK' THEN strftime('%Y-%m-%d', startTime / 1000, 'unixepoch', 'localtime')
+            WHEN 'MONTH' THEN strftime('%Y-%m-%d', startTime / 1000, 'unixepoch', 'localtime')
+            
+            -- When viewing a YEAR, group the bars by MONTH (e.g., '2026-06')
+            WHEN 'YEAR' THEN strftime('%Y-%m', startTime / 1000, 'unixepoch', 'localtime')
+        END AS periodLabel,
+        SUM(stepsTaken) AS stepCount
+    FROM runs
+    WHERE startTime >= :startTime AND startTime <= :endTime
+    GROUP BY periodLabel
+    ORDER BY startTime ASC
+""")
     fun getStepsAnalytics(startTime: Long, endTime: Long, filter: String) : Flow<List<StepsModel>>
 
     @Query("""
     SELECT 
         CASE :filter
             WHEN 'WEEK' THEN strftime('%Y-%m-%d', startTime / 1000, 'unixepoch', 'localtime')
-            WHEN 'MONTH' THEN strftime('%Y-%W', startTime / 1000, 'unixepoch', 'localtime')
+            WHEN 'MONTH' THEN strftime('%Y-%m-%d', startTime / 1000, 'unixepoch', 'localtime')
             WHEN 'YEAR' THEN strftime('%Y-%m', startTime / 1000, 'unixepoch', 'localtime')
         END AS periodLabel,
-        SUM(distanceinmeters) AS totalDistance -- Assuming your column is still named this, or change to actual column name
+        SUM(distanceinmeters) AS totalDistance 
     FROM runs
     WHERE startTime >= :startTime AND startTime <= :endTime
     GROUP BY periodLabel
@@ -119,19 +117,19 @@ interface runDAO {
     ): Flow<List<Float>>
 
     @Query("""
-        SELECT 
-            CASE :filter
-                WHEN 'WEEK' THEN strftime('%Y-%m-%d', startTime / 1000, 'unixepoch', 'localtime')
-                WHEN 'MONTH' THEN strftime('%Y-%W', startTime / 1000, 'unixepoch', 'localtime')
-                WHEN 'YEAR' THEN strftime('%Y-%m', startTime / 1000, 'unixepoch', 'localtime')
-            END AS periodLabel,
-            SUM(endTime - startTime) AS totalDuration, -- Math done directly in SQL
-            SUM(distanceinmeters) AS totalDistance
-        FROM runs
-        WHERE startTime >= :startTime AND startTime <= :endTime
-        GROUP BY periodLabel
-        ORDER BY startTime ASC
-    """)
+    SELECT 
+        CASE :filter
+            WHEN 'WEEK' THEN strftime('%Y-%m-%d', startTime / 1000, 'unixepoch', 'localtime')
+            WHEN 'MONTH' THEN strftime('%Y-%m-%d', startTime / 1000, 'unixepoch', 'localtime')
+            WHEN 'YEAR' THEN strftime('%Y-%m', startTime / 1000, 'unixepoch', 'localtime')
+        END AS periodLabel,
+        SUM(endTime - startTime) AS totalDuration, 
+        SUM(distanceinmeters) AS totalDistance
+    FROM runs
+    WHERE startTime >= :startTime AND startTime <= :endTime
+    GROUP BY periodLabel
+    ORDER BY startTime ASC
+""")
     fun getPaceAnalytics(
         startTime: Long,
         endTime: Long,
@@ -152,18 +150,18 @@ interface runDAO {
 
 
     @Query("""
-        SELECT 
-            CASE :filter
-                WHEN 'WEEK' THEN strftime('%Y-%m-%d', startTime / 1000, 'unixepoch', 'localtime')
-                WHEN 'MONTH' THEN strftime('%Y-%W', startTime / 1000, 'unixepoch', 'localtime')
-                WHEN 'YEAR' THEN strftime('%Y-%m', startTime / 1000, 'unixepoch', 'localtime')
-            END AS periodLabel,
-            SUM(caloriesBurned) AS totalCalories
-        FROM runs
-        WHERE startTime >= :startTime AND startTime <= :endTime
-        GROUP BY periodLabel
-        ORDER BY startTime ASC
-    """)
+    SELECT 
+        CASE :filter
+            WHEN 'WEEK' THEN strftime('%Y-%m-%d', startTime / 1000, 'unixepoch', 'localtime')
+            WHEN 'MONTH' THEN strftime('%Y-%m-%d', startTime / 1000, 'unixepoch', 'localtime')
+            WHEN 'YEAR' THEN strftime('%Y-%m', startTime / 1000, 'unixepoch', 'localtime')
+        END AS periodLabel,
+        SUM(caloriesBurned) AS totalCalories
+    FROM runs
+    WHERE startTime >= :startTime AND startTime <= :endTime
+    GROUP BY periodLabel
+    ORDER BY startTime ASC
+""")
     fun getEnergyAnalytics(
         startTime: Long,
         endTime: Long,

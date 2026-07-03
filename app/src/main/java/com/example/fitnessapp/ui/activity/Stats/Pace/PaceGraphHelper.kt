@@ -39,20 +39,41 @@ fun processPaceChartData(
             }
         }
         FilterRange.MONTH -> {
-            val weekFields = WeekFields.of(Locale.getDefault())
-            var currentWeekStart = startDate
+            // Break the month into clean 7-day chunks
+            var currentChunkStart = startDate
             var weekNumber = 1
 
-            while (!currentWeekStart.isAfter(endDate)) {
-                val yearFormatter = DateTimeFormatter.ofPattern("YYYY")
-                val weekOfYear = currentWeekStart.get(weekFields.weekOfYear())
-                val dbKey = "${currentWeekStart.format(yearFormatter)}-${String.format("%02d", weekOfYear)}"
+            while (!currentChunkStart.isAfter(endDate)) {
+                var chunkTotalDuration = 0L
+                var chunkTotalDistance = 0f
 
-                val rawModel = dbMap[dbKey]
-                val paceDecimal = calculatePaceDecimal(rawModel)
+                // Sum up the time and distance for these 7 days
+                for (i in 0..6) {
+                    val day = currentChunkStart.plusDays(i.toLong())
+
+                    if (day.isAfter(endDate)) break
+
+                    val dbKey = day.toString()
+                    val dailyData = dbMap[dbKey]
+
+                    chunkTotalDuration += (dailyData?.totalDuration ?: 0L)
+                    chunkTotalDistance += (dailyData?.totalDistance ?: 0f)
+                }
+
+                // Create a combined model to pass to your existing math function!
+                val aggregatedModel = AvgPaceModel(
+                    periodLabel = "Wk $weekNumber",
+                    totalDuration = chunkTotalDuration,
+                    totalDistance = chunkTotalDistance
+                )
+
+                // Calculate the true average pace for this 7-day chunk
+                val paceDecimal = calculatePaceDecimal(aggregatedModel)
 
                 resultList.add(ChartData("Week $weekNumber", paceDecimal))
-                currentWeekStart = currentWeekStart.plusWeeks(1)
+
+                // Jump forward 7 days for the next week chunk
+                currentChunkStart = currentChunkStart.plusDays(7)
                 weekNumber++
             }
         }

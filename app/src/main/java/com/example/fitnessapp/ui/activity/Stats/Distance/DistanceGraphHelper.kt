@@ -40,22 +40,36 @@ fun processDistanceChartData(
             }
         }
         FilterRange.MONTH -> {
-            val weekFields = WeekFields.of(Locale.getDefault())
-            var currentWeekStart = startDate
+            // We break the month into clean 7-day chunks (Week 1 = 1st-7th, Week 2 = 8th-14th, etc.)
+            // This bypasses the SQLite vs. Kotlin week-number mismatch!
+            var currentChunkStart = startDate
             var weekNumber = 1
 
-            while (!currentWeekStart.isAfter(endDate)) {
-                val yearFormatter = DateTimeFormatter.ofPattern("YYYY")
-                val weekOfYear = currentWeekStart.get(weekFields.weekOfYear())
-                val dbKey = "${currentWeekStart.format(yearFormatter)}-${String.format("%02d", weekOfYear)}"
+            while (!currentChunkStart.isAfter(endDate)) {
+                var chunkSum = 0f // Using Float for distance
 
-                val distance = dbMap[dbKey]?.totalDistance ?: 0f
-                resultList.add(ChartData("Week $weekNumber", distance/1000))
+                // Sum up the 7 days for this specific week block
+                for (i in 0..6) {
+                    val day = currentChunkStart.plusDays(i.toLong())
 
-                currentWeekStart = currentWeekStart.plusWeeks(1)
+                    // Stop if we accidentally bleed into the next month
+                    if (day.isAfter(endDate)) break
+
+                    val dbKey = day.toString() // Matches the DAO '%Y-%m-%d' format exactly
+
+                    // Grab the distance for this day, or 0f if they didn't run
+                    chunkSum += (dbMap[dbKey]?.totalDistance ?: 0f)
+                }
+
+                // Add the sum to the chart, keeping your /1000 conversion to km!
+                resultList.add(ChartData("Week $weekNumber", chunkSum / 1000f))
+
+                // Jump forward 7 days for the next week chunk
+                currentChunkStart = currentChunkStart.plusDays(7)
                 weekNumber++
             }
         }
+
         FilterRange.YEAR -> {
             for (i in 1..12) {
                 val monthString = String.format("%02d", i)

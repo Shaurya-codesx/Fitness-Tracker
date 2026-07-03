@@ -46,21 +46,27 @@ fun processChartData(
 
         FilterRange.MONTH -> {
             // Generate weeks for the specific month
-            val weekFields = WeekFields.of(Locale.getDefault())
-            var currentWeekStart = startDate
+            var currentChunkStart = startDate
             var weekNumber = 1
 
-            while (!currentWeekStart.isAfter(endDate)) {
-                // SQLite '%W' formats as YYYY-WW (e.g., "2026-24")
-                // Note: SQLite week numbers might need slight adjustment based on locale,
-                // but formatting it this way ensures a match with the DB output.
-                val yearFormatter = DateTimeFormatter.ofPattern("YYYY")
-                val weekOfYear = currentWeekStart.get(weekFields.weekOfYear())
-                val dbKey = "${currentWeekStart.format(yearFormatter)}-${String.format("%02d", weekOfYear)}"
+            while (!currentChunkStart.isAfter(endDate)) {
+                var chunkSum = 0
 
-                resultList.add(ChartData("Week $weekNumber", dbMap[dbKey]?.stepCount ?: 0))
+                // Sum up the 7 days for this specific week block
+                for (i in 0..6) {
+                    val day = currentChunkStart.plusDays(i.toLong())
 
-                currentWeekStart = currentWeekStart.plusWeeks(1)
+                    // Stop if we accidentally bleed into August
+                    if (day.isAfter(endDate)) break
+
+                    val dbKey = day.toString() // e.g., "2026-07-03"
+                    chunkSum += (dbMap[dbKey]?.stepCount ?: 0)
+                }
+
+                resultList.add(ChartData("Wk $weekNumber", chunkSum))
+
+                // Jump forward 7 days for the next week chunk
+                currentChunkStart = currentChunkStart.plusDays(7)
                 weekNumber++
             }
         }

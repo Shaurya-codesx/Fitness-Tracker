@@ -39,19 +39,31 @@ fun processEnergyChartData(
             }
         }
         FilterRange.MONTH -> {
-            val weekFields = WeekFields.of(Locale.getDefault())
-            var currentWeekStart = startDate
+            // Break the month into clean 7-day chunks (Week 1 = 1st-7th, Week 2 = 8th-14th, etc.)
+            var currentChunkStart = startDate
             var weekNumber = 1
 
-            while (!currentWeekStart.isAfter(endDate)) {
-                val yearFormatter = DateTimeFormatter.ofPattern("YYYY")
-                val weekOfYear = currentWeekStart.get(weekFields.weekOfYear())
-                val dbKey = "${currentWeekStart.format(yearFormatter)}-${String.format("%02d", weekOfYear)}"
+            while (!currentChunkStart.isAfter(endDate)) {
+                var chunkSum = 0f // Using Float for calories
 
-                val calories = dbMap[dbKey]?.totalCalories ?: 0f
-                resultList.add(ChartData("Week $weekNumber", calories))
+                // Sum up the 7 days for this specific week block
+                for (i in 0..6) {
+                    val day = currentChunkStart.plusDays(i.toLong())
 
-                currentWeekStart = currentWeekStart.plusWeeks(1)
+                    // Stop if we accidentally bleed into the next month
+                    if (day.isAfter(endDate)) break
+
+                    val dbKey = day.toString() // Matches the DAO '%Y-%m-%d' format exactly
+
+                    // Grab the calories for this day, or 0f if they didn't run
+                    chunkSum += (dbMap[dbKey]?.totalCalories ?: 0f)
+                }
+
+                // Add the sum to the chart
+                resultList.add(ChartData("Wk $weekNumber", chunkSum))
+
+                // Jump forward 7 days for the next week chunk
+                currentChunkStart = currentChunkStart.plusDays(7)
                 weekNumber++
             }
         }
