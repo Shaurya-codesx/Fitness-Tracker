@@ -85,7 +85,7 @@ fun HomeScreen(
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = onStartRunClick,
-                containerColor = Color(0xFF4A5C82), // matches your hero card blue
+                containerColor = Color(0xFF6C8AE4), // matches your hero card blue
                 contentColor = Color.White,
                 shape = RoundedCornerShape(100),
                 elevation = FloatingActionButtonDefaults.elevation(
@@ -380,7 +380,7 @@ private fun MonthlyHeatmap(activeDates: Set<LocalDate>) {
                             .clip(RoundedCornerShape(10.dp))
                             .background(
                                 when {
-                                    isActive -> Color(0xFFB8C4F0) // pastel lavender-blue
+                                    isActive -> Color(0xFF6C8AE4) // pastel lavender-blue
                                     else -> Color(0xFFF5F5FA)      // soft neutral
                                 }
                             )
