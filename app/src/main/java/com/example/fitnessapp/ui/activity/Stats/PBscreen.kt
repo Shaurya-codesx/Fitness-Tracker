@@ -23,47 +23,74 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.fitnessapp.ui.UiStates.PersonalBestUiState
+// ─── MATERIAL YOU PASTEL TROPHY COLORS ───────────────────────────────────────
+private val LavenderBg = Color(0xFFF5F5FA)
+private val HeroGradientStart = Color(0xFF4A5C82)
+private val HeroGradientEnd = Color(0xFF6B7FA8)
+private val HeroAccent = Color(0xFFFFE29A)
+private val HeadingText = Color(0xFF2E3355)
+private val MutedText = Color(0xFF8A8FA8)
+private val CardWhite = Color(0xFFFFFFFF)
 
-// ─── PREMIUM TROPHY COLORS ───────────────────────────────────────────────────
-private val GoldStart = Color(0xFFFFD700)
-private val GoldEnd = Color(0xFFF59E0B)
-private val DarkTrophyBg = Color(0xFF1A1A2E)
-private val SubTrophyBg = Color(0xFF252542)
-private val LightText = Color.White
-private val MutedText = Color(0xFF8888A8)
+private val BlueTint = Color(0xFFE3E9F7); private val BlueAccent = Color(0xFF6C8AE4)
+private val GreenTint = Color(0xFFE1F5EA); private val GreenAccent = Color(0xFF4CAF7D)
+private val CoralTint = Color(0xFFFBE7E7); private val CoralAccent = Color(0xFFE57575)
+private val PurpleTint = Color(0xFFEFE6F8); private val PurpleAccent = Color(0xFF9B7FD1)
 
 @Composable
 fun PersonalBestsSection(navController: NavController) {
-    val viewModel : AnalyticsViewModel = hiltViewModel()
+    val viewModel: AnalyticsViewModel = hiltViewModel()
     val uiState by viewModel.personalBests.collectAsStateWithLifecycle()
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        // Section Header
-        Text(
-            text = "Trophy Room",
-            style = MaterialTheme.typography.titleLarge.copy(
-                fontWeight = FontWeight.Bold,
-                color = DarkTrophyBg
-            )
-        )
 
-        // State Machine UI
-        val state = uiState
-        when (state) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(LavenderBg)
+            .padding(20.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp)
+    ) {
+        Spacer(modifier = Modifier.height(25.dp))
+        // Header — fixed height, doesn't eat into the bento space
+        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Text(
+                "Trophy Room",
+                style = MaterialTheme.typography.headlineLarge.copy(
+                    fontWeight = FontWeight.ExtraBold,
+                    color = HeadingText
+                )
+            )
+            Text(
+                "Your all-time personal records",
+                style = MaterialTheme.typography.bodyMedium.copy(color = MutedText)
+            )
+        }
+
+        when (val state = uiState) {
             is PersonalBestUiState.Loading -> {
-                Box(modifier = Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(color = GoldEnd)
+                Box(
+                    modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(28.dp)).background(CardWhite),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = BlueAccent)
                 }
             }
             is PersonalBestUiState.Empty -> {
-                Box(
-                    modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(20.dp)).background(Color.White).padding(32.dp),
-                    contentAlignment = Alignment.Center
+                Column(
+                    modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(28.dp)).background(CardWhite),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
                 ) {
+                    Box(
+                        modifier = Modifier.size(88.dp).clip(CircleShape).background(BlueTint),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(Icons.Rounded.EmojiEvents, contentDescription = null, tint = BlueAccent, modifier = Modifier.size(44.dp))
+                    }
+                    Spacer(Modifier.height(16.dp))
+                    Text("Lace up your shoes!", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, color = HeadingText))
+                    Spacer(Modifier.height(6.dp))
                     Text(
-                        text = "Lace up your shoes!\nYour records will appear here after your first run.",
+                        "Your records will appear here\nafter your first run.",
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.bodyMedium.copy(color = MutedText)
                     )
@@ -71,107 +98,158 @@ fun PersonalBestsSection(navController: NavController) {
             }
             is PersonalBestUiState.Error -> {
                 Box(
-                    modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(20.dp)).background(Color(0xFFFEE2E2)).padding(20.dp),
+                    modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(24.dp)).background(CoralTint),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(text = state.message, color = Color(0xFFB91C1C))
+                    Text(state.message, color = CoralAccent, style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium))
                 }
             }
             is PersonalBestUiState.Success -> {
-                TrophyGrid(state)
+                BentoTrophyLayout(state)
             }
         }
     }
 }
 
 @Composable
-private fun TrophyGrid(records: PersonalBestUiState.Success) {
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+private fun BentoTrophyLayout(records: PersonalBestUiState.Success) {
+    // This Column fills all remaining screen space via weight()
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(14.dp)
+    ) {
 
-        // 1. Hero Trophy (Farthest Distance)
+        // 1. Hero banner — shorter now, weight 1f
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(20.dp))
-                .background(Brush.linearGradient(listOf(DarkTrophyBg, Color(0xFF111122))))
-                .padding(20.dp)
+                .weight(1f)
+                .clip(RoundedCornerShape(24.dp))
+                .background(Brush.linearGradient(listOf(HeroGradientStart, HeroGradientEnd)))
+                .padding(22.dp)
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+            Box(
+                modifier = Modifier.align(Alignment.TopEnd).size(48.dp).clip(CircleShape)
+                    .background(HeroAccent.copy(alpha = 0.25f)),
+                contentAlignment = Alignment.Center
             ) {
-                Column {
-                    Text("Farthest Run", style = MaterialTheme.typography.labelMedium.copy(color = GoldStart, fontWeight = FontWeight.SemiBold))
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(records.recordDistance, style = MaterialTheme.typography.headlineMedium.copy(color = LightText, fontWeight = FontWeight.Bold))
-                }
-                Box(
-                    modifier = Modifier.size(56.dp).clip(CircleShape).background(Brush.linearGradient(listOf(GoldStart, GoldEnd))),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(Icons.Rounded.EmojiEvents, contentDescription = "Trophy", tint = DarkTrophyBg, modifier = Modifier.size(32.dp))
-                }
+                Icon(Icons.Rounded.EmojiEvents, contentDescription = "Trophy", tint = HeroAccent, modifier = Modifier.size(24.dp))
+            }
+            Column(modifier = Modifier.align(Alignment.BottomStart)) {
+                Text("FARTHEST RUN", style = MaterialTheme.typography.labelMedium.copy(color = HeroAccent, fontWeight = FontWeight.Bold, letterSpacing = 1.sp))
+                Text(records.recordDistance, style = MaterialTheme.typography.displaySmall.copy(color = Color.White, fontWeight = FontWeight.ExtraBold))
             }
         }
 
-        // 2. The 2x2 Sub-Trophy Grid
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            SubTrophyCard(
-                modifier = Modifier.weight(1f),
-                title = "Longest Time",
-                value = records.recordDuration,
-                icon = Icons.Rounded.Timer,
-                iconTint = Color(0xFF60A5FA) // Blue
-            )
-            SubTrophyCard(
-                modifier = Modifier.weight(1f),
-                title = "Fastest Pace",
-                value = records.recordPace,
-                icon = Icons.Rounded.Speed,
-                iconTint = Color(0xFF34D399) // Green
-            )
-        }
-
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            SubTrophyCard(
-                modifier = Modifier.weight(1f),
-                title = "Most Calories",
-                value = records.recordCalories,
-                icon = Icons.Rounded.LocalFireDepartment,
-                iconTint = Color(0xFFF87171) // Red
-            )
-            SubTrophyCard(
-                modifier = Modifier.weight(1f),
-                title = "Most Steps",
+        // 2. Bento row — big vertical card + two stacked cards, weight 1.5f (tallest section)
+        Row(
+            modifier = Modifier.fillMaxWidth().weight(1.5f),
+            horizontalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+            // Big "Most Steps" card — spans full row height
+            BigBentoCard(
+                modifier = Modifier.weight(1f).fillMaxHeight(),
+                title = "Most steps",
                 value = records.recordSteps,
                 icon = Icons.Rounded.DirectionsRun,
-                iconTint = Color(0xFFA78BFA) // Purple
+                tint = PurpleTint,
+                accent = PurpleAccent
             )
+
+            // Stacked column: Time + Pace
+            Column(
+                modifier = Modifier.weight(1f).fillMaxHeight(),
+                verticalArrangement = Arrangement.spacedBy(14.dp)
+            ) {
+                SmallBentoCard(
+                    modifier = Modifier.weight(1f).fillMaxWidth(),
+                    title = "Longest time",
+                    value = records.recordDuration,
+                    icon = Icons.Rounded.Timer,
+                    tint = BlueTint,
+                    accent = BlueAccent
+                )
+                SmallBentoCard(
+                    modifier = Modifier.weight(1f).fillMaxWidth(),
+                    title = "Fastest pace",
+                    value = records.recordPace,
+                    icon = Icons.Rounded.Speed,
+                    tint = GreenTint,
+                    accent = GreenAccent
+                )
+            }
+        }
+
+        // 3. Wide banner — Most Calories, weight 0.7f
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(0.7f)
+                .clip(RoundedCornerShape(22.dp))
+                .background(CoralTint)
+                .padding(horizontal = 20.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column {
+                Text("Most calories burned", style = MaterialTheme.typography.bodySmall.copy(color = MutedText))
+                Text(records.recordCalories, style = MaterialTheme.typography.headlineSmall.copy(color = HeadingText, fontWeight = FontWeight.ExtraBold))
+            }
+            Box(
+                modifier = Modifier.size(48.dp).clip(CircleShape).background(Color.White.copy(alpha = 0.6f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(Icons.Rounded.LocalFireDepartment, contentDescription = null, tint = CoralAccent, modifier = Modifier.size(24.dp))
+            }
         }
     }
 }
 
 @Composable
-private fun SubTrophyCard(
+private fun BigBentoCard(
     modifier: Modifier = Modifier,
     title: String,
     value: String,
     icon: ImageVector,
-    iconTint: Color
+    tint: Color,
+    accent: Color
 ) {
-    Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(16.dp))
-            .background(SubTrophyBg)
-            .padding(16.dp)
+    Column(
+        modifier = modifier.clip(RoundedCornerShape(22.dp)).background(tint).padding(18.dp),
+        verticalArrangement = Arrangement.SpaceBetween
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                Icon(icon, contentDescription = null, tint = iconTint, modifier = Modifier.size(16.dp))
-                Text(title, style = MaterialTheme.typography.labelSmall.copy(color = MutedText, fontWeight = FontWeight.Medium))
-            }
-            Text(value, style = MaterialTheme.typography.titleMedium.copy(color = LightText, fontWeight = FontWeight.Bold))
+        Box(
+            modifier = Modifier.size(44.dp).clip(CircleShape).background(Color.White.copy(alpha = 0.6f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(icon, contentDescription = null, tint = accent, modifier = Modifier.size(24.dp))
         }
+        Column {
+            Text(value, style = MaterialTheme.typography.headlineMedium.copy(color = HeadingText, fontWeight = FontWeight.ExtraBold))
+            Spacer(Modifier.height(2.dp))
+            Text(title, style = MaterialTheme.typography.bodyMedium.copy(color = MutedText))
+        }
+    }
+}
+
+@Composable
+private fun SmallBentoCard(
+    modifier: Modifier = Modifier,
+    title: String,
+    value: String,
+    icon: ImageVector,
+    tint: Color,
+    accent: Color
+) {
+    Row(
+        modifier = modifier.clip(RoundedCornerShape(20.dp)).background(tint).padding(14.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column {
+            Text(value, style = MaterialTheme.typography.titleLarge.copy(color = HeadingText, fontWeight = FontWeight.ExtraBold))
+            Text(title, style = MaterialTheme.typography.labelMedium.copy(color = MutedText))
+        }
+        Icon(icon, contentDescription = null, tint = accent, modifier = Modifier.size(20.dp))
     }
 }
