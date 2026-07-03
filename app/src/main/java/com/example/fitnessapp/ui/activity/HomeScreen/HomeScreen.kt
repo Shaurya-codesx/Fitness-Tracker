@@ -4,6 +4,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -23,6 +24,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
@@ -41,43 +43,56 @@ import java.time.YearMonth
 import androidx.compose.ui.geometry.Size
 import com.example.fitnessapp.ui.components.BottomBar
 
-// ─── THEME COLORS ────────────────────────────────────────────────────────
-private val BgColor = Color(0xFFF2F1F8)
-private val CardBg = Color.White
-private val TextPrimary = Color(0xFF1A1A2E)
-private val TextSecondary = Color(0xFF8888A8)
+//// ─── THEME COLORS ────────────────────────────────────────────────────────
+//private val BgColor = Color(0xFFF2F1F8)
+//private val CardBg = Color.White
+//private val TextPrimary = Color(0xFF1A1A2E)
+//private val TextSecondary = Color(0xFF8888A8)
+//
+//// Ring Colors
+//private val ColorSteps = Color(0xFFA78BFA)    // Purple
+//private val ColorDistance = Color(0xFF60A5FA)  // Blue
+//private val ColorCalories = Color(0xFFF87171)  // Red
 
-// Ring Colors
-private val ColorSteps = Color(0xFFA78BFA)    // Purple
-private val ColorDistance = Color(0xFF60A5FA)  // Blue
-private val ColorCalories = Color(0xFFF87171)  // Red
+
+// ─── COLOR TOKENS (add to your theme file if not already there) ─────────
+val BgColor = Color(0xFFF5F5FA)
+val CardBg = Color(0xFFFFFFFF)
+val TextPrimary = Color(0xFF2D2D3A)
+val TextSecondary = Color(0xFF8B8B9E)
+val ColorSteps = Color(0xFFB8C4F0)     // pastel lavender-blue
+val ColorDistance = Color(0xFF9FD9C4) // pastel mint
+val ColorCalories = Color(0xFFF5B7C6) // pastel coral-pink
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     navController: NavController,
-    onStartRunClick: () -> Unit // Pass your navigation event here!
+    onStartRunClick: () -> Unit
 ) {
     val viewModel: HomeViewModel = hiltViewModel()
     val uiState by viewModel.homeUiState.collectAsState(initial = HomeUiState.Loading)
 
-    // Bottom Sheet State
     var showGoalSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        containerColor = BgColor,
+        containerColor = BgColor, // #F5F5FA
         floatingActionButtonPosition = FabPosition.Center,
         bottomBar = { BottomBar(navController) },
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = onStartRunClick,
-                containerColor = Color(0xFF1A1A2E),
+                containerColor = Color(0xFF4A5C82), // matches your hero card blue
                 contentColor = Color.White,
                 shape = RoundedCornerShape(100),
-                modifier = Modifier.padding(bottom = 16.dp)
+                elevation = FloatingActionButtonDefaults.elevation(
+                    defaultElevation = 4.dp,
+                    pressedElevation = 8.dp
+                ),
+                modifier = Modifier.offset(y = 16.dp)
             ) {
                 Icon(Icons.Rounded.DirectionsRun, contentDescription = "Start Run")
                 Spacer(Modifier.width(8.dp))
@@ -88,10 +103,13 @@ fun HomeScreen(
         Box(modifier = Modifier.padding(paddingValues).fillMaxSize()) {
             when (val state = uiState) {
                 is HomeUiState.Loading -> {
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                    CircularProgressIndicator(
+                        color = Color(0xFF4A5C82),
+                        modifier = Modifier.align(Alignment.Center)
+                    )
                 }
                 is HomeUiState.Error -> {
-                    Text(state.message, color = Color.Red, modifier = Modifier.align(Alignment.Center))
+                    Text(state.message, color = Color(0xFFE57373), modifier = Modifier.align(Alignment.Center))
                 }
                 is HomeUiState.Success -> {
                     DashboardContent(
@@ -99,7 +117,6 @@ fun HomeScreen(
                         onEditGoalsClick = { showGoalSheet = true }
                     )
 
-                    // Goal Setting Bottom Sheet
                     if (showGoalSheet) {
                         GoalSettingBottomSheet(
                             sheetState = sheetState,
@@ -126,10 +143,10 @@ private fun DashboardContent(
     val greeting = remember {
         val hour = LocalTime.now().hour
         when (hour) {
-            in 5..11 -> "Good morning,"     // 5 AM to 11 AM
-            in 12..16 -> "Good afternoon,"  // 12 PM to 4 PM
-            in 17..22 -> "Good evening,"    // 5 PM to 10 PM
-            else -> "Late night run?"       // 11 PM to 4 AM (hours 23, 0, 1, 2, 3, 4)
+            in 5..11 -> "Good morning,"
+            in 12..16 -> "Good afternoon,"
+            in 17..22 -> "Good evening,"
+            else -> "Late night run?"
         }
     }
 
@@ -137,10 +154,10 @@ private fun DashboardContent(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(start = 20.dp, end = 20.dp, bottom = 20.dp, top = 5.dp),
-        verticalArrangement = Arrangement.spacedBy(24.dp)
+            .padding(start = 20.dp, end = 20.dp, bottom = 20.dp, top = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
-        // 1. HEADER (Greeting & Streak)
+        // 1. HEADER
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -148,20 +165,37 @@ private fun DashboardContent(
         ) {
             Column {
                 Text(greeting, style = MaterialTheme.typography.bodyLarge.copy(color = TextSecondary))
-                Text(state.userName, style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold, color = TextPrimary))
+                Text(
+                    state.userName,
+                    style = MaterialTheme.typography.headlineMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = TextPrimary
+                    )
+                )
             }
 
-            // Streak Badge
+            // Streak Badge — softened to pastel lavender
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .clip(RoundedCornerShape(50))
-                    .background(Color(0xFFFEF3C7)) // Light Amber
-                    .padding(horizontal = 12.dp, vertical = 8.dp)
+                    .background(Color(0xFFFEF3C7)) // soft lavender
+                    .padding(horizontal = 14.dp, vertical = 8.dp)
             ) {
-                Icon(Icons.Rounded.LocalFireDepartment, contentDescription = null, tint = Color(0xFFD97706), modifier = Modifier.size(20.dp))
+                Icon(
+                    Icons.Rounded.LocalFireDepartment,
+                    contentDescription = null,
+                    tint = Color(0xFFD97706),
+                    modifier = Modifier.size(18.dp)
+                )
                 Spacer(Modifier.width(4.dp))
-                Text("${state.currentStreak} Day Streak", style = MaterialTheme.typography.labelMedium.copy(color = Color(0xFF92400E), fontWeight = FontWeight.Bold))
+                Text(
+                    "${state.currentStreak} Day Streak",
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        color = Color(0xFF92400E),
+                        fontWeight = FontWeight.Bold
+                    )
+                )
             }
         }
 
@@ -169,13 +203,17 @@ private fun DashboardContent(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(24.dp))
-                .background(CardBg)
+                .shadow(elevation = 4.dp, shape = RoundedCornerShape(28.dp), ambientColor = Color(0x1A4A5C82))
+                .clip(RoundedCornerShape(28.dp))
+                .background(Color.White)
                 .padding(24.dp)
         ) {
             Column(modifier = Modifier.fillMaxWidth()) {
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("Today's Targets", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, color = TextPrimary))
+                    Text(
+                        "Today's Targets",
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, color = TextPrimary)
+                    )
                     IconButton(onClick = onEditGoalsClick, modifier = Modifier.size(24.dp)) {
                         Icon(Icons.Rounded.Edit, contentDescription = "Edit Goals", tint = TextSecondary)
                     }
@@ -184,12 +222,18 @@ private fun DashboardContent(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 if (!state.userGoals.areGoalsSet) {
-                    // Empty State if goals aren't set
-                    Box(modifier = Modifier.fillMaxWidth().height(150.dp).clickable { onEditGoalsClick() }, contentAlignment = Alignment.Center) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(150.dp)
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(Color(0xFFF5F5FA))
+                            .clickable { onEditGoalsClick() },
+                        contentAlignment = Alignment.Center
+                    ) {
                         Text("Tap here to set your daily goals!", color = TextSecondary, fontWeight = FontWeight.Medium)
                     }
                 } else {
-                    // Concentric Rings
                     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                         ConcentricGoalRings(
                             modifier = Modifier.size(140.dp),
@@ -200,7 +244,6 @@ private fun DashboardContent(
 
                         Spacer(modifier = Modifier.width(24.dp))
 
-                        // Legend
                         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                             LegendItem(ColorSteps, "Steps", "${state.todaySteps} / ${state.userGoals.stepsGoal}")
                             LegendItem(ColorDistance, "Distance", "${String.format("%.1f", state.todayDistanceKm)} / ${state.userGoals.distanceGoalKm} km")
@@ -215,25 +258,30 @@ private fun DashboardContent(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(24.dp))
-                .background(CardBg)
+                .shadow(elevation = 4.dp, shape = RoundedCornerShape(28.dp), ambientColor = Color(0x1A4A5C82))
+                .clip(RoundedCornerShape(28.dp))
+                .background(Color.White)
                 .padding(24.dp)
         ) {
             Column {
-                Text("Consistency", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, color = TextPrimary))
-                Text(LocalDate.now().month.name.lowercase().replaceFirstChar { it.uppercase() }, style = MaterialTheme.typography.bodyMedium.copy(color = TextSecondary))
+                Text(
+                    "Consistency",
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, color = TextPrimary)
+                )
+                Text(
+                    LocalDate.now().month.name.lowercase().replaceFirstChar { it.uppercase() },
+                    style = MaterialTheme.typography.bodyMedium.copy(color = TextSecondary)
+                )
 
                 Spacer(modifier = Modifier.height(16.dp))
                 MonthlyHeatmap(activeDates = state.activeDaysThisMonth)
             }
         }
 
-        Spacer(modifier = Modifier.height(80.dp)) // Padding for FAB
     }
 }
 
 // ─── CUSTOM CANVAS RINGS ──────────────────────────────────────────────────
-
 
 @Composable
 private fun ConcentricGoalRings(modifier: Modifier = Modifier, stepsPct: Float, distPct: Float, calPct: Float) {
@@ -241,22 +289,18 @@ private fun ConcentricGoalRings(modifier: Modifier = Modifier, stepsPct: Float, 
         val strokeWidth = 14.dp.toPx()
         val spacing = 4.dp.toPx()
 
-        // Calculate the radius for each ring
         val center = size.width / 2f
         val outerRadius = center - (strokeWidth / 2f)
         val midRadius = outerRadius - strokeWidth - spacing
         val innerRadius = midRadius - strokeWidth - spacing
 
-        // Background tracks (These were working fine!)
-        drawCircle(color = ColorSteps.copy(alpha = 0.2f), radius = outerRadius, style = Stroke(strokeWidth))
-        drawCircle(color = ColorDistance.copy(alpha = 0.2f), radius = midRadius, style = Stroke(strokeWidth))
-        drawCircle(color = ColorCalories.copy(alpha = 0.2f), radius = innerRadius, style = Stroke(strokeWidth))
+        drawCircle(color = ColorSteps.copy(alpha = 0.18f), radius = outerRadius, style = Stroke(strokeWidth))
+        drawCircle(color = ColorDistance.copy(alpha = 0.18f), radius = midRadius, style = Stroke(strokeWidth))
+        drawCircle(color = ColorCalories.copy(alpha = 0.18f), radius = innerRadius, style = Stroke(strokeWidth))
 
-        // Helper functions to calculate the exact bounding box for each arc
         fun arcTopLeft(radius: Float) = Offset(size.width / 2f - radius, size.height / 2f - radius)
         fun arcSize(radius: Float) = Size(radius * 2f, radius * 2f)
 
-        // Progress arcs (Now constrained to their specific bounding boxes!)
         drawArc(
             color = ColorSteps,
             startAngle = -90f,
@@ -302,16 +346,14 @@ private fun LegendItem(color: Color, label: String, value: String) {
 }
 
 // ─── MONTHLY CALENDAR HEATMAP ─────────────────────────────────────────────
+
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 private fun MonthlyHeatmap(activeDates: Set<LocalDate>) {
     val today = LocalDate.now()
     val yearMonth = YearMonth.now()
     val daysInMonth = yearMonth.lengthOfMonth()
-
-    // 1 (Monday) to 7 (Sunday). Subtract 1 so Monday starts at index 0.
     val firstDayOffset = yearMonth.atDay(1).dayOfWeek.value - 1
-
     val totalCells = daysInMonth + firstDayOffset
 
     LazyVerticalGrid(
@@ -321,7 +363,7 @@ private fun MonthlyHeatmap(activeDates: Set<LocalDate>) {
     ) {
         items(totalCells) { index ->
             if (index < firstDayOffset) {
-                Box(modifier = Modifier.aspectRatio(1f)) // Empty leading space
+                Box(modifier = Modifier.aspectRatio(1f))
             } else {
                 val day = index - firstDayOffset + 1
                 val date = yearMonth.atDay(day)
@@ -335,16 +377,19 @@ private fun MonthlyHeatmap(activeDates: Set<LocalDate>) {
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .clip(RoundedCornerShape(8.dp))
+                            .clip(RoundedCornerShape(10.dp))
                             .background(
                                 when {
-                                    isActive -> ColorDistance // Highlight run days
-                                    isToday -> Color(0xFFE5E7EB) // Light gray for today if inactive
-                                    else -> Color(0xFFF3F4F6) // Very light gray for future/past empty days
+                                    isActive -> Color(0xFFB8C4F0) // pastel lavender-blue
+                                    else -> Color(0xFFF5F5FA)      // soft neutral
                                 }
                             )
+                            .then(
+                                if (isToday && !isActive)
+                                    Modifier.border(1.5.dp, Color(0xFF4A5C82), RoundedCornerShape(10.dp))
+                                else Modifier
+                            )
                     ) {
-                        // Optional: Show day numbers
                         Text(
                             text = day.toString(),
                             modifier = Modifier.align(Alignment.Center),
