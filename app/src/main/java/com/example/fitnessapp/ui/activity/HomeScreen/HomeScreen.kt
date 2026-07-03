@@ -18,7 +18,6 @@ import androidx.compose.material.icons.rounded.DirectionsRun
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.LocalFireDepartment
 import java.time.LocalTime
-import androidx.compose.material.icons.rounded.ModeEdit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -30,7 +29,6 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -139,11 +137,9 @@ private fun DashboardContent(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(20.dp),
+            .padding(start = 20.dp, end = 20.dp, bottom = 20.dp, top = 5.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
-        Spacer(modifier = Modifier.height(24.dp))
-
         // 1. HEADER (Greeting & Streak)
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -320,7 +316,7 @@ private fun MonthlyHeatmap(activeDates: Set<LocalDate>) {
 
     LazyVerticalGrid(
         columns = GridCells.Fixed(7),
-        modifier = Modifier.height(200.dp),
+        modifier = Modifier.height(250.dp),
         userScrollEnabled = false
     ) {
         items(totalCells) { index ->
