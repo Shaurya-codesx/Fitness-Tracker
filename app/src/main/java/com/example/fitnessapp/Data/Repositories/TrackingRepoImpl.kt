@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.asLiveData
 import com.example.fitnessapp.DI.MainTracker
 import com.example.fitnessapp.DI.MockTracker
+import com.example.fitnessapp.Data.Location.LocationDisabledException
 import com.example.fitnessapp.Data.Model.Entities.ActiveRun
 import com.example.fitnessapp.Data.Model.Entities.RunEntity
 import com.example.fitnessapp.Data.Model.LocationPoints
@@ -75,13 +76,25 @@ class TrackingRepoImpl @Inject constructor(
             route = emptyList(),
             trackingStatus = true
         )
+        var lastTimeTick = System.currentTimeMillis()
+
         timerJob?.cancel()
         timerJob = repositoryScope.launch {
-            while (_activeRun.value!= null) {
+            while (_activeRun.value != null) {
                 delay(1000)
                 val current = _activeRun.value ?: break
-                val updatedTime = (System.currentTimeMillis() - current.startTime)
-                _activeRun.value = current.copy(elapsedTime = updatedTime)
+
+                val now = System.currentTimeMillis()
+
+                // Only add time if trackingStatus is true (NOT PAUSED)
+                if (current.trackingStatus) {
+                    val timeDelta = now - lastTimeTick
+                    _activeRun.value = current.copy(elapsedTime = current.elapsedTime + timeDelta)
+                }
+
+                // Always update the tick! This ensures paused time isn't added later.
+                lastTimeTick = now
+
                 Log.d("timerCheck", "elapsed time : ${_activeRun.value?.elapsedTime}")
             }
         }
@@ -98,14 +111,34 @@ class TrackingRepoImpl @Inject constructor(
 
         locationCollectionJob?.cancel()
         locationCollectionJob = repositoryScope.launch {
-            Log.d("lokation", "Location tracking started")
             androidLocationProvider.locationDataStream.collect { point ->
                 when(point) {
                     is Resource.Error -> {
-                        Log.d("runEvent", "Location Disabled run event emitted")
-                        _runEvents.emit(RunEvents.LocationDisabled)
+                        // Check if it's our specific GPS drop exception
+                        if (point.exception is LocationDisabledException) {
+                            Log.d("runEvent", "GPS Drop Detected. Pausing run.")
+
+                            // 1. Pause the timer!
+                            _activeRun.update { it?.copy(trackingStatus = false) }
+
+                            // 2. Tell the UI and Service
+                            _runEvents.emit(RunEvents.LocationDisabled)
+                        } else {
+                            // Handle other fatal errors if necessary
+                        }
                     }
                     is Resource.Success<*> -> {
+                        val current = _activeRun.value
+
+                        // If we were paused, and just got a good location, RESUME automatically!
+                        if (current?.trackingStatus == false) {
+                            Log.d("runEvent", "GPS Signal Restored. Resuming run.")
+                            _activeRun.update { it?.copy(trackingStatus = true) }
+
+                            // Emit a new event to tell the UI the warning is gone
+                            _runEvents.emit(RunEvents.LocationRestored)
+                        }
+
                         addLocationPoint(point.data as LocationPoints)
                     }
                     is Resource.Loading -> {}

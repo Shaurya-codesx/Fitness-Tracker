@@ -4,5 +4,6 @@ import com.example.fitnessapp.Domain.Wrapper.Resource
 
 sealed class RunEvents {
     object LocationDisabled : RunEvents()
+    object LocationRestored : RunEvents()
     object NoMovement : RunEvents()
 }

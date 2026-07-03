@@ -95,11 +95,7 @@ class androidLocationProvider @Inject constructor(
 
                     if (!isGpsEnabled && !isNetworkEnabled) {
                         Log.d("lokation", "Hardware REALLY disabled mid-stream")
-                        trySend(Resource.Error(Exception("Location hardware disabled")))
-                    } else {
-                        // This was likely a stale event or a momentary signal loss,
-                        // but hardware is still ON. We ignore this to prevent the "double start" bug.
-                        Log.d("lokation", "Ignored stale 'unavailable' event - Hardware is actually ON")
+                        trySend(Resource.Error(LocationDisabledException()))
                     }
                 }
             }

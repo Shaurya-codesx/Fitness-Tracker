@@ -115,6 +115,8 @@ class TrackingViewModel @Inject constructor(
                         Log.d("runEvent", "No movement detected log")
                         _uiEvent.emit(TrackingUiEvent.ShowNoMovementDialogue)
                     }
+
+                    else -> {}
                 }
             }
         }

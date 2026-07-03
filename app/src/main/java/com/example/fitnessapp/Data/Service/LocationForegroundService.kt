@@ -24,6 +24,7 @@ import com.example.fitnessapp.Domain.TrackingRunRepository
 import com.example.fitnessapp.Domain.UseCases.ConvertTimeUseCase
 import com.example.fitnessapp.Domain.Wrapper.Resource
 import com.example.fitnessapp.R
+import com.example.fitnessapp.ui.activity.RunHistory.RunEvents
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -104,23 +105,12 @@ class LocationForegroundService : Service() {
 
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun startRunForeground() {
-        // before starting the service as foreground we check if the permission it requires are enabled
-//        val locationPermission = PermissionChecker.checkSelfPermission(
-//            this, Manifest.permission.ACCESS_FINE_LOCATION
-//        )
-//        if (locationPermission != PermissionChecker.PERMISSION_GRANTED) {
-//            Log.d("servicee", "location permission not granted")
-//            stopRunForeground()
-//            return
-//        }
-
         Log.d("servicee", "notification built")
-
         try {
             ServiceCompat.startForeground(
                 this,
                 NOTIFICATION_ID,
-                buildNotification("00:00", "0.00"),
+                buildNotification("00:00", "0.00", isPaused = false),
                 ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
             )
             Log.d("servicee", "promoted to foreground")
@@ -142,8 +132,25 @@ class LocationForegroundService : Service() {
                 } else{
                     val timeStr = convertTimeUseCase.timerFormat(run.elapsedTime)
                     val distanceStr = String.format("%.2f", run.currentDistance)
-                    updateNotification(timeStr, distanceStr)
-                    Log.d("servicee", "run received jsut now")
+                    if (run.trackingStatus) {
+                        updateNotification(timeStr, distanceStr, isPaused = false)
+                    }
+                }
+            }
+        }
+
+        serviceScope.launch {
+            trackingRepo.runEvents.collect { event ->
+                when (event) {
+                    is RunEvents.LocationDisabled -> {
+                        // Change the notification to show a warning!
+                        updateNotification("GPS LOST - PAUSED", "Waiting for signal...", isPaused = true)
+                    }
+                    is RunEvents.LocationRestored -> {
+                        // The next activeRun tick will overwrite this, but it's good practice
+                        Log.d("servicee", "GPS Restored, normal notifications will resume.")
+                    }
+                    else -> {}
                 }
             }
         }
@@ -174,7 +181,7 @@ class LocationForegroundService : Service() {
         }
     }
 
-    private fun buildNotification(time : String, distance : String) : Notification {
+    private fun buildNotification(time : String, distance : String, isPaused : Boolean) : Notification {
 
         // Create a PendingIntent that sends the STOP action to this service
         val stopIntent = Intent(this, LocationForegroundService::class.java).apply {
@@ -186,6 +193,9 @@ class LocationForegroundService : Service() {
             stopIntent,
             PendingIntent.FLAG_IMMUTABLE
         )
+
+        val title = if (isPaused) "⚠️ Run Paused - Check GPS" else "Fitness Tracker"
+        val content = if (isPaused) time else "Time: $time s, Distance: $distance m"
 
         // Notification object
         return NotificationCompat.Builder(this, CHANNEL_ID)
@@ -201,10 +211,10 @@ class LocationForegroundService : Service() {
 
     }
 
-    private fun updateNotification(time: String, distance: String) {
+    private fun updateNotification(time: String, distance: String, isPaused: Boolean) {
         val manager =
             getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        manager.notify(NOTIFICATION_ID, buildNotification(time, distance))
+        manager.notify(NOTIFICATION_ID, buildNotification(time, distance, isPaused))
     }
 
 

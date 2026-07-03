@@ -58,14 +58,26 @@ fun TrackingScreen(navController: NavController) {
                 }
                 is TrackingUiEvent.RequestEnableLocation -> {
                     Log.d("hello", "Location Error caught")
-                    // Handle later
                     val activity = context as? Activity
                     event.exception.startResolutionForResult(activity!!, 1001)
                 }
                 is TrackingUiEvent.ShowLocationError -> {
                     Log.d("lokation", "Location error reaching UI")
-                    Toast.makeText(context, "Enable Location", Toast.LENGTH_LONG)
-                    trackingViewModel.stopRun()
+                    // 1. We removed trackingViewModel.stopRun() here!
+                    // 2. Added .show() to actually display the warning
+                    Toast.makeText(
+                        context,
+                        "GPS Signal Lost. Run Paused.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+                // 3. NEW: Listen for the signal coming back!
+                is TrackingUiEvent.LocationRestored -> {
+                    Toast.makeText(
+                        context,
+                        "GPS Restored. Resuming Run!",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
                 is TrackingUiEvent.ShowNoMovementDialogue -> {
                     Log.d("hello", "No movement caught")
