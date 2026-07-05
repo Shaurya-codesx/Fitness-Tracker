@@ -26,7 +26,7 @@ class StatsViewModel @Inject constructor(
     private val getRange : GetRunRangeUseCase
 ) : ViewModel() {
 
-    val selectedFilter = MutableStateFlow(RunFilter.DAY)
+    val selectedFilter = MutableStateFlow(RunFilter.WEEK)
      fun onFilterSelected(filter : RunFilter) {
         selectedFilter.value = filter
     }

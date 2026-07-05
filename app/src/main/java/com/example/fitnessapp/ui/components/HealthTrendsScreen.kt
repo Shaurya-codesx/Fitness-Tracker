@@ -166,7 +166,3 @@ private fun TrendListCard(
 // ==================== BOTTOM NAV (matches your app) ====================
 
 
-// ==================== PREVIEWS ====================
-
-
-

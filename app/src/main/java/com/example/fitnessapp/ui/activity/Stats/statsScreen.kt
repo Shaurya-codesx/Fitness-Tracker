@@ -50,7 +50,7 @@ fun StatsScreen(
 ) {
     val viewModel : StatsViewModel = hiltViewModel()
     val uiState by viewModel.statsUIState.collectAsStateWithLifecycle()
-    var selectedFilter by remember { mutableStateOf(RunFilter.DAY) }
+    var selectedFilter by remember { mutableStateOf(RunFilter.WEEK) }
 
     Scaffold(
         bottomBar = {
