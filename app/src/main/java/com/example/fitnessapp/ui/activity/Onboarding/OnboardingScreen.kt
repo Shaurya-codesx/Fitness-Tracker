@@ -1,4 +1,9 @@
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -11,6 +16,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CloudSync
 import androidx.compose.material.icons.rounded.DirectionsRun
+import androidx.compose.material.icons.rounded.NotificationsActive
 import androidx.compose.material.icons.rounded.TrackChanges
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -25,11 +31,17 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.fitnessapp.ui.activity.Onboarding.OnboardingUiState
 import com.example.fitnessapp.ui.activity.Onboarding.OnboardingViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import android.app.Activity
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
+import androidx.core.app.ActivityCompat
 
 // ─── THEME COLORS ────────────────────────────────────────────────────────
 private val BackgroundColor = Color(0xFFF9F9FC)
@@ -39,6 +51,7 @@ private val LightBlueAccent = Color(0xFFE4EDFA)
 private val TextPrimary = Color(0xFF111111)
 private val TextSecondary = Color(0xFF757575)
 private val InputBackground = Color(0xFFF0F2F5)
+
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -149,9 +162,45 @@ fun OnboardingScreen(
     }
 }
 
+
 // ─── PAGE 1: WELCOME ─────────────────────────────────────────────────────
 @Composable
 fun WelcomePage() {
+    val context = LocalContext.current
+    val activity = context as? Activity // We need the Activity to check the permission status
+    val isTiramisuOrLater = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+
+    var permissionGranted by remember {
+        mutableStateOf(
+            if (isTiramisuOrLater) {
+                ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+            } else {
+                true
+            }
+        )
+    }
+
+    // Two state variables now: one to show the dialog, one to track IF it's permanently blocked
+    var showNotificationRationale by remember { mutableStateOf(false) }
+    var isPermanentlyDenied by remember { mutableStateOf(false) }
+
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        permissionGranted = isGranted
+        if (!isGranted) {
+            // Check if Android has permanently blocked us from showing the pop-up
+            val shouldShow = activity?.let {
+                ActivityCompat.shouldShowRequestPermissionRationale(it, Manifest.permission.POST_NOTIFICATIONS)
+            } ?: false
+
+            isPermanentlyDenied = !shouldShow // If we SHOULDN'T show rationale, it means it's permanently denied
+            showNotificationRationale = true
+        } else {
+            showNotificationRationale = false
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -172,6 +221,70 @@ fun WelcomePage() {
         FeatureRow(Icons.Rounded.TrackChanges, "Set Custom Goals", "Tailor your steps, distance, and calories.")
         Spacer(modifier = Modifier.height(24.dp))
         FeatureRow(Icons.Rounded.CloudSync, "Offline First", "Run anywhere. We sync to the cloud when you return.")
+
+        Spacer(modifier = Modifier.height(48.dp))
+
+        if (isTiramisuOrLater && !permissionGranted) {
+            Button(
+                onClick = { notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS) },
+                colors = ButtonDefaults.buttonColors(containerColor = SlateBlue),
+                shape = RoundedCornerShape(16.dp),
+                modifier = Modifier.fillMaxWidth(0.8f).height(50.dp)
+            ) {
+                Icon(Icons.Rounded.NotificationsActive, contentDescription = "Enable Notifications", tint = Color.White)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Enable Notifications", color = Color.White, fontWeight = FontWeight.Bold)
+            }
+        }
+    }
+
+    if (showNotificationRationale) {
+        AlertDialog(
+            onDismissRequest = { showNotificationRationale = false },
+            title = {
+                Text(
+                    text = if (isPermanentlyDenied) "Permission Blocked" else "Live Stats Required",
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Text(
+                    text = if (isPermanentlyDenied) {
+                        "Notifications are disabled. Please open your device settings and allow notifications so we can show your live distance and pace while your phone is locked."
+                    } else {
+                        "We need notification permissions to show your live distance, pace, and time while your phone is locked during a run."
+                    }
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showNotificationRationale = false
+                        if (isPermanentlyDenied) {
+                            // Launch Android Settings directly to your app's page!
+                            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                data = Uri.fromParts("package", context.packageName, null)
+                            }
+                            context.startActivity(intent)
+                        } else {
+                            // Try asking again via the normal pop-up
+                            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                        }
+                    }
+                ) {
+                    Text(
+                        text = if (isPermanentlyDenied) "Open Settings" else "Try Again",
+                        color = SlateBlue,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showNotificationRationale = false }) {
+                    Text("Not Now", color = TextSecondary)
+                }
+            }
+        )
     }
 }
 

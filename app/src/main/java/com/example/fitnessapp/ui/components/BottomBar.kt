@@ -10,6 +10,8 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -57,7 +59,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 
-// ─── Bottom Bar ───────────────────────────────────────────────────────────────
 @Composable
 fun BottomBar(navController: NavController) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -93,18 +94,23 @@ fun BottomBar(navController: NavController) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 14.dp)
-            .clip(RoundedCornerShape(32.dp))
+            .navigationBarsPadding()               // ← keeps it clear of 3-button nav / gesture bar
+            .padding(horizontal = 20.dp, vertical = 10.dp)
+            .clip(RoundedCornerShape(26.dp))
             .background(
-                Brush.linearGradient(
+                Brush.verticalGradient(
                     colors = listOf(
-                        Color(0xFFE9E4F7),
-                        Color(0xFFF5F5FA),
-                        Color(0xFFDCEBF5)
+                        Color(0xFFFFFFFF),
+                        Color(0xFFF3F1FA)
                     )
                 )
             )
-            .padding(horizontal = 8.dp, vertical = 12.dp),
+            .border(
+                width = 1.dp,
+                color = Color(0xFFEDEAF7),
+                shape = RoundedCornerShape(26.dp)
+            )
+            .padding(horizontal = 6.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -147,41 +153,35 @@ private fun BottomBarItem(
 ) {
     val iconBackgroundColor by animateColorAsState(
         targetValue = if (isSelected) Color(0xFF4A5C82) else Color.Transparent,
-        animationSpec = tween(durationMillis = 250),
+        animationSpec = tween(durationMillis = 220),
         label = "bottomBarIconBg"
     )
     val iconTint by animateColorAsState(
-        targetValue = if (isSelected) Color.White else Color(0xFF9A9AAE),
-        animationSpec = tween(durationMillis = 250),
+        targetValue = if (isSelected) Color.White else Color(0xFFA6A6B8),
+        animationSpec = tween(durationMillis = 220),
         label = "bottomBarIconTint"
     )
     val labelColor by animateColorAsState(
-        targetValue = if (isSelected) Color(0xFF4A5C82) else Color(0xFF9A9AAE),
-        animationSpec = tween(durationMillis = 250),
+        targetValue = if (isSelected) Color(0xFF4A5C82) else Color(0xFFA6A6B8),
+        animationSpec = tween(durationMillis = 220),
         label = "bottomBarLabelColor"
-    )
-    val iconScale by animateFloatAsState(
-        targetValue = if (isSelected) 1f else 0.92f,
-        animationSpec = tween(durationMillis = 250),
-        label = "bottomBarIconScale"
     )
 
     Column(
         modifier = modifier
-            .clip(RoundedCornerShape(18.dp))
+            .clip(RoundedCornerShape(16.dp))
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
                 onClick = onClick
             )
-            .padding(vertical = 8.dp),
+            .padding(vertical = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Box(
             modifier = Modifier
-                .size(44.dp)
-                .scale(iconScale)
-                .clip(RoundedCornerShape(16.dp))
+                .size(34.dp)
+                .clip(RoundedCornerShape(12.dp))
                 .background(iconBackgroundColor),
             contentAlignment = Alignment.Center
         ) {
@@ -189,27 +189,18 @@ private fun BottomBarItem(
                 imageVector = if (isSelected) item.selectedIcon else item.unselectedIcon,
                 contentDescription = item.label,
                 tint = iconTint,
-                modifier = Modifier.size(22.dp)
+                modifier = Modifier.size(18.dp)
             )
         }
 
-        Spacer(modifier = Modifier.height(5.dp))
+        Spacer(modifier = Modifier.height(3.dp))
 
         Text(
             text = item.label,
             color = labelColor,
-            fontSize = 11.sp,
+            fontSize = 10.sp,
             fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
             maxLines = 1
-        )
-
-        Spacer(modifier = Modifier.height(3.dp))
-
-        Box(
-            modifier = Modifier
-                .size(4.dp)
-                .clip(CircleShape)
-                .background(if (isSelected) Color(0xFF4A5C82) else Color.Transparent)
         )
     }
 }

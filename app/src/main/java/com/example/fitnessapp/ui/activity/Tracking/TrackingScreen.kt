@@ -34,6 +34,18 @@ import com.example.fitnessapp.ui.activity.Tracking.NoMovementAlertDialog
 import com.example.fitnessapp.ui.activity.Tracking.OsmMapview
 import com.example.fitnessapp.ui.activity.Tracking.TrackingUiEvent
 import com.example.fitnessapp.ui.activity.Tracking.TrackingViewModel
+import android.Manifest
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
+import android.provider.Settings
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 
 // ─── Entry Point ──────────────────────────────────────────────────────────────
 
@@ -46,6 +58,48 @@ fun TrackingScreen(navController: NavController) {
     var showNoMovementDialog by remember { mutableStateOf(false) }
     if (showNoMovementDialog) {
         NoMovementAlertDialog(onDismiss = { showNoMovementDialog = false })
+    }
+
+
+    val activity = context as? Activity
+    // 1. Build the list of permissions we need
+    val permissionsToRequest = remember {
+        mutableListOf(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ).apply {
+            // Only add Activity Recognition if the phone is on Android 10+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                add(Manifest.permission.ACTIVITY_RECOGNITION)
+            }
+        }.toTypedArray()
+    }
+    // 2. State for our custom Rationale Dialog
+    var showPermissionRationale by remember { mutableStateOf(false) }
+    var isPermanentlyDenied by remember { mutableStateOf(false) }
+
+    // 3. The Launcher
+    val multiplePermissionsLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissionsMap ->
+        // Check if the critical ones were granted
+        val fineLocationGranted = permissionsMap[Manifest.permission.ACCESS_FINE_LOCATION] == true
+        val coarseLocationGranted = permissionsMap[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+
+        // Activity Recognition is technically optional, but location is mandatory for a run
+        if (fineLocationGranted || coarseLocationGranted) {
+            // SUCCESS! Start the run!
+            trackingViewModel.startRun()
+        } else {
+            // DENIED. Figure out if it's permanent.
+            val shouldShowLocationRationale = activity?.let {
+                ActivityCompat.shouldShowRequestPermissionRationale(it, Manifest.permission.ACCESS_FINE_LOCATION) ||
+                        ActivityCompat.shouldShowRequestPermissionRationale(it, Manifest.permission.ACCESS_COARSE_LOCATION)
+            } ?: false
+
+            isPermanentlyDenied = !shouldShowLocationRationale
+            showPermissionRationale = true
+        }
     }
 
 
@@ -93,13 +147,69 @@ fun TrackingScreen(navController: NavController) {
     TrackingScreenContent(
         uiState = uiState,
         isRunning = isRunning,
-        onStart = { trackingViewModel.startRun() },
+        onStart = {
+            val hasFineLocation = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+            val hasCoarseLocation = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+
+            if (hasFineLocation || hasCoarseLocation) {
+                // We have what we need, start the engine!
+                trackingViewModel.startRun()
+            } else {
+                // We don't have them. Ask the user!
+                multiplePermissionsLauncher.launch(permissionsToRequest)
+            }
+                  },
         onStop = {
             trackingViewModel.stopRun()
                  },
         onBack = { navController.navigateUp() }
     )
 
+
+    if (showPermissionRationale) {
+        AlertDialog(
+            onDismissRequest = { showPermissionRationale = false },
+            title = {
+                Text(
+                    text = if (isPermanentlyDenied) "Permissions Blocked" else "Location Required",
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Text(
+                    text = if (isPermanentlyDenied) {
+                        "GPS access is permanently denied. Please open your device settings and allow Location permissions to track your runs."
+                    } else {
+                        "We need GPS access to map your route, calculate your distance, and track your pace. Please grant location permissions to start running."
+                    }
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showPermissionRationale = false
+                        if (isPermanentlyDenied) {
+                            // Deep link to Android Settings
+                            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                data = Uri.fromParts("package", context.packageName, null)
+                            }
+                            context.startActivity(intent)
+                        } else {
+                            // Try asking again
+                            multiplePermissionsLauncher.launch(permissionsToRequest)
+                        }
+                    }
+                ) {
+                    Text(text = if (isPermanentlyDenied) "Open Settings" else "Try Again")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showPermissionRationale = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
 
 
 }
