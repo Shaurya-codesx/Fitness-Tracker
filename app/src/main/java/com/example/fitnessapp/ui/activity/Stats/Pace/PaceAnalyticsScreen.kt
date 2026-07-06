@@ -89,14 +89,25 @@ fun PaceAnalyticsScreen(navController: NavController) {
     var selectedFilter by remember { mutableStateOf(FilterRange.WEEK) }
     val scope = rememberCoroutineScope()
 
-    val initialPage = 10_000
-    val pagerState = rememberPagerState(initialPage = initialPage, pageCount = { 20_000 })
+    // 1. Collect the dynamic total pages from your ViewModel
+    val totalPages by viewModel.pagerCount.collectAsState(initial = 1)
 
-    LaunchedEffect(selectedFilter) {
-        pagerState.animateScrollToPage(initialPage)
+    // 2. Calculate the "Today" page (which is the very last index)
+    val startPage = (totalPages - 1).coerceAtLeast(0)
+
+    // 3. Set the Pager to use our exact boundaries
+    val pagerState = rememberPagerState(
+        initialPage = startPage,
+        pageCount = { totalPages }
+    )
+
+    // Whenever the filter changes, jump back to "Today"
+    LaunchedEffect(selectedFilter, startPage) {
+        pagerState.animateScrollToPage(startPage)
     }
 
-    val currentOffset = pagerState.currentPage - initialPage
+    // Translate Compose's page index into your negative offsets
+    val currentOffset = pagerState.currentPage - startPage
     val headerText = remember(selectedFilter, currentOffset) {
         getFormattedHeader(selectedFilter, currentOffset)
     }
@@ -148,41 +159,61 @@ fun PaceAnalyticsScreen(navController: NavController) {
             )
 
             // ── 4. Quick stat row below the hero ─────────────────────────
-            if (currentUiState.chartData.isNotEmpty()) {
-                QuickStatsRow(uiState = currentUiState, selectedFilter = selectedFilter)
+            // ── Quick stat row below the hero ─────────────────────────
+            if (currentUiState.averagePaceDecimal > 0f) {
+                QuickStatsRow(uiState = currentUiState, selectedFilter)
             }
 
             // ── 5. Swipeable LINE chart ───────────────────────────────────
             ChartCard {
                 HorizontalPager(
                     state = pagerState,
-                    modifier = Modifier.fillMaxWidth().height(260.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(260.dp)
                 ) { page ->
-                    val pageOffset = page - initialPage
+                    val pageOffset = page - startPage
                     val uiState by viewModel
                         .getPaceDataForPage(selectedFilter, pageOffset)
                         .collectAsState(initial = PaceDataUiState())
 
-                    // We only render if there's at least one valid run in this period
-                    if (uiState.chartData.any { it.value > 0f }) {
-                        PaceLineChart(chartData = uiState.chartData)
+                    // CHECK FOR EMPTY STATE
+                    // (Using averagePaceDecimal as our source of truth)
+                    if (uiState.averagePaceDecimal > 0f) {
+                        PaceLineChart(chartData = uiState.chartData) // Adjust to your actual chart Composable
                     } else {
-                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Text(
-                                text = "No runs logged",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = ChipUnselectedText
-                            )
+                        // EMPTY STATE UI
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(
+                                    text = "No pace data",
+                                    style = MaterialTheme.typography.titleMedium.copy(
+                                        color = Color(0xFF8888A8),
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = "Log a run to see your speed.",
+                                    style = MaterialTheme.typography.labelMedium.copy(
+                                        color = Color.LightGray
+                                    )
+                                )
+                            }
                         }
                     }
                 }
 
+                // Page indicator dots
                 Spacer(modifier = Modifier.height(12.dp))
-                PagerDots(currentPage = pagerState.currentPage, initialPage = initialPage)
+                PagerDots(currentPage = pagerState.currentPage, initialPage = startPage)
             }
 
-            if (currentUiState.chartData.any { it.value > 0f }) {
-                PaceSplitCard(splitData = currentUiState.paceSplit)
+            if (currentUiState.averagePaceDecimal > 0f) {
+                PaceSplitCard(splitData = currentUiState.paceSplit) // Adjust to your actual split card Composable
             }
         }
     }

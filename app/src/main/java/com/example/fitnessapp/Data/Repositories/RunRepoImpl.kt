@@ -55,6 +55,10 @@ class RunRepoImpl @Inject constructor(
         runDAO.deleteRuns()
     }
 
+    override suspend fun getOldestRunTimestamp(): Long? {
+        return runDAO.getOldestRunTimestamp()
+    }
+
     override suspend fun getUnsyncedRuns(): List<RunEntity> {
         return runDAO.getUnsyncedRuns()
     }

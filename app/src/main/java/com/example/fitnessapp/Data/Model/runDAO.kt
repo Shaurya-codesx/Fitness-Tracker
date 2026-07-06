@@ -30,6 +30,9 @@ interface runDAO {
     @Query("DELETE FROM runs")
     suspend fun deleteRuns()
 
+    @Query("SELECT MIN(startTime) FROM runs")
+    suspend fun getOldestRunTimestamp(): Long?
+
     @Query("SELECT * FROM runs WHERE isSynced = 0")
     suspend fun getUnsyncedRuns(): List<RunEntity>
 

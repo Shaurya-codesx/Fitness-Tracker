@@ -79,7 +79,9 @@ fun appRun(startDestination: String) {
         composable("PaceScreen", content = { PaceAnalyticsScreen(navController) })
         composable("EnergyScreen", content = { EnergyAnalyticsScreen(navController) })
         composable("PersonalBestScreen", content = { PersonalBestsSection(navController) })
-        composable("HomeScreen", content = { HomeScreen(navController) { }})
+        composable("HomeScreen", content = { HomeScreen(navController) {
+            navController.navigate("trackingScreen")
+        }})
 
         // Inside your NavHost in MainActivity.kt...
 

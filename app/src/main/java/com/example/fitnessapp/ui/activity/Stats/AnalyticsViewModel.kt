@@ -5,6 +5,7 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.fitnessapp.Domain.RunRepository
+import com.example.fitnessapp.Domain.UseCases.CalculatePageCountUseCase
 import com.example.fitnessapp.Domain.UseCases.DistanceSplitCalculator
 import com.example.fitnessapp.Domain.UseCases.EnergySplitCalculator
 import com.example.fitnessapp.Domain.UseCases.GetDaysInRange
@@ -23,18 +24,22 @@ import com.example.fitnessapp.ui.activity.Stats.Steps.StepsDataUiState
 import com.example.fitnessapp.ui.activity.Stats.Steps.processChartData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import java.time.ZoneId
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
+@RequiresApi(Build.VERSION_CODES.O)
 @HiltViewModel
 class AnalyticsViewModel @Inject constructor(
     private val runRepository: RunRepository,
@@ -42,7 +47,8 @@ class AnalyticsViewModel @Inject constructor(
     private val getDaysInRange: GetDaysInRange,
     private val calcDistanceSplit : DistanceSplitCalculator,
     private val calcPaceSplit : PaceSplitCalculator,
-    private val calcEnergySplit : EnergySplitCalculator
+    private val calcEnergySplit : EnergySplitCalculator,
+    private val calcPageCount : CalculatePageCountUseCase
 ) : ViewModel() {
 
     /**
@@ -50,6 +56,25 @@ class AnalyticsViewModel @Inject constructor(
      * offset = 0 is current week/month/year.
      * offset = -1 is the previous week/month/year, etc.
      */
+
+    // oldest timestamp
+    private var oldestRunMillis: Long? = null
+
+    private val _pagerCount = MutableStateFlow(1)
+    val pagerCount: StateFlow<Int> = _pagerCount.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            oldestRunMillis = runRepository.getOldestRunTimestamp()
+            updatePagerCount(FilterRange.WEEK) // Whatever your default filter is (WEEK, etc.)
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun updatePagerCount(filter: FilterRange) {
+        _pagerCount.value = calcPageCount.invoke(oldestRunMillis, filter)
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     fun getStepsDataForPage(filter: FilterRange, offset: Int): Flow<StepsDataUiState> {
 

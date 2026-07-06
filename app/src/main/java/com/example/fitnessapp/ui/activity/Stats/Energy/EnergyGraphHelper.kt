@@ -60,7 +60,7 @@ fun processEnergyChartData(
                 }
 
                 // Add the sum to the chart
-                resultList.add(ChartData("Wk $weekNumber", chunkSum))
+                resultList.add(ChartData("Week $weekNumber", chunkSum))
 
                 // Jump forward 7 days for the next week chunk
                 currentChunkStart = currentChunkStart.plusDays(7)

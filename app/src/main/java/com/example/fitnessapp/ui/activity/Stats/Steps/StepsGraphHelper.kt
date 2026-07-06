@@ -63,7 +63,7 @@ fun processChartData(
                     chunkSum += (dbMap[dbKey]?.stepCount ?: 0)
                 }
 
-                resultList.add(ChartData("Wk $weekNumber", chunkSum))
+                resultList.add(ChartData("Week $weekNumber", chunkSum))
 
                 // Jump forward 7 days for the next week chunk
                 currentChunkStart = currentChunkStart.plusDays(7)

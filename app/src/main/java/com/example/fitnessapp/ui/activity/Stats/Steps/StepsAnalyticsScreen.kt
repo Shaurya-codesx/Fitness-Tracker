@@ -88,14 +88,25 @@ fun StepsAnalyticsScreen(navController: NavController) {
     var selectedFilter by remember { mutableStateOf(FilterRange.WEEK) }
     val scope = rememberCoroutineScope()
 
-    val initialPage = 10_000
-    val pagerState = rememberPagerState(initialPage = initialPage, pageCount = { 20_000 })
+    // 1. Collect the dynamic total pages from your ViewModel
+    val totalPages by viewModel.pagerCount.collectAsState(initial = 1)
 
-    LaunchedEffect(selectedFilter) {
-        pagerState.animateScrollToPage(initialPage)
+    // 2. Calculate the "Today" page (which is the very last index)
+    val startPage = (totalPages - 1).coerceAtLeast(0)
+
+    // 3. Set the Pager to use our exact boundaries
+    val pagerState = rememberPagerState(
+        initialPage = startPage,
+        pageCount = { totalPages }
+    )
+
+    LaunchedEffect(selectedFilter, startPage) {
+        pagerState.animateScrollToPage(startPage)
     }
 
-    val currentOffset = pagerState.currentPage - initialPage
+    val currentOffset = pagerState.currentPage - startPage
+
+
     val headerText = remember(selectedFilter, currentOffset) {
         getFormattedHeader(selectedFilter, currentOffset)
     }
@@ -159,8 +170,8 @@ fun StepsAnalyticsScreen(navController: NavController) {
                 onNext    = { scope.launch { pagerState.animateScrollToPage(pagerState.currentPage + 1) } }
             )
 
-            // ── 4. Quick stat row below the hero ─────────────────────────
-            if (currentUiState.chartData.isNotEmpty()) {
+            // ── Quick stat row below the hero ─────────────────────────
+            if (currentUiState.totalSteps > 0) {
                 QuickStatsRow(uiState = currentUiState, selectedFilter)
             }
 
@@ -172,27 +183,43 @@ fun StepsAnalyticsScreen(navController: NavController) {
                         .fillMaxWidth()
                         .height(260.dp)
                 ) { page ->
-                    val pageOffset = page - initialPage
+                    val pageOffset = page - startPage
                     val uiState by viewModel
                         .getStepsDataForPage(selectedFilter, pageOffset)
-                        .collectAsState(initial = StepsDataUiState())
+                        .collectAsState(initial = StepsDataUiState()) // Adjust to your actual state name
 
-                    if (uiState.chartData.isNotEmpty()) {
-                        StepsBarChart(chartData = uiState.chartData)
+                    // CHECK FOR EMPTY STATE
+                    if (uiState.totalSteps > 0) {
+                        StepsBarChart(chartData = uiState.chartData) // Adjust to your actual chart Composable
                     } else {
-                        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            CircularProgressIndicator(
-                                color = HeroCardColor,
-                                modifier = Modifier.size(32.dp),
-                                strokeWidth = 3.dp
-                            )
+                        // EMPTY STATE UI
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(
+                                    text = "No steps logged",
+                                    style = MaterialTheme.typography.titleMedium.copy(
+                                        color = Color(0xFF8888A8),
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = "Time to get moving!",
+                                    style = MaterialTheme.typography.labelMedium.copy(
+                                        color = Color.LightGray
+                                    )
+                                )
+                            }
                         }
                     }
                 }
 
                 // Page indicator dots
                 Spacer(modifier = Modifier.height(12.dp))
-                PagerDots(currentPage = pagerState.currentPage, initialPage = initialPage)
+                PagerDots(currentPage = pagerState.currentPage, initialPage = startPage)
             }
         }
     }

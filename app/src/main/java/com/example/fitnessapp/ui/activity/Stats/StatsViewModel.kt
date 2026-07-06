@@ -38,7 +38,7 @@ class StatsViewModel @Inject constructor(
                 .map { data ->
                     val uiData = StatsData(
                         totalDistance = "%.1f KM".format(data.totalDistance / 1000f),
-                        totalCalories = "%.1f CAL".format(data.totalCalories),
+                        totalCalories = "%.1f KCAL".format(data.totalCalories),
                         totalSteps = data.totalSteps.toString(),
                         totalDuration = timeFormat.formatDurationShort(data.totalDuration),
                         totalRuns = data.totalRuns.toString()

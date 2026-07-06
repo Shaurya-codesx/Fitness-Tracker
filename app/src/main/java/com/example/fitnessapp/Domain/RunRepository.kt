@@ -28,6 +28,8 @@ interface RunRepository { // this repository holds the data for the active run s
 
     suspend fun deleteRuns()
 
+    suspend fun getOldestRunTimestamp(): Long?
+
     suspend fun getUnsyncedRuns(): List<RunEntity>
 
     suspend fun updateRuns(runs: List<RunEntity>)

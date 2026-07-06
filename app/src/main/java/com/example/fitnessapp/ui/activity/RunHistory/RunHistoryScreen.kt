@@ -123,27 +123,8 @@ fun RunHistoryScreenM3(navController: NavController) {
                 SummarySection(totalDistance = uiState.totalDistance, totalTime = uiState.totalTime, totalAvgPace = uiState.totalAvgPace)
             }
 
-            // Section header
-            item {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp)
-                        .padding(top = 20.dp, bottom = 8.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "Recent sessions",
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    TextButton(onClick = {selectedFilter = "All runs"}) {
-                        Text("See all", color = MaterialTheme.colorScheme.primary)
-                    }
-                }
-            }
 
+            item { Spacer(modifier = Modifier.height(20.dp)) }
             // Run cards
             items(uiState.runs, key = { it.id }) { run ->
                 RunSessionCardM3(run = run){ id ->
@@ -461,7 +442,7 @@ private fun M3EmptyState() {
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
-            "Start your first session!",
+            "Ready for a new run?",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
