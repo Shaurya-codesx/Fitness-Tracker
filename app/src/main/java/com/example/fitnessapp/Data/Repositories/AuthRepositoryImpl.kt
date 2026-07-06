@@ -1,7 +1,5 @@
 package com.example.fitnessapp.Data.Repositories
 
-import android.util.Log
-import com.example.fitnessapp.Data.Model.AppDatabase
 import com.example.fitnessapp.Domain.AuthRepository
 import com.example.fitnessapp.Domain.RunRepository
 import com.example.fitnessapp.Domain.UserProfileRepository
@@ -65,7 +63,6 @@ class AuthRepositoryImpl @Inject constructor(
         // 2. Wipe the local Room database
         userProfileRepo.deleteUserProfile()
         runRepo.deleteRuns()
-        Log.d("logout", "all data deleted")
 
         // 3. Wipe the local DataStore goals
         goalsManager.clearGoals()

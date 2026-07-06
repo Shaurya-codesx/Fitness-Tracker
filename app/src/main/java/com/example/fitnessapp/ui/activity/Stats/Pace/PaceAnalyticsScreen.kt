@@ -32,12 +32,10 @@ import androidx.navigation.NavController
 import com.example.fitnessapp.Domain.UseCases.PaceFormatterUseCase
 import com.example.fitnessapp.ui.activity.Stats.AnalyticsViewModel
 import com.example.fitnessapp.ui.activity.Stats.FilterRange
-
 import androidx.compose.foundation.Canvas
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import com.example.fitnessapp.Data.Model.StatsDataClasses.PaceSplitData
-
 import com.patrykandpatrick.vico.compose.cartesian.layer.rememberLineSpec
 import com.patrykandpatrick.vico.compose.common.component.rememberShapeComponent
 import com.patrykandpatrick.vico.core.common.shape.Shape

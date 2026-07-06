@@ -4,7 +4,6 @@ import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -28,7 +27,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
@@ -41,9 +39,7 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.rounded.ArrowForward
 import androidx.compose.material.icons.rounded.Badge
 import androidx.compose.material.icons.rounded.CheckCircle
@@ -58,22 +54,7 @@ import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.Straighten
 import androidx.compose.ui.graphics.SolidColor
 import androidx.core.app.ActivityCompat
-
-// ─── THEME COLORS ────────────────────────────────────────────────────────
-private val BackgroundColor = Color(0xFFF9F9FC)
-private val SurfaceWhite = Color(0xFFFFFFFF)
-private val SlateBlue = Color(0xFF4A6085)
-private val LightBlueAccent = Color(0xFFE4EDFA)
-private val TextPrimary = Color(0xFF111111)
-private val TextSecondary = Color(0xFF757575)
-private val InputBackground = Color(0xFFF0F2F5)
-val BgColor = Color(0xFFF5F5FA)          // near-white lavender bg
-val HeroBlue = Color(0xFF4A5C82)         // dark blue hero
-val TintLavender = Color(0xFFCFE0F5)
-val TintPeach = Color(0xFFF8E7D9)
-val TintMint = Color(0xFFDCF0E4)
-val TintPink = Color(0xFFFBE2E2)
-val OnHero = Color(0xFFF5F5FA)
+import com.example.fitnessapp.ui.theme.*
 
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)

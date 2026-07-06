@@ -1,10 +1,7 @@
 package com.example.fitnessapp.Data.Repositories
 
-import android.util.Log
 import com.example.fitnessapp.Data.Model.DistAndDuration
-import com.example.fitnessapp.Data.Model.Entities.ActiveRun
 import com.example.fitnessapp.Data.Model.Entities.RunEntity
-import com.example.fitnessapp.Data.Model.LocationPoints
 import com.example.fitnessapp.Data.Model.StatsDataClasses.AvgPaceModel
 import com.example.fitnessapp.Data.Model.StatsDataClasses.DistanceModel
 import com.example.fitnessapp.Data.Model.StatsDataClasses.EnergyModel
@@ -14,22 +11,8 @@ import com.example.fitnessapp.Data.Model.WeeklyDistances
 import com.example.fitnessapp.Data.Model.StatsDataClasses.analyticsData
 import com.example.fitnessapp.Data.Model.TodayStats
 import com.example.fitnessapp.Data.Model.runDAO
-import com.example.fitnessapp.Domain.LocationDataSource
-import com.example.fitnessapp.Domain.UseCases.CalcDistanceUseCase
 import com.example.fitnessapp.Domain.RunRepository
-import com.example.fitnessapp.Domain.Wrapper.Resource
-import com.example.fitnessapp.ui.activity.RunHistory.RunEvents
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 

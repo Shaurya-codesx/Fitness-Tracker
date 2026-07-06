@@ -14,16 +14,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import android.Manifest
-import android.content.pm.PackageManager
-import android.os.Build
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.material.icons.rounded.NotificationsActive
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.TextButton
-import androidx.core.content.ContextCompat
-
 
 @HiltViewModel
 class OnboardingViewModel @Inject constructor(

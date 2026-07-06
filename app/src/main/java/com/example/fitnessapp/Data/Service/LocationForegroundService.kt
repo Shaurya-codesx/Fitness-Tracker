@@ -1,6 +1,5 @@
 package com.example.fitnessapp.Data.Service
 
-import android.Manifest
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -12,17 +11,12 @@ import android.content.pm.ServiceInfo
 import android.location.LocationManager
 import android.os.Build
 import android.os.IBinder
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC
 import androidx.core.app.ServiceCompat
-import androidx.core.content.PermissionChecker
-import com.example.fitnessapp.Data.Repositories.RunRepoImpl
-import com.example.fitnessapp.Domain.RunRepository
 import com.example.fitnessapp.Domain.TrackingRunRepository
 import com.example.fitnessapp.Domain.UseCases.ConvertTimeUseCase
-import com.example.fitnessapp.Domain.Wrapper.Resource
 import com.example.fitnessapp.R
 import com.example.fitnessapp.ui.activity.RunHistory.RunEvents
 import dagger.hilt.android.AndroidEntryPoint
@@ -38,25 +32,10 @@ import javax.inject.Inject
 class LocationForegroundService : Service() {
     @Inject
     lateinit var trackingRepo : TrackingRunRepository
-//    @Inject
-//    lateinit var runRepo : RunRepository
     @Inject
     lateinit var convertTimeUseCase: ConvertTimeUseCase
 
-    /*
-    to start this service
-        val intent = Intent(context, LocationForegroundService::class.java)
-        intent.action = LocationForegroundService.ACTION_START_RUN
-        ContextCompat.startForegroundService(context, intent)
-
-    to stop this service
-        val intent = Intent(context, LocationForegroundService::class.java)
-        intent.action = LocationForegroundService.ACTION_STOP_RUN
-        context.startService(intent)
-    */
-
-
-    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Default) // to launch the stoprun function
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     private var runCollectorJob: Job? = null
 
@@ -75,7 +54,6 @@ class LocationForegroundService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        Log.d("servicee", "creating notification channel")
         createNotificationChannel()
     }
 
@@ -84,11 +62,9 @@ class LocationForegroundService : Service() {
         when(intent?.action) {
             ACTION_START_RUN -> {
                 startRunForeground()
-                Log.d("servicee", "Starting Location Foreground Service")
             }
             ACTION_STOP_RUN -> {
                 stopRunForeground()
-                Log.d("servicee", "Stoping Location Foreground Service")
             }
         }
 
@@ -105,7 +81,6 @@ class LocationForegroundService : Service() {
 
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun startRunForeground() {
-        Log.d("servicee", "notification built")
         try {
             ServiceCompat.startForeground(
                 this,
@@ -113,9 +88,7 @@ class LocationForegroundService : Service() {
                 buildNotification("00:00", "0.00", isPaused = false),
                 ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
             )
-            Log.d("servicee", "promoted to foreground")
         }catch (e : Exception) {
-            Log.d("servicee", "gets fucked here, not promoted to foreground")
             stopSelf()
             return
         }
@@ -147,14 +120,11 @@ class LocationForegroundService : Service() {
                         updateNotification("GPS LOST - PAUSED", "Waiting for signal...", isPaused = true)
                     }
                     is RunEvents.LocationRestored -> {
-                        // The next activeRun tick will overwrite this, but it's good practice
-                        Log.d("servicee", "GPS Restored, normal notifications will resume.")
                     }
                     else -> {}
                 }
             }
         }
-        Log.d("servicee", "run started")
     }
 
     private fun stopRunForeground() {
@@ -165,7 +135,6 @@ class LocationForegroundService : Service() {
             stopForeground(STOP_FOREGROUND_REMOVE)
             stopSelf()
         }
-        Log.d("servicee", "run stopped")
     }
 
     private fun createNotificationChannel() {
@@ -177,7 +146,6 @@ class LocationForegroundService : Service() {
             )
             val manager : NotificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             manager.createNotificationChannel(channel)
-            Log.d("servicee", "notification channel built")
         }
     }
 

@@ -1,8 +1,6 @@
 package com.example.fitnessapp.Data.Model
 
 import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.DeleteTable
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -14,7 +12,6 @@ import com.example.fitnessapp.Data.Model.StatsDataClasses.EnergyModel
 import com.example.fitnessapp.Data.Model.StatsDataClasses.RawRunModel
 import com.example.fitnessapp.Data.Model.StatsDataClasses.StepsModel
 import com.example.fitnessapp.Data.Model.StatsDataClasses.analyticsData
-import com.example.fitnessapp.ui.activity.RunHistory.RunFilter
 import kotlinx.coroutines.flow.Flow
 
 @Dao

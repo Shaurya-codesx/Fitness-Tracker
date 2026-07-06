@@ -42,7 +42,6 @@ class StepTrackerImplementation @Inject constructor(
                 SensorManager.SENSOR_DELAY_NORMAL
             )
         }
-
         // Clean up when the flow is cancelled
         awaitClose {
             sensorManager.unregisterListener(listener)

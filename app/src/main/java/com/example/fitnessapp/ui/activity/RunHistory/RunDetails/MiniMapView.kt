@@ -1,11 +1,10 @@
 package com.example.fitnessapp.ui.activity.RunHistory.RunDetails
 
-import android.util.Log
+
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -25,10 +24,6 @@ import org.osmdroid.views.overlay.Polyline
 fun miniMapView(routeList: List<LocationPoints> = emptyList()) {
     val context = LocalContext.current
 
-
-    // has two bugs which need to be fixed,
-    // 1. if any run with a single point in the route list, it shows very far from that point in the mini map
-    // 2. the mini map stutters on touch, fights user interaction
 
     val route = remember(routeList) { // to prevent unnecessary mapping on ui recomposition
         routeList.map {

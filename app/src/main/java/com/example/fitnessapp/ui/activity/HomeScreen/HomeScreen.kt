@@ -1,5 +1,6 @@
 package com.example.fitnessapp.ui.activity.HomeScreen
 
+
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Canvas
@@ -15,7 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.DirectionsRun
+import com.example.fitnessapp.R
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.LocalFireDepartment
 import java.time.LocalTime
@@ -41,28 +42,10 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.YearMonth
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.res.painterResource
 import com.example.fitnessapp.ui.components.BottomBar
+import com.example.fitnessapp.ui.theme.*
 
-//// ─── THEME COLORS ────────────────────────────────────────────────────────
-//private val BgColor = Color(0xFFF2F1F8)
-//private val CardBg = Color.White
-//private val TextPrimary = Color(0xFF1A1A2E)
-//private val TextSecondary = Color(0xFF8888A8)
-//
-//// Ring Colors
-//private val ColorSteps = Color(0xFFA78BFA)    // Purple
-//private val ColorDistance = Color(0xFF60A5FA)  // Blue
-//private val ColorCalories = Color(0xFFF87171)  // Red
-
-
-// ─── COLOR TOKENS (add to your theme file if not already there) ─────────
-val BgColor = Color(0xFFF5F5FA)
-val CardBg = Color(0xFFFFFFFF)
-val TextPrimary = Color(0xFF2D2D3A)
-val TextSecondary = Color(0xFF8B8B9E)
-val ColorSteps = Color(0xFFB8C4F0)     // pastel lavender-blue
-val ColorDistance = Color(0xFF9FD9C4) // pastel mint
-val ColorCalories = Color(0xFFF5B7C6) // pastel coral-pink
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -94,7 +77,12 @@ fun HomeScreen(
                 ),
                 modifier = Modifier.offset(y = 16.dp)
             ) {
-                Icon(Icons.Rounded.DirectionsRun, contentDescription = "Start Run")
+                Icon(
+                    painter = painterResource(id = R.drawable.user_fast_running),
+                    contentDescription = "Start Run",
+                    modifier = Modifier.size(20.dp),
+                    tint = Color.White
+                )
                 Spacer(Modifier.width(8.dp))
                 Text("Start Run", fontWeight = FontWeight.Bold)
             }

@@ -13,7 +13,6 @@ import com.example.fitnessapp.Domain.UseCases.PaceFormatterUseCase
 import com.example.fitnessapp.Domain.UseCases.PaceSplitCalculator
 import com.example.fitnessapp.Domain.UseCases.calculateDateRange
 import com.example.fitnessapp.ui.UiStates.PersonalBestUiState
-import com.example.fitnessapp.ui.UiStates.TrackingUiState
 import com.example.fitnessapp.ui.activity.Stats.Distance.DistanceDataUiState
 import com.example.fitnessapp.ui.activity.Stats.Distance.processDistanceChartData
 import com.example.fitnessapp.ui.activity.Stats.Energy.EnergyUiState

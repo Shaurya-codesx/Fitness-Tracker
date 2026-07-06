@@ -3,7 +3,6 @@ package com.example.fitnessapp.Data.StepCounter
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.time.delay
 import javax.inject.Inject
 
 class MockStepFlow @Inject constructor() : StepTracker {

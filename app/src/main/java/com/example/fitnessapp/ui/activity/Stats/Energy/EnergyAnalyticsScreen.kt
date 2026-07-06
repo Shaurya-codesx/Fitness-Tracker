@@ -35,7 +35,6 @@ import androidx.navigation.NavController
 import com.example.fitnessapp.Data.Model.StatsDataClasses.EnergySplitData
 import com.example.fitnessapp.ui.activity.Stats.AnalyticsViewModel
 import com.example.fitnessapp.ui.activity.Stats.FilterRange
-
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberAxisGuidelineComponent
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberAxisLabelComponent
@@ -55,6 +54,7 @@ import java.time.format.DateTimeFormatter
 import java.time.temporal.TemporalAdjusters
 import java.util.Locale
 import kotlinx.datetime.DayOfWeek
+import com.example.fitnessapp.ui.theme.*
 
 // ─────────────────────────────────────────────
 // Design Tokens – Yellow/Energy Theme!

@@ -32,13 +32,6 @@ import com.example.fitnessapp.ui.UiStates.ProfileUiState
 import com.example.fitnessapp.ui.components.BottomBar
 import kotlinx.coroutines.flow.collectLatest
 
-private val BgColor = Color(0xFFF9F9FC)
-private val CardBg = Color.White
-private val SlateBlue = Color(0xFF4A6085)
-private val TextPrimary = Color(0xFF111111)
-private val TextSecondary = Color(0xFF757575)
-private val InputBackground = Color(0xFFF0F2F5)
-private val DangerRed = Color(0xFFEF4444)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

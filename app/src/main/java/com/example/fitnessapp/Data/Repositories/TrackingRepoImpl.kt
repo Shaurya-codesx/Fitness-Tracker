@@ -1,14 +1,11 @@
 package com.example.fitnessapp.Data.Repositories
 
-import android.util.Log
 import androidx.lifecycle.asLiveData
 import com.example.fitnessapp.DI.MainTracker
-import com.example.fitnessapp.DI.MockTracker
 import com.example.fitnessapp.Data.Location.LocationDisabledException
 import com.example.fitnessapp.Data.Model.Entities.ActiveRun
 import com.example.fitnessapp.Data.Model.Entities.RunEntity
 import com.example.fitnessapp.Data.Model.LocationPoints
-import com.example.fitnessapp.Data.Model.UserProfileDAO
 import com.example.fitnessapp.Data.Model.runDAO
 import com.example.fitnessapp.Data.StepCounter.StepTracker
 import com.example.fitnessapp.Domain.LocationDataSource
@@ -39,7 +36,7 @@ class TrackingRepoImpl @Inject constructor(
     private val calcDistanceUseCase : CalcDistanceUseCase,
     private val androidLocationProvider: LocationDataSource,
     private val calcCalories : CalculateCaloriesUseCase,
-    @MockTracker private val stepTracker: StepTracker
+    @MainTracker private val stepTracker: StepTracker
 ) : TrackingRunRepository {
 
     private val _activeRun = MutableStateFlow<ActiveRun?>(null) // so this private variable is mutable for us to change it, and the public is read only
@@ -94,8 +91,6 @@ class TrackingRepoImpl @Inject constructor(
 
                 // Always update the tick! This ensures paused time isn't added later.
                 lastTimeTick = now
-
-                Log.d("timerCheck", "elapsed time : ${_activeRun.value?.elapsedTime}")
             }
         }
 
@@ -105,7 +100,6 @@ class TrackingRepoImpl @Inject constructor(
                 _activeRun.update { currentRun->
                     currentRun?.copy(currentSteps = steps)
                 }
-                Log.d("StepsTracker", "current steps = ${_activeRun.value?.currentSteps}")
             }
         }
 
@@ -116,8 +110,6 @@ class TrackingRepoImpl @Inject constructor(
                     is Resource.Error -> {
                         // Check if it's our specific GPS drop exception
                         if (point.exception is LocationDisabledException) {
-                            Log.d("runEvent", "GPS Drop Detected. Pausing run.")
-
                             // 1. Pause the timer!
                             _activeRun.update { it?.copy(trackingStatus = false) }
 
@@ -132,9 +124,7 @@ class TrackingRepoImpl @Inject constructor(
 
                         // If we were paused, and just got a good location, RESUME automatically!
                         if (current?.trackingStatus == false) {
-                            Log.d("runEvent", "GPS Signal Restored. Resuming run.")
                             _activeRun.update { it?.copy(trackingStatus = true) }
-
                             // Emit a new event to tell the UI the warning is gone
                             _runEvents.emit(RunEvents.LocationRestored)
                         }
@@ -175,10 +165,8 @@ class TrackingRepoImpl @Inject constructor(
                 isSynced = false
             )
             runDAO.insertRun(finalRunEntity)
-            Log.d("calories", "calories = ${finalRunEntity.caloriesBurned}")
         } else {
             _runEvents.emit(RunEvents.NoMovement)
-            Log.d("runEvent", "Run discarded - no movement run event")
         }
         _activeRun.value = null
     }
@@ -193,7 +181,6 @@ class TrackingRepoImpl @Inject constructor(
         // if incremental distance < minThreshold then we do not send the point forward, coz GPS data may be noisy so we filer here
 
         if (current.route.isNotEmpty() && incrementalDistance < 3f) {
-            Log.d("lokation", "location point skipped by repo, inc distance < 3m")
             return
         }
 
@@ -205,7 +192,5 @@ class TrackingRepoImpl @Inject constructor(
             currentDistance = current.currentDistance + incrementalDistance,
             route = updatedRoute
         )
-        Log.d("lokation", "distance : ${_activeRun.value?.currentDistance}")
-
     }
 }

@@ -111,12 +111,10 @@ fun TrackingScreen(navController: NavController) {
                     trackingViewModel.startIntent()
                 }
                 is TrackingUiEvent.RequestEnableLocation -> {
-                    Log.d("hello", "Location Error caught")
                     val activity = context as? Activity
                     event.exception.startResolutionForResult(activity!!, 1001)
                 }
                 is TrackingUiEvent.ShowLocationError -> {
-                    Log.d("lokation", "Location error reaching UI")
                     // 1. We removed trackingViewModel.stopRun() here!
                     // 2. Added .show() to actually display the warning
                     Toast.makeText(
@@ -134,7 +132,6 @@ fun TrackingScreen(navController: NavController) {
                     ).show()
                 }
                 is TrackingUiEvent.ShowNoMovementDialogue -> {
-                    Log.d("hello", "No movement caught")
                     showNoMovementDialog = true
                 }
             }

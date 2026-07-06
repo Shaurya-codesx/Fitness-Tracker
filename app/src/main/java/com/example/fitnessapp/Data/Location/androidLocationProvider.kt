@@ -1,14 +1,7 @@
 package com.example.fitnessapp.Data.Location
 
-import android.Manifest
 import android.content.Context
-import android.location.LocationManager
-
 import android.os.Looper
-import android.util.Log
-import androidx.core.content.ContextCompat.getSystemService
-import androidx.core.content.PermissionChecker
-
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.Priority
 import com.example.fitnessapp.Data.Model.LocationPoints
@@ -17,7 +10,6 @@ import com.example.fitnessapp.Domain.LocationDataSource
 import com.example.fitnessapp.Domain.Wrapper.Resource
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.LocationAvailability
-
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
@@ -30,7 +22,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import java.security.Permission
 import javax.inject.Inject
 
 
@@ -79,9 +70,6 @@ class androidLocationProvider @Inject constructor(
                             timeStamp = System.currentTimeMillis()
                         )
                         trySend(Resource.Success(point)) // send the point to the Flow subscriber
-                        Log.d("lokation", "location point sent : $point")
-                    } else {
-                        Log.d("lokation", "skipped location point, less accuracy")
                     }
                 }
             }
@@ -94,7 +82,6 @@ class androidLocationProvider @Inject constructor(
                     val isNetworkEnabled = locationManager.isProviderEnabled(android.location.LocationManager.NETWORK_PROVIDER)
 
                     if (!isGpsEnabled && !isNetworkEnabled) {
-                        Log.d("lokation", "Hardware REALLY disabled mid-stream")
                         trySend(Resource.Error(LocationDisabledException()))
                     }
                 }
@@ -129,13 +116,11 @@ class androidLocationProvider @Inject constructor(
         task.addOnFailureListener { exception -> // this is ResolvableApiException, meaning the app has permission to access location
             // but the hardware of the device is turned off for the app
             // handle the fail
-            Log.d("lokation", "crashed because location not enabled")
             trySend(Resource.Error(exception)) // we close the flow here
         }
 
         awaitClose {
             fusedLocationClient.removeLocationUpdates(locationCallback)
-            Log.d("lokation", "stopping location tracking")
         }
     }
 }

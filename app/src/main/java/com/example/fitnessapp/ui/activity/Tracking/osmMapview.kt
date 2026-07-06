@@ -96,7 +96,5 @@ fun OsmMapview(modifier : Modifier = Modifier, Route : List<LocationPoints> = em
         }
 
         mapView.invalidate()
-        Log.d("uitestingmap", "Map updated with point: ${center.latitude}")
-
     }
 }

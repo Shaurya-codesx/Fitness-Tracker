@@ -1,6 +1,6 @@
 package com.example.fitnessapp.Data.Model.Entities
 
-import androidx.compose.ui.text.font.FontWeight
+
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 

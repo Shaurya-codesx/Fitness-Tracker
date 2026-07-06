@@ -1,5 +1,7 @@
 package com.example.fitnessapp.ui.activity.Stats
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -23,20 +25,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.fitnessapp.ui.UiStates.PersonalBestUiState
-// ─── MATERIAL YOU PASTEL TROPHY COLORS ───────────────────────────────────────
-private val LavenderBg = Color(0xFFF5F5FA)
-private val HeroGradientStart = Color(0xFF4A5C82)
-private val HeroGradientEnd = Color(0xFF6B7FA8)
-private val HeroAccent = Color(0xFFFFE29A)
-private val HeadingText = Color(0xFF2E3355)
-private val MutedText = Color(0xFF8A8FA8)
-private val CardWhite = Color(0xFFFFFFFF)
+import com.example.fitnessapp.ui.theme.*
 
-private val BlueTint = Color(0xFFE3E9F7); private val BlueAccent = Color(0xFF6C8AE4)
-private val GreenTint = Color(0xFFE1F5EA); private val GreenAccent = Color(0xFF4CAF7D)
-private val CoralTint = Color(0xFFFBE7E7); private val CoralAccent = Color(0xFFE57575)
-private val PurpleTint = Color(0xFFEFE6F8); private val PurpleAccent = Color(0xFF9B7FD1)
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun PersonalBestsSection(navController: NavController) {
     val viewModel: AnalyticsViewModel = hiltViewModel()

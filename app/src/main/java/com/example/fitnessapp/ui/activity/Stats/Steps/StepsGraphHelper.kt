@@ -3,14 +3,10 @@ package com.example.fitnessapp.ui.activity.Stats.Steps
 import android.os.Build
 import androidx.annotation.RequiresApi
 import com.example.fitnessapp.Data.Model.StatsDataClasses.StepsModel
-import com.example.fitnessapp.ui.activity.RunHistory.RunFilter
 import com.example.fitnessapp.ui.activity.Stats.FilterRange
-import java.time.DayOfWeek
 import java.time.LocalDate
-import java.time.YearMonth
+
 import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoUnit
-import java.time.temporal.WeekFields
 import java.util.Locale
 
 data class ChartData(

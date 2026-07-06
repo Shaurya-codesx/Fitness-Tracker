@@ -3,11 +3,9 @@ package com.example.fitnessapp.ui.activity.Stats.Energy
 import android.os.Build
 import androidx.annotation.RequiresApi
 import com.example.fitnessapp.Data.Model.StatsDataClasses.EnergyModel
-import com.example.fitnessapp.Data.Model.StatsDataClasses.EnergySplitData
 import com.example.fitnessapp.ui.activity.Stats.FilterRange
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.time.temporal.WeekFields
 import java.util.Locale
 
 data class ChartData(

@@ -30,14 +30,9 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.automirrored.rounded.ArrowLeft
-import androidx.compose.material.icons.outlined.ArrowLeft
 import androidx.compose.material.icons.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.ArrowLeft
-import androidx.compose.material.icons.sharp.ArrowBack
 import androidx.navigation.NavController
 import com.example.fitnessapp.ui.activity.Stats.AnalyticsViewModel
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
