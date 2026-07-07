@@ -21,7 +21,7 @@ import com.example.fitnessapp.ui.activity.HomeScreen.HomeScreen
 import com.example.fitnessapp.ui.activity.Stats.Distance.DistanceAnalyticsScreen
 import com.example.fitnessapp.ui.activity.Stats.Energy.EnergyAnalyticsScreen
 import com.example.fitnessapp.ui.activity.Stats.Pace.PaceAnalyticsScreen
-import com.example.fitnessapp.ui.activity.Stats.PersonalBestsSection
+import com.example.fitnessapp.ui.activity.Stats.PersonalBestsScreen
 import com.example.fitnessapp.ui.activity.Stats.Steps.StepsAnalyticsScreen
 import com.example.fitnessapp.ui.theme.FitnessAppTheme
 import com.example.fitnessapp.ui.activity.Tracking.TrackingViewModel
@@ -78,7 +78,7 @@ fun appRun(startDestination: String) {
         composable("distanceScreen", content = { DistanceAnalyticsScreen(navController) })
         composable("PaceScreen", content = { PaceAnalyticsScreen(navController) })
         composable("EnergyScreen", content = { EnergyAnalyticsScreen(navController) })
-        composable("PersonalBestScreen", content = { PersonalBestsSection(navController) })
+        composable("PersonalBestScreen", content = { PersonalBestsScreen(navController) })
         composable("HomeScreen", content = { HomeScreen(navController) {
             navController.navigate("trackingScreen")
         }})

@@ -13,13 +13,17 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import coil.ImageLoader
+import coil.ImageLoaderFactory
+import coil.decode.GifDecoder
+import coil.decode.ImageDecoderDecoder
 import com.example.fitnessapp.Data.Model.Sync.RunSyncWorker
 import com.example.fitnessapp.Domain.Notifications.StreakReminderWorker
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @HiltAndroidApp
-class FitnessApplication : Application(), androidx.work.Configuration.Provider {
+class FitnessApplication : Application(), androidx.work.Configuration.Provider, ImageLoaderFactory {
 
     // 1. Inject the Hilt Worker Factory so WorkManager can use your Room DB and Firestore
     @Inject
@@ -88,5 +92,17 @@ class FitnessApplication : Application(), androidx.work.Configuration.Provider {
 
             notificationManager.createNotificationChannel(coachChannel)
         }
+    }
+
+    override fun newImageLoader(): ImageLoader {
+        return ImageLoader.Builder(this)
+            .components {
+                if (Build.VERSION.SDK_INT >= 28) {
+                    add(ImageDecoderDecoder.Factory())
+                } else {
+                    add(GifDecoder.Factory())
+                }
+            }
+            .build()
     }
 }

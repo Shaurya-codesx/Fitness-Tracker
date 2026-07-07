@@ -14,6 +14,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -27,73 +28,113 @@ import androidx.navigation.NavController
 import com.example.fitnessapp.ui.UiStates.PersonalBestUiState
 import com.example.fitnessapp.ui.theme.*
 
-
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun PersonalBestsSection(navController: NavController) {
+fun PersonalBestsScreen(navController: NavController) {
     val viewModel: AnalyticsViewModel = hiltViewModel()
     val uiState by viewModel.personalBests.collectAsStateWithLifecycle()
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(LavenderBg)
-            .padding(20.dp),
-        verticalArrangement = Arrangement.spacedBy(14.dp)
+            .background(ScreenBackground)
+            .padding(horizontal = 20.dp, vertical = 24.dp),
+        verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
-        Spacer(modifier = Modifier.height(25.dp))
-        // Header — fixed height, doesn't eat into the bento space
-        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text(
-                "Trophy Room",
-                style = MaterialTheme.typography.headlineLarge.copy(
-                    fontWeight = FontWeight.ExtraBold,
-                    color = HeadingText
+        // ==================== HEADER ====================
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(top = 16.dp, bottom = 4.dp)
+        ) {
+            IconButton(
+                onClick = { navController.navigateUp() },
+                modifier = Modifier
+                    .size(44.dp)
+                    .clip(CircleShape)
+                    .background(Color.White)
+                    .shadow(elevation = 2.dp, shape = CircleShape)
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.ArrowBack,
+                    contentDescription = "Back",
+                    tint = HeadingTextPB,
+                    modifier = Modifier.size(24.dp)
                 )
-            )
-            Text(
-                "Your all-time personal records",
-                style = MaterialTheme.typography.bodyMedium.copy(color = MutedText)
-            )
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Column {
+                Text(
+                    text = "Trophy Room", // Replace with stringResource
+                    style = MaterialTheme.typography.headlineLarge.copy(
+                        fontWeight = FontWeight.ExtraBold,
+                        fontSize = 32.sp,
+                        color = HeadingTextPB
+                    )
+                )
+                Text(
+                    text = "Your all-time personal records", // Replace with stringResource
+                    style = MaterialTheme.typography.bodyMedium.copy(color = MutedTextPB, fontWeight = FontWeight.Medium)
+                )
+            }
         }
 
+        // ==================== CONTENT STATE ====================
         when (val state = uiState) {
             is PersonalBestUiState.Loading -> {
                 Box(
-                    modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(28.dp)).background(CardWhite),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(32.dp))
+                        .background(CardWhitePB),
                     contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator(color = BlueAccent)
+                    CircularProgressIndicator(color = HeroGradientStartPB)
                 }
             }
             is PersonalBestUiState.Empty -> {
-                Column(
-                    modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(28.dp)).background(CardWhite),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
+                Card(
+                    modifier = Modifier.fillMaxSize(),
+                    shape = RoundedCornerShape(32.dp),
+                    colors = CardDefaults.cardColors(containerColor = CardWhitePB),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
                 ) {
-                    Box(
-                        modifier = Modifier.size(88.dp).clip(CircleShape).background(BlueTint),
-                        contentAlignment = Alignment.Center
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
                     ) {
-                        Icon(Icons.Rounded.EmojiEvents, contentDescription = null, tint = BlueAccent, modifier = Modifier.size(44.dp))
+                        Box(
+                            modifier = Modifier
+                                .size(96.dp)
+                                .clip(CircleShape)
+                                .background(HeroGradientEndPB.copy(alpha = 0.1f)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(Icons.Rounded.EmojiEvents, contentDescription = null, tint = HeroGradientEndPB, modifier = Modifier.size(48.dp))
+                        }
+                        Spacer(Modifier.height(20.dp))
+                        Text("Lace up your shoes!", style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.ExtraBold, color = HeadingTextPB))
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            "Your records will appear here\nafter your first run.",
+                            textAlign = TextAlign.Center,
+                            style = MaterialTheme.typography.bodyLarge.copy(color = MutedTextPB)
+                        )
                     }
-                    Spacer(Modifier.height(16.dp))
-                    Text("Lace up your shoes!", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, color = HeadingText))
-                    Spacer(Modifier.height(6.dp))
-                    Text(
-                        "Your records will appear here\nafter your first run.",
-                        textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.bodyMedium.copy(color = MutedText)
-                    )
                 }
             }
             is PersonalBestUiState.Error -> {
-                Box(
-                    modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(24.dp)).background(CoralTint),
-                    contentAlignment = Alignment.Center
+                Card(
+                    modifier = Modifier.fillMaxSize(),
+                    shape = RoundedCornerShape(32.dp),
+                    colors = CardDefaults.cardColors(containerColor = PaceBg),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
                 ) {
-                    Text(state.message, color = CoralAccent, style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium))
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(state.message, color = PaceAccent, style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold))
+                    }
                 }
             }
             is PersonalBestUiState.Success -> {
@@ -103,99 +144,139 @@ fun PersonalBestsSection(navController: NavController) {
     }
 }
 
+// ==================== BENTO LAYOUT ARCHITECTURE ====================
 @Composable
 private fun BentoTrophyLayout(records: PersonalBestUiState.Success) {
-    // This Column fills all remaining screen space via weight()
     Column(
         modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(14.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
 
-        // 1. Hero banner — shorter now, weight 1f
-        Box(
+        // 1. Hero banner — Gradient Distance (Weight 1f)
+        Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f)
-                .clip(RoundedCornerShape(24.dp))
-                .background(Brush.linearGradient(listOf(HeroGradientStart, HeroGradientEnd)))
-                .padding(22.dp)
+                .weight(1f),
+            shape = RoundedCornerShape(32.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
         ) {
             Box(
-                modifier = Modifier.align(Alignment.TopEnd).size(48.dp).clip(CircleShape)
-                    .background(HeroAccent.copy(alpha = 0.25f)),
-                contentAlignment = Alignment.Center
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Brush.linearGradient(listOf(HeroGradientStartPB, HeroGradientEndPB)))
+                    .padding(24.dp)
             ) {
-                Icon(Icons.Rounded.EmojiEvents, contentDescription = "Trophy", tint = HeroAccent, modifier = Modifier.size(24.dp))
-            }
-            Column(modifier = Modifier.align(Alignment.BottomStart)) {
-                Text("FARTHEST RUN", style = MaterialTheme.typography.labelMedium.copy(color = HeroAccent, fontWeight = FontWeight.Bold, letterSpacing = 1.sp))
-                Text(records.recordDistance, style = MaterialTheme.typography.displaySmall.copy(color = Color.White, fontWeight = FontWeight.ExtraBold))
+                // Decorative Trophy Top Right
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .size(56.dp)
+                        .clip(CircleShape)
+                        .background(Color.White.copy(alpha = 0.2f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(Icons.Rounded.EmojiEvents, contentDescription = "Trophy", tint = Color.White, modifier = Modifier.size(28.dp))
+                }
+
+                // Data Bottom Left
+                Column(modifier = Modifier.align(Alignment.BottomStart)) {
+                    Text(
+                        text = "FARTHEST RUN",
+                        style = MaterialTheme.typography.labelLarge.copy(color = Color.White.copy(alpha = 0.8f), fontWeight = FontWeight.Bold, letterSpacing = 1.5.sp)
+                    )
+                    Spacer(Modifier.height(2.dp))
+                    Text(
+                        text = records.recordDistance,
+                        style = MaterialTheme.typography.displayMedium.copy(color = Color.White, fontWeight = FontWeight.ExtraBold)
+                    )
+                }
             }
         }
 
-        // 2. Bento row — big vertical card + two stacked cards, weight 1.5f (tallest section)
+        // 2. Bento row — Vertical card + Stacked cards (Weight 1.5f)
         Row(
-            modifier = Modifier.fillMaxWidth().weight(1.5f),
-            horizontalArrangement = Arrangement.spacedBy(14.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1.5f),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Big "Most Steps" card — spans full row height
+            // Big "Most Steps" card
             BigBentoCard(
-                modifier = Modifier.weight(1f).fillMaxHeight(),
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight(),
                 title = "Most steps",
                 value = records.recordSteps,
                 icon = Icons.Rounded.DirectionsRun,
-                tint = PurpleTint,
-                accent = PurpleAccent
+                backgroundColor = StepsBg,
+                accentColor = StepsAccent
             )
 
             // Stacked column: Time + Pace
             Column(
-                modifier = Modifier.weight(1f).fillMaxHeight(),
-                verticalArrangement = Arrangement.spacedBy(14.dp)
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight(),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 SmallBentoCard(
-                    modifier = Modifier.weight(1f).fillMaxWidth(),
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth(),
                     title = "Longest time",
                     value = records.recordDuration,
                     icon = Icons.Rounded.Timer,
-                    tint = BlueTint,
-                    accent = BlueAccent
+                    backgroundColor = TimeBg,
+                    accentColor = TimeAccent
                 )
                 SmallBentoCard(
-                    modifier = Modifier.weight(1f).fillMaxWidth(),
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth(),
                     title = "Fastest pace",
                     value = records.recordPace,
                     icon = Icons.Rounded.Speed,
-                    tint = GreenTint,
-                    accent = GreenAccent
+                    backgroundColor = PaceBg,
+                    accentColor = PaceAccent
                 )
             }
         }
 
-        // 3. Wide banner — Most Calories, weight 0.7f
-        Row(
+        // 3. Wide banner — Calories (Weight 0.7f)
+        Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(0.7f)
-                .clip(RoundedCornerShape(22.dp))
-                .background(CoralTint)
-                .padding(horizontal = 20.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+                .weight(0.7f),
+            shape = RoundedCornerShape(28.dp),
+            colors = CardDefaults.cardColors(containerColor = CaloriesBg),
+            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
         ) {
-            Column {
-                Text("Most calories burned", style = MaterialTheme.typography.bodySmall.copy(color = MutedText))
-                Text(records.recordCalories, style = MaterialTheme.typography.headlineSmall.copy(color = HeadingText, fontWeight = FontWeight.ExtraBold))
-            }
-            Box(
-                modifier = Modifier.size(48.dp).clip(CircleShape).background(Color.White.copy(alpha = 0.6f)),
-                contentAlignment = Alignment.Center
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 24.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(Icons.Rounded.LocalFireDepartment, contentDescription = null, tint = CoralAccent, modifier = Modifier.size(24.dp))
+                Column {
+                    Text("Most calories burned", style = MaterialTheme.typography.bodyMedium.copy(color = CaloriesAccent.copy(alpha = 0.8f), fontWeight = FontWeight.Bold))
+                    Text(records.recordCalories, style = MaterialTheme.typography.headlineMedium.copy(color = CaloriesAccent, fontWeight = FontWeight.ExtraBold, fontSize = 30.sp))
+                }
+                Box(
+                    modifier = Modifier
+                        .size(56.dp)
+                        .clip(CircleShape)
+                        .background(CardWhitePB.copy(alpha = 0.6f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(Icons.Rounded.LocalFireDepartment, contentDescription = null, tint = CaloriesAccent, modifier = Modifier.size(32.dp))
+                }
             }
         }
     }
 }
+
+// ==================== BENTO CARD COMPONENTS ====================
 
 @Composable
 private fun BigBentoCard(
@@ -203,23 +284,35 @@ private fun BigBentoCard(
     title: String,
     value: String,
     icon: ImageVector,
-    tint: Color,
-    accent: Color
+    backgroundColor: Color,
+    accentColor: Color
 ) {
-    Column(
-        modifier = modifier.clip(RoundedCornerShape(22.dp)).background(tint).padding(18.dp),
-        verticalArrangement = Arrangement.SpaceBetween
+    Card(
+        modifier = modifier,
+        shape = RoundedCornerShape(28.dp),
+        colors = CardDefaults.cardColors(containerColor = backgroundColor),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
     ) {
-        Box(
-            modifier = Modifier.size(44.dp).clip(CircleShape).background(Color.White.copy(alpha = 0.6f)),
-            contentAlignment = Alignment.Center
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(20.dp),
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
-            Icon(icon, contentDescription = null, tint = accent, modifier = Modifier.size(24.dp))
-        }
-        Column {
-            Text(value, style = MaterialTheme.typography.headlineMedium.copy(color = HeadingText, fontWeight = FontWeight.ExtraBold))
-            Spacer(Modifier.height(2.dp))
-            Text(title, style = MaterialTheme.typography.bodyMedium.copy(color = MutedText))
+            Box(
+                modifier = Modifier
+                    .size(56.dp)
+                    .clip(CircleShape)
+                    .background(CardWhitePB.copy(alpha = 0.6f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(icon, contentDescription = null, tint = accentColor, modifier = Modifier.size(32.dp))
+            }
+            Column {
+                Text(value, style = MaterialTheme.typography.headlineMedium.copy(color = accentColor, fontWeight = FontWeight.ExtraBold, fontSize = 30.sp))
+                Spacer(Modifier.height(4.dp))
+                Text(title, style = MaterialTheme.typography.bodyLarge.copy(color = accentColor.copy(alpha = 0.8f), fontWeight = FontWeight.Bold))
+            }
         }
     }
 }
@@ -230,18 +323,37 @@ private fun SmallBentoCard(
     title: String,
     value: String,
     icon: ImageVector,
-    tint: Color,
-    accent: Color
+    backgroundColor: Color,
+    accentColor: Color
 ) {
-    Row(
-        modifier = modifier.clip(RoundedCornerShape(20.dp)).background(tint).padding(14.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+    Card(
+        modifier = modifier,
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = backgroundColor),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
     ) {
-        Column {
-            Text(value, style = MaterialTheme.typography.titleLarge.copy(color = HeadingText, fontWeight = FontWeight.ExtraBold))
-            Text(title, style = MaterialTheme.typography.labelMedium.copy(color = MutedText))
+        Column( // Shifted from Row to Column for better data fitting
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier.size(36.dp).clip(CircleShape).background(CardWhitePB.copy(alpha = 0.6f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(icon, contentDescription = null, tint = accentColor, modifier = Modifier.size(20.dp))
+                }
+            }
+            Column {
+                Text(value, style = MaterialTheme.typography.titleLarge.copy(color = accentColor, fontWeight = FontWeight.ExtraBold, fontSize = 24.sp))
+                Text(title, style = MaterialTheme.typography.bodyMedium.copy(color = accentColor.copy(alpha = 0.8f), fontWeight = FontWeight.Bold))
+            }
         }
-        Icon(icon, contentDescription = null, tint = accent, modifier = Modifier.size(20.dp))
     }
 }

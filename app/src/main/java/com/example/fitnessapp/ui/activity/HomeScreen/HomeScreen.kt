@@ -16,9 +16,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.CalendarMonth
 import com.example.fitnessapp.R
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.LocalFireDepartment
+import androidx.compose.material.icons.rounded.Person
 import java.time.LocalTime
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -42,10 +44,14 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.YearMonth
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.res.painterResource
 import com.example.fitnessapp.ui.components.BottomBar
 import com.example.fitnessapp.ui.theme.*
 
+
+private val HomeGradient = Brush.linearGradient(colors = listOf(HomeViolet, HomeVioletLight))
+private val StreakGradient = Brush.linearGradient(colors = listOf(HomeSunshine, HomeCoral))
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -62,20 +68,23 @@ fun HomeScreen(
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        containerColor = BgColor, // #F5F5FA
+        containerColor = HomeBg,
         floatingActionButtonPosition = FabPosition.Center,
         bottomBar = { BottomBar(navController) },
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = onStartRunClick,
-                containerColor = Color(0xFF6C8AE4), // matches your hero card blue
+                containerColor = Color.Transparent,
                 contentColor = Color.White,
-                shape = RoundedCornerShape(100),
+                shape = CircleShape,
                 elevation = FloatingActionButtonDefaults.elevation(
-                    defaultElevation = 4.dp,
-                    pressedElevation = 8.dp
+                    defaultElevation = 6.dp,
+                    pressedElevation = 10.dp
                 ),
-                modifier = Modifier.offset(y = 16.dp)
+                modifier = Modifier
+                    .offset(y = 16.dp)
+                    .clip(CircleShape)
+                    .background(HomeGradient)
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.user_fast_running),
@@ -92,7 +101,7 @@ fun HomeScreen(
             when (val state = uiState) {
                 is HomeUiState.Loading -> {
                     CircularProgressIndicator(
-                        color = Color(0xFF4A5C82),
+                        color = HomeViolet,
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
@@ -142,8 +151,8 @@ private fun DashboardContent(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(start = 20.dp, end = 20.dp, bottom = 20.dp, top = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(20.dp)
+            .padding(start = 20.dp, end = 20.dp, bottom = 20.dp, top = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(18.dp)
     ) {
         // 1. HEADER
         Row(
@@ -152,58 +161,88 @@ private fun DashboardContent(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column {
-                Text(greeting, style = MaterialTheme.typography.bodyLarge.copy(color = TextSecondary))
+                Text(greeting, style = MaterialTheme.typography.bodyLarge.copy(color = HomeTextSecondary))
                 Text(
                     state.userName,
                     style = MaterialTheme.typography.headlineMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        color = TextPrimary
+                        fontWeight = FontWeight.ExtraBold,
+                        color = HomeTextPrimary
                     )
                 )
             }
 
-            // Streak Badge — softened to pastel lavender
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
+            Box(
                 modifier = Modifier
-                    .clip(RoundedCornerShape(50))
-                    .background(Color(0xFFFEF3C7)) // soft lavender
-                    .padding(horizontal = 14.dp, vertical = 8.dp)
+                    .size(48.dp)
+                    .shadow(6.dp, CircleShape, ambientColor = HomeViolet.copy(alpha = 0.3f))
+                    .clip(CircleShape)
+                    .background(HomeGradient),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(Icons.Rounded.Person, contentDescription = "Profile", tint = Color.White, modifier = Modifier.size(24.dp))
+            }
+        }
+
+        // 2. STREAK HERO CARD — gradient, bold, eye-catching
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .shadow(10.dp, RoundedCornerShape(28.dp), ambientColor = HomeCoral.copy(alpha = 0.35f))
+                .clip(RoundedCornerShape(28.dp))
+                .background(StreakGradient)
+                .padding(horizontal = 22.dp, vertical = 18.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column {
+                Text(
+                    "${state.currentStreak} Day Streak",
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.ExtraBold, color = Color.White)
+                )
+                Text(
+                    "Keep the fire going!",
+                    style = MaterialTheme.typography.bodyMedium.copy(color = Color.White.copy(alpha = 0.9f))
+                )
+            }
+            Box(
+                modifier = Modifier
+                    .size(52.dp)
+                    .clip(CircleShape)
+                    .background(Color.White.copy(alpha = 0.25f)),
+                contentAlignment = Alignment.Center
             ) {
                 Icon(
                     Icons.Rounded.LocalFireDepartment,
                     contentDescription = null,
-                    tint = Color(0xFFD97706),
-                    modifier = Modifier.size(18.dp)
-                )
-                Spacer(Modifier.width(4.dp))
-                Text(
-                    "${state.currentStreak} Day Streak",
-                    style = MaterialTheme.typography.labelMedium.copy(
-                        color = Color(0xFF92400E),
-                        fontWeight = FontWeight.Bold
-                    )
+                    tint = Color.White,
+                    modifier = Modifier.size(28.dp)
                 )
             }
         }
 
-        // 2. GOAL PROGRESS RINGS
+        // 3. GOAL PROGRESS RINGS
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .shadow(elevation = 4.dp, shape = RoundedCornerShape(28.dp), ambientColor = Color(0x1A4A5C82))
+                .shadow(8.dp, RoundedCornerShape(28.dp), ambientColor = HomeViolet.copy(alpha = 0.15f))
                 .clip(RoundedCornerShape(28.dp))
-                .background(Color.White)
+                .background(HomeCard)
                 .padding(24.dp)
         ) {
             Column(modifier = Modifier.fillMaxWidth()) {
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     Text(
                         "Today's Targets",
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, color = TextPrimary)
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, color = HomeTextPrimary)
                     )
-                    IconButton(onClick = onEditGoalsClick, modifier = Modifier.size(24.dp)) {
-                        Icon(Icons.Rounded.Edit, contentDescription = "Edit Goals", tint = TextSecondary)
+                    IconButton(
+                        onClick = onEditGoalsClick,
+                        modifier = Modifier
+                            .size(32.dp)
+                            .clip(CircleShape)
+                            .background(HomeSkyBlue.copy(alpha = 0.5f))
+                    ) {
+                        Icon(Icons.Rounded.Edit, contentDescription = "Edit Goals", tint = HomeViolet, modifier = Modifier.size(16.dp))
                     }
                 }
 
@@ -215,11 +254,11 @@ private fun DashboardContent(
                             .fillMaxWidth()
                             .height(150.dp)
                             .clip(RoundedCornerShape(20.dp))
-                            .background(Color(0xFFF5F5FA))
+                            .background(HomeBg)
                             .clickable { onEditGoalsClick() },
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("Tap here to set your daily goals!", color = TextSecondary, fontWeight = FontWeight.Medium)
+                        Text("Tap here to set your daily goals!", color = HomeTextSecondary, fontWeight = FontWeight.Medium)
                     }
                 } else {
                     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -242,30 +281,43 @@ private fun DashboardContent(
             }
         }
 
-        // 3. CURRENT MONTH HEATMAP
+        // 4. CONSISTENCY HEATMAP
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .shadow(elevation = 4.dp, shape = RoundedCornerShape(28.dp), ambientColor = Color(0x1A4A5C82))
+                .shadow(8.dp, RoundedCornerShape(28.dp), ambientColor = HomeMint.copy(alpha = 0.4f))
                 .clip(RoundedCornerShape(28.dp))
-                .background(Color.White)
+                .background(HomeCard)
                 .padding(24.dp)
         ) {
             Column {
-                Text(
-                    "Consistency",
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, color = TextPrimary)
-                )
-                Text(
-                    LocalDate.now().month.name.lowercase().replaceFirstChar { it.uppercase() },
-                    style = MaterialTheme.typography.bodyMedium.copy(color = TextSecondary)
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .size(28.dp)
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(HomeMint),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(Icons.Rounded.CalendarMonth, contentDescription = null, tint = Color(0xFF2D6A4F), modifier = Modifier.size(16.dp))
+                    }
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Column {
+                        Text(
+                            "Consistency",
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, color = HomeTextPrimary)
+                        )
+                        Text(
+                            LocalDate.now().month.name.lowercase().replaceFirstChar { it.uppercase() },
+                            style = MaterialTheme.typography.bodyMedium.copy(color = HomeTextSecondary)
+                        )
+                    }
+                }
 
                 Spacer(modifier = Modifier.height(16.dp))
                 MonthlyHeatmap(activeDates = state.activeDaysThisMonth)
             }
         }
-
     }
 }
 
@@ -327,8 +379,8 @@ private fun LegendItem(color: Color, label: String, value: String) {
         Box(modifier = Modifier.size(10.dp).clip(CircleShape).background(color))
         Spacer(modifier = Modifier.width(8.dp))
         Column {
-            Text(label, style = MaterialTheme.typography.labelSmall.copy(color = TextSecondary))
-            Text(value, style = MaterialTheme.typography.labelMedium.copy(color = TextPrimary, fontWeight = FontWeight.Bold))
+            Text(label, style = MaterialTheme.typography.labelSmall.copy(color = HomeTextSecondary))
+            Text(value, style = MaterialTheme.typography.labelMedium.copy(color = HomeTextPrimary, fontWeight = FontWeight.Bold))
         }
     }
 }
@@ -366,15 +418,13 @@ private fun MonthlyHeatmap(activeDates: Set<LocalDate>) {
                         modifier = Modifier
                             .fillMaxSize()
                             .clip(RoundedCornerShape(10.dp))
-                            .background(
-                                when {
-                                    isActive -> Color(0xFF6C8AE4) // pastel lavender-blue
-                                    else -> Color(0xFFF5F5FA)      // soft neutral
-                                }
+                            .then(
+                                if (isActive) Modifier.background(HomeGradient)
+                                else Modifier.background(HomeBg)
                             )
                             .then(
                                 if (isToday && !isActive)
-                                    Modifier.border(1.5.dp, Color(0xFF4A5C82), RoundedCornerShape(10.dp))
+                                    Modifier.border(1.5.dp, HomeViolet, RoundedCornerShape(10.dp))
                                 else Modifier
                             )
                     ) {
@@ -382,7 +432,7 @@ private fun MonthlyHeatmap(activeDates: Set<LocalDate>) {
                             text = day.toString(),
                             modifier = Modifier.align(Alignment.Center),
                             style = MaterialTheme.typography.labelSmall.copy(
-                                color = if (isActive) Color.White else TextSecondary,
+                                color = if (isActive) Color.White else HomeTextSecondary,
                                 fontWeight = if (isToday || isActive) FontWeight.Bold else FontWeight.Normal
                             )
                         )
@@ -410,13 +460,14 @@ fun GoalSettingBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = Color.White
+        containerColor = HomeCard,
+        shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp)
     ) {
         Column(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 16.dp).padding(bottom = 32.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text("Set Daily Targets", style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold))
+            Text("Set Daily Targets", style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.ExtraBold, color = HomeTextPrimary))
 
             OutlinedTextField(
                 value = stepInput,
@@ -424,7 +475,12 @@ fun GoalSettingBottomSheet(
                 label = { Text("Daily Steps") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+                singleLine = true,
+                shape = RoundedCornerShape(16.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = HomeViolet,
+                    unfocusedBorderColor = HomeTextSecondary.copy(alpha = 0.3f)
+                )
             )
 
             OutlinedTextField(
@@ -433,7 +489,12 @@ fun GoalSettingBottomSheet(
                 label = { Text("Daily Distance (km)") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+                singleLine = true,
+                shape = RoundedCornerShape(16.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = HomeViolet,
+                    unfocusedBorderColor = HomeTextSecondary.copy(alpha = 0.3f)
+                )
             )
 
             OutlinedTextField(
@@ -442,24 +503,32 @@ fun GoalSettingBottomSheet(
                 label = { Text("Daily Calories (kcal)") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+                singleLine = true,
+                shape = RoundedCornerShape(16.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = HomeViolet,
+                    unfocusedBorderColor = HomeTextSecondary.copy(alpha = 0.3f)
+                )
             )
 
-            Button(
-                onClick = {
-                    val steps = stepInput.toIntOrNull() ?: 10000
-                    val dist = distInput.toFloatOrNull() ?: 5.0f
-                    val cals = calInput.toIntOrNull() ?: 500
-                    scope.launch {
-                        sheetState.hide()
-                        onSave(steps, dist, cals)
-                    }
-                },
-                modifier = Modifier.fillMaxWidth().height(56.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = TextPrimary),
-                shape = RoundedCornerShape(16.dp)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+                    .clip(CircleShape)
+                    .background(HomeGradient)
+                    .clickable {
+                        val steps = stepInput.toIntOrNull() ?: 10000
+                        val dist = distInput.toFloatOrNull() ?: 5.0f
+                        val cals = calInput.toIntOrNull() ?: 500
+                        scope.launch {
+                            sheetState.hide()
+                            onSave(steps, dist, cals)
+                        }
+                    },
+                contentAlignment = Alignment.Center
             ) {
-                Text("Save Targets", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                Text("Save Targets", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
             }
         }
     }

@@ -109,4 +109,8 @@ dependencies {
     implementation("com.patrykandpatrick.vico:core:2.0.0-alpha.22")
 
     implementation("androidx.datastore:datastore-preferences:1.1.1")
+
+    // coil
+    implementation("io.coil-kt:coil-compose:2.6.0")
+    implementation("io.coil-kt:coil-gif:2.6.0")
 }
