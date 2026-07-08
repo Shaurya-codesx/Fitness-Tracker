@@ -1,5 +1,6 @@
 package com.example.fitnessapp.ui.utils
 
+import android.util.Log
 import com.example.fitnessapp.Data.Model.Entities.RunEntity
 import com.example.fitnessapp.Domain.UserProfileRepository
 import com.google.firebase.auth.FirebaseAuth
@@ -77,36 +78,45 @@ class CloudSyncManager @Inject constructor(
     /**
      * 3. THE HISTORY RESTORER: Pulls all past runs from Firestore and saves them to Room.
      */
+    /**
+     * 3. THE HISTORY RESTORER: Pulls all past runs from Firestore and saves them to Room.
+     */
     suspend fun fetchAndRestoreRunHistory(runRepo: com.example.fitnessapp.Domain.RunRepository) {
         val uid = auth.currentUser?.uid ?: return
 
         try {
+            Log.e("SYNC_DEBUG", "Starting fetch for UID: $uid")
             val runsSnapshot = firestore.collection("users").document(uid).collection("runs").get().await()
+
+            Log.e("SYNC_DEBUG", "Found ${runsSnapshot.documents.size} runs in Firestore!")
             val runsToRestore = mutableListOf<RunEntity>()
 
             for (document in runsSnapshot.documents) {
-                val startTime = document.getLong("startTime")
+                // Safely cast ANY number type to Long
+                val startTime = (document.get("startTime") as? Number)?.toLong()
+
                 if (startTime == null) {
+                    Log.e("SYNC_DEBUG", "Failed to parse startTime for document: ${document.id}. Skipping run.")
                     continue
                 }
 
-                val endTime = document.getLong("endTime") ?: 0L
-                val distanceInMeters = document.getDouble("distanceInMeters")?.toFloat() ?: 0f
-                val stepsTaken = document.getLong("stepsTaken")?.toInt() ?: 0
-                val caloriesBurned = document.getDouble("caloriesBurned")?.toFloat() ?: 0f
+                val endTime = (document.get("endTime") as? Number)?.toLong() ?: 0L
+                val distanceInMeters = (document.get("distanceInMeters") as? Number)?.toFloat() ?: 0f
+                val stepsTaken = (document.get("stepsTaken") as? Number)?.toInt() ?: 0
+                val caloriesBurned = (document.get("caloriesBurned") as? Number)?.toFloat() ?: 0f
 
                 // ─── TRANSLATION MAGIC ───
                 val cloudRoute = document.get("route") as? List<Map<String, Any>> ?: emptyList()
                 val mappedRoute = cloudRoute.mapNotNull { pointMap ->
+                    // Check if it's a GeoPoint OR a custom map
                     val coordinates = pointMap["coordinates"] as? com.google.firebase.firestore.GeoPoint
-                    // NOTE: Sometimes Firestore stores whole numbers as Longs and decimals as Doubles.
-                    // If your timestamp was saved differently, this cast might fail silently.
                     val timeStamp = (pointMap["timeStamp"] as? Number)?.toLong()
 
                     if (coordinates != null && timeStamp != null) {
                         com.example.fitnessapp.Data.Model.LocationPoints(coordinates, timeStamp)
                     } else {
-                        null // Fails silently here if mapping is wrong
+                        Log.e("SYNC_DEBUG", "Failed to map a route point in run: ${document.id}")
+                        null
                     }
                 }
 
@@ -122,12 +132,16 @@ class CloudSyncManager @Inject constructor(
                     )
                 )
             }
+
+            Log.e("SYNC_DEBUG", "Successfully parsed ${runsToRestore.size} runs. Inserting to Room...")
+
             if (runsToRestore.isNotEmpty()) {
                 runRepo.insertRuns(runsToRestore)
-            } else {
+                Log.e("SYNC_DEBUG", "Insertion complete!")
             }
 
         } catch (e: Exception) {
+            Log.e("SYNC_DEBUG", "CRASH during fetch: ${e.message}")
             e.printStackTrace()
         }
     }

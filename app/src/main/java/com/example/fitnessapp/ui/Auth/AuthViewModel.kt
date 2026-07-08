@@ -80,6 +80,7 @@ class AuthViewModel @Inject constructor(
     }
 
     // ─── SUBMIT LOGIC (With Cloud Sync Routing) ───
+    // ─── SUBMIT LOGIC (With Cloud Sync Routing) ───
     fun submit() {
         val state = _uiState.value
         if (state.emailInput.isBlank() || state.passwordInput.isBlank()) {
@@ -101,17 +102,17 @@ class AuthViewModel @Inject constructor(
                     val isReturningUser = cloudSyncManager.fetchAndRestoreUserData()
 
                     if (isReturningUser) {
-                        // ─── THE FINAL PIECE: Fetch history in the background ───
-                        viewModelScope.launch {
-                            cloudSyncManager.fetchAndRestoreRunHistory(runRepo)
-                        }
+                        // FIX: We removed the nested 'launch' block!
+                        // Now, this suspend function blocks the execution here until it finishes downloading EVERYTHING.
+                        cloudSyncManager.fetchAndRestoreRunHistory(runRepo)
 
-                        _uiEvent.emit("ReturningUser") // Route straight to Home
+                        // Only AFTER the database is fully populated, we navigate.
+                        _uiEvent.emit("ReturningUser")
                     } else {
-                        _uiEvent.emit("NewUser") // Route to Onboarding
+                        _uiEvent.emit("NewUser")
                     }
                 } else {
-                    _uiEvent.emit("NewUser") // Brand new sign-ups always route to Onboarding
+                    _uiEvent.emit("NewUser")
                 }
 
                 _uiState.update { it.copy(isLoading = false, isSuccess = true) }
