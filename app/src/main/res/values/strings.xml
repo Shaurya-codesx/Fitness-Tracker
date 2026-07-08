@@ -346,7 +346,7 @@
     <string name="profile_cancel">Cancel</string>
     <string name="profile_error_prefix">Error: %1$s</string>
     <string name="profile_complete_title">Complete Profile</string>
-    <string name="profile_statistics_title">Statistics</string>
+    <string name="profile_statistics_title">User Profile</string>
 
     <string name="profile_weight_label">Weight</string>
     <string name="profile_weight_format">%1$s kg</string>

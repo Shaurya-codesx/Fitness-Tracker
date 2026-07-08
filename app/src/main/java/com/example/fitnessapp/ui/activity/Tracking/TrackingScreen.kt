@@ -42,12 +42,34 @@ import android.os.Build
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
+import androidx.compose.material.icons.rounded.Map
+import androidx.compose.material.icons.rounded.Speed
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.TextButton
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.fitnessapp.R
+
+// ─── Palette — matches your Auth/Home/Analytics screens ───
+private val TrackingBg = Color(0xFFF7F5FC)
+private val TrackingViolet = Color(0xFF8B5CF6)
+private val TrackingVioletLight = Color(0xFFB18AFF)
+private val TrackingCoral = Color(0xFFFF8A7A)
+private val TrackingCoralDeep = Color(0xFFE0665A)
+private val TrackingMint = Color(0xFFB8F2D0)
+private val TrackingSkyBlue = Color(0xFFAEE1FF)
+private val TrackingCard = Color(0xFFFFFFFF)
+private val TrackingTextPrimary = Color(0xFF2D2A3D)
+private val TrackingTextSecondary = Color(0xFF8A8599)
+
+private val TrackingGradient = Brush.linearGradient(colors = listOf(TrackingViolet, TrackingVioletLight))
+private val TrackingStopGradient = Brush.linearGradient(colors = listOf(TrackingCoral, TrackingCoralDeep))
+
 // ─── Entry Point ──────────────────────────────────────────────────────────────
 
 @SuppressLint("LocalContextGetResourceValueCall")
@@ -63,37 +85,29 @@ fun TrackingScreen(navController: NavController) {
     }
 
     val activity = context as? Activity
-    // 1. Build the list of permissions we need
     val permissionsToRequest = remember {
         mutableListOf(
             Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.ACCESS_COARSE_LOCATION
         ).apply {
-            // Only add Activity Recognition if the phone is on Android 10+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 add(Manifest.permission.ACTIVITY_RECOGNITION)
             }
         }.toTypedArray()
     }
 
-    // 2. State for our custom Rationale Dialog
     var showPermissionRationale by remember { mutableStateOf(false) }
     var isPermanentlyDenied by remember { mutableStateOf(false) }
 
-    // 3. The Launcher
     val multiplePermissionsLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) { permissionsMap ->
-        // Check if the critical ones were granted
         val fineLocationGranted = permissionsMap[Manifest.permission.ACCESS_FINE_LOCATION] == true
         val coarseLocationGranted = permissionsMap[Manifest.permission.ACCESS_COARSE_LOCATION] == true
 
-        // Activity Recognition is technically optional, but location is mandatory for a run
         if (fineLocationGranted || coarseLocationGranted) {
-            // SUCCESS! Start the run!
             trackingViewModel.startRun()
         } else {
-            // DENIED. Figure out if it's permanent.
             val shouldShowLocationRationale = activity?.let {
                 ActivityCompat.shouldShowRequestPermissionRationale(it, Manifest.permission.ACCESS_FINE_LOCATION) ||
                         ActivityCompat.shouldShowRequestPermissionRationale(it, Manifest.permission.ACCESS_COARSE_LOCATION)
@@ -115,18 +129,10 @@ fun TrackingScreen(navController: NavController) {
                     event.exception.startResolutionForResult(currentActivity!!, 1001)
                 }
                 is TrackingUiEvent.ShowLocationError -> {
-                    Toast.makeText(
-                        context,
-                        context.getString(R.string.tracking_gps_lost),
-                        Toast.LENGTH_LONG
-                    ).show()
+                    Toast.makeText(context, context.getString(R.string.tracking_gps_lost), Toast.LENGTH_LONG).show()
                 }
                 is TrackingUiEvent.LocationRestored -> {
-                    Toast.makeText(
-                        context,
-                        context.getString(R.string.tracking_gps_restored),
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    Toast.makeText(context, context.getString(R.string.tracking_gps_restored), Toast.LENGTH_SHORT).show()
                 }
                 is TrackingUiEvent.ShowNoMovementDialogue -> {
                     showNoMovementDialog = true
@@ -145,26 +151,25 @@ fun TrackingScreen(navController: NavController) {
             val hasCoarseLocation = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
 
             if (hasFineLocation || hasCoarseLocation) {
-                // We have what we need, start the engine!
                 trackingViewModel.startRun()
             } else {
-                // We don't have them. Ask the user!
                 multiplePermissionsLauncher.launch(permissionsToRequest)
             }
         },
-        onStop = {
-            trackingViewModel.stopRun()
-        },
+        onStop = { trackingViewModel.stopRun() },
         onBack = { navController.navigateUp() }
     )
 
     if (showPermissionRationale) {
         AlertDialog(
             onDismissRequest = { showPermissionRationale = false },
+            shape = RoundedCornerShape(28.dp),
+            containerColor = TrackingCard,
             title = {
                 Text(
                     text = if (isPermanentlyDenied) stringResource(R.string.tracking_permissions_blocked_title) else stringResource(R.string.tracking_location_required_title),
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = TrackingTextPrimary
                 )
             },
             text = {
@@ -173,31 +178,38 @@ fun TrackingScreen(navController: NavController) {
                         stringResource(R.string.tracking_permissions_permanently_denied_desc)
                     } else {
                         stringResource(R.string.tracking_location_rationale_desc)
-                    }
+                    },
+                    color = TrackingTextSecondary
                 )
             },
             confirmButton = {
-                TextButton(
-                    onClick = {
-                        showPermissionRationale = false
-                        if (isPermanentlyDenied) {
-                            // Deep link to Android Settings
-                            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                                data = Uri.fromParts("package", context.packageName, null)
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(50))
+                        .background(TrackingGradient)
+                        .clickable {
+                            showPermissionRationale = false
+                            if (isPermanentlyDenied) {
+                                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                    data = Uri.fromParts("package", context.packageName, null)
+                                }
+                                context.startActivity(intent)
+                            } else {
+                                multiplePermissionsLauncher.launch(permissionsToRequest)
                             }
-                            context.startActivity(intent)
-                        } else {
-                            // Try asking again
-                            multiplePermissionsLauncher.launch(permissionsToRequest)
                         }
-                    }
+                        .padding(horizontal = 20.dp, vertical = 10.dp)
                 ) {
-                    Text(text = if (isPermanentlyDenied) stringResource(R.string.tracking_open_settings) else stringResource(R.string.tracking_try_again))
+                    Text(
+                        text = if (isPermanentlyDenied) stringResource(R.string.tracking_open_settings) else stringResource(R.string.tracking_try_again),
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showPermissionRationale = false }) {
-                    Text(stringResource(R.string.tracking_cancel))
+                    Text(stringResource(R.string.tracking_cancel), color = TrackingTextSecondary)
                 }
             }
         )
@@ -224,18 +236,19 @@ private fun TrackingScreenContent(
 
     BottomSheetScaffold(
         scaffoldState = sheetState,
-        sheetPeekHeight = 125.dp,        // how much sheet shows when collapsed
-        sheetShape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
-        sheetContainerColor = MaterialTheme.colorScheme.surface,
-        sheetTonalElevation = 2.dp,
+        sheetPeekHeight = 135.dp,
+        sheetShape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp),
+        sheetContainerColor = TrackingBg,
+        sheetTonalElevation = 0.dp,
+        sheetShadowElevation = 16.dp,
         sheetDragHandle = {
             Box(
                 modifier = Modifier
-                    .padding(top = 12.dp, bottom = 8.dp)
-                    .width(36.dp)
-                    .height(4.dp)
-                    .clip(RoundedCornerShape(2.dp))
-                    .background(MaterialTheme.colorScheme.outlineVariant)
+                    .padding(top = 14.dp, bottom = 10.dp)
+                    .width(40.dp)
+                    .height(5.dp)
+                    .clip(RoundedCornerShape(3.dp))
+                    .background(TrackingTextSecondary.copy(alpha = 0.3f))
             )
         },
         sheetContent = {
@@ -261,18 +274,23 @@ private fun TrackingScreenContent(
             }
 
             // ── Back button ────────────────────────────────────────────────
-            FilledTonalIconButton(
-                onClick = onBack,
-                shape = CircleShape,
-                colors = IconButtonDefaults.filledTonalIconButtonColors(
-                    containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
-                    contentColor = MaterialTheme.colorScheme.onSurface
-                ),
+            Box(
                 modifier = Modifier
                     .padding(top = 48.dp, start = 18.dp)
                     .align(Alignment.TopStart)
+                    .size(46.dp)
+                    .shadow(8.dp, CircleShape, ambientColor = TrackingViolet.copy(alpha = 0.3f))
+                    .clip(CircleShape)
+                    .background(TrackingCard)
+                    .clickable { onBack() },
+                contentAlignment = Alignment.Center
             ) {
-                Icon(Icons.Rounded.ArrowBack, contentDescription = stringResource(R.string.tracking_back_desc))
+                Icon(
+                    Icons.Rounded.ArrowBack,
+                    contentDescription = stringResource(R.string.tracking_back_desc),
+                    tint = TrackingTextPrimary,
+                    modifier = Modifier.size(22.dp)
+                )
             }
 
             // ── LIVE badge ─────────────────────────────────────────────────
@@ -308,119 +326,152 @@ private fun SheetContent(
         Text(
             text = uiState.timerValue.ifEmpty { stringResource(R.string.tracking_timer_default) },
             style = MaterialTheme.typography.displayLarge.copy(
-                fontWeight = FontWeight.Light,
+                fontWeight = FontWeight.ExtraBold,
                 letterSpacing = (-1).sp
             ),
-            color = MaterialTheme.colorScheme.onSurface
+            color = TrackingTextPrimary
         )
         Text(
             text = stringResource(R.string.tracking_elapsed_time),
             style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(top = 1.dp, bottom = 16.dp)
+            color = TrackingTextSecondary,
+            modifier = Modifier.padding(top = 2.dp, bottom = 18.dp)
         )
 
         // ── Start Time Row (only while running) ───────────────────────────
         if (isRunning && uiState.startTime.isNotEmpty()) {
-            Surface(
-                shape = RoundedCornerShape(14.dp),
-                color = MaterialTheme.colorScheme.secondaryContainer,
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 12.dp)
-
+                    .padding(bottom = 14.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(TrackingVioletLight.copy(alpha = 0.18f))
+                    .padding(horizontal = 16.dp, vertical = 11.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 10.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = stringResource(R.string.tracking_started_at),
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    Text(
-                        text = uiState.startTime,
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.onSecondaryContainer
-                    )
-                }
+                Text(
+                    text = stringResource(R.string.tracking_started_at),
+                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
+                    color = TrackingViolet
+                )
+                Text(
+                    text = uiState.startTime,
+                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                    color = TrackingTextPrimary
+                )
             }
         }
 
-        // ── Stats Row — Distance + Pace ───────────────────────────────────
+        // ── Stats Row — bento distance + pace ───────────────────────────────
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 20.dp),
+                .padding(bottom = 24.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            StatChip(
+            BentoStatChip(
                 value = uiState.currentDistance.ifEmpty { stringResource(R.string.tracking_distance_default) },
                 label = stringResource(R.string.tracking_unit_km),
-                containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                valueColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                labelColor = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.65f),
+                bgColor = TrackingSkyBlue,
+                icon = Icons.Rounded.Map,
+                iconTint = Color(0xFF1A5C73),
                 modifier = Modifier.weight(1f)
             )
-            StatChip(
+            BentoStatChip(
                 value = uiState.currentPace.ifEmpty { stringResource(R.string.tracking_pace_default) },
                 label = stringResource(R.string.tracking_unit_pace),
-                containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                valueColor = MaterialTheme.colorScheme.onTertiaryContainer,
-                labelColor = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.65f),
+                bgColor = TrackingMint,
+                icon = Icons.Rounded.Speed,
+                iconTint = Color(0xFF1F6D4A),
                 modifier = Modifier.weight(1f)
             )
         }
 
         // ── Start / Stop Button ────────────────────────────────────────────
-        val btnColor by animateColorAsState(
-            targetValue = if (isRunning) MaterialTheme.colorScheme.error
-            else MaterialTheme.colorScheme.primary,
-            animationSpec = tween(300),
-            label = "btn_color"
-        )
-        val btnContentColor by animateColorAsState(
-            targetValue = if (isRunning) MaterialTheme.colorScheme.onError
-            else MaterialTheme.colorScheme.onPrimary,
-            animationSpec = tween(300),
-            label = "btn_content_color"
-        )
-
-        FloatingActionButton(
-            onClick = { if (isRunning) onStop() else onStart() },
-            shape = CircleShape,
-            containerColor = btnColor,
-            contentColor = btnContentColor,
-            modifier = Modifier.size(72.dp)
+        Box(
+            modifier = Modifier
+                .size(78.dp)
+                .shadow(
+                    16.dp,
+                    CircleShape,
+                    ambientColor = (if (isRunning) TrackingCoral else TrackingViolet).copy(alpha = 0.5f)
+                )
+                .clip(CircleShape)
+                .background(if (isRunning) TrackingStopGradient else TrackingGradient)
+                .clickable { if (isRunning) onStop() else onStart() },
+            contentAlignment = Alignment.Center
         ) {
             AnimatedContent(targetState = isRunning, label = "btn_icon") { running ->
                 if (running) {
                     Icon(
                         Icons.Rounded.Stop,
                         contentDescription = stringResource(R.string.tracking_stop_run_desc),
+                        tint = Color.White,
                         modifier = Modifier.size(32.dp)
                     )
                 } else {
                     Icon(
                         Icons.Rounded.PlayArrow,
                         contentDescription = stringResource(R.string.tracking_start_run_desc),
+                        tint = Color.White,
                         modifier = Modifier.size(32.dp)
                     )
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(6.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
         Text(
             text = if (isRunning) stringResource(R.string.tracking_tap_to_stop) else stringResource(R.string.tracking_tap_to_start),
-            style = MaterialTheme.typography.labelMedium,
-            color = if (isRunning) MaterialTheme.colorScheme.error
-            else MaterialTheme.colorScheme.onSurfaceVariant
+            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
+            color = if (isRunning) TrackingCoralDeep else TrackingTextSecondary
+        )
+    }
+}
+
+// ─── Bento Stat Chip ──────────────────────────────────────────────────────────
+
+@Composable
+private fun BentoStatChip(
+    value: String,
+    label: String,
+    bgColor: Color,
+    icon: ImageVector,
+    iconTint: Color,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .shadow(6.dp, RoundedCornerShape(20.dp), ambientColor = bgColor.copy(alpha = 0.7f))
+            .clip(RoundedCornerShape(20.dp))
+            .background(bgColor)
+            .padding(vertical = 16.dp, horizontal = 14.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
+            modifier = Modifier
+                .size(30.dp)
+                .clip(RoundedCornerShape(10.dp))
+                .background(Color.White.copy(alpha = 0.55f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(icon, contentDescription = null, tint = iconTint, modifier = Modifier.size(16.dp))
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = value,
+            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.ExtraBold),
+            color = TrackingTextPrimary,
+            maxLines = 1
+        )
+        Spacer(modifier = Modifier.height(2.dp))
+        Text(
+            text = label.uppercase(),
+            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+            color = TrackingTextPrimary.copy(alpha = 0.6f),
+            letterSpacing = 0.6.sp
         )
     }
 }
@@ -430,22 +481,34 @@ private fun SheetContent(
 @Composable
 private fun IdleMapPlaceholder(modifier: Modifier = Modifier) {
     Box(
-        modifier = modifier.background(MaterialTheme.colorScheme.secondaryContainer),
-        contentAlignment = Alignment.Center
+        modifier = modifier.background(
+            Brush.verticalGradient(colors = listOf(TrackingVioletLight.copy(alpha = 0.35f), TrackingBg))
+        ),
+        contentAlignment = Alignment.TopCenter
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("📍", fontSize = 40.sp)
-            Spacer(modifier = Modifier.height(10.dp))
+        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(top = 300.dp)) {
+
+            Box(
+                modifier = Modifier
+                    .size(88.dp)
+                    .shadow(10.dp, CircleShape, ambientColor = TrackingViolet.copy(alpha = 0.35f))
+                    .clip(CircleShape)
+                    .background(TrackingCard),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("📍", fontSize = 36.sp)
+            }
+            Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = stringResource(R.string.tracking_waiting_for_gps),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSecondaryContainer
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                color = TrackingTextPrimary
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = stringResource(R.string.tracking_map_placeholder_desc),
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.65f)
+                color = TrackingTextSecondary
             )
         }
     }
@@ -465,68 +528,27 @@ private fun LiveBadge(modifier: Modifier = Modifier) {
         label = "pulse_alpha"
     )
 
-    Surface(
-        shape = RoundedCornerShape(999.dp),
-        color = MaterialTheme.colorScheme.error,
+    Row(
         modifier = modifier
+            .shadow(8.dp, RoundedCornerShape(50), ambientColor = TrackingCoral.copy(alpha = 0.5f))
+            .clip(RoundedCornerShape(50))
+            .background(TrackingStopGradient)
+            .padding(horizontal = 14.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(6.dp)
     ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(6.dp)
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(7.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.onError.copy(alpha = alpha))
-            )
-            Text(
-                text = stringResource(R.string.tracking_live_badge),
-                fontSize = 11.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onError,
-                letterSpacing = 1.sp
-            )
-        }
-    }
-}
-
-// ─── Stat Chip ────────────────────────────────────────────────────────────────
-
-@Composable
-private fun StatChip(
-    value: String,
-    label: String,
-    containerColor: Color,
-    valueColor: Color,
-    labelColor: Color,
-    modifier: Modifier = Modifier
-) {
-    Card(
-        modifier = modifier,
-        shape = RoundedCornerShape(18.dp),
-        colors = CardDefaults.cardColors(containerColor = containerColor)
-    ) {
-        Column(
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 12.dp, horizontal = 10.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = value,
-                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Medium),
-                color = valueColor,
-                maxLines = 1
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = label.uppercase(),
-                style = MaterialTheme.typography.labelSmall,
-                color = labelColor,
-                letterSpacing = 0.6.sp
-            )
-        }
+                .size(7.dp)
+                .clip(CircleShape)
+                .background(Color.White.copy(alpha = alpha))
+        )
+        Text(
+            text = stringResource(R.string.tracking_live_badge),
+            fontSize = 11.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.White,
+            letterSpacing = 1.sp
+        )
     }
 }
