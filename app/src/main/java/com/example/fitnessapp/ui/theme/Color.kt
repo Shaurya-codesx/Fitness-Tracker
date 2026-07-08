@@ -176,3 +176,24 @@ val HeightCardContentProfile = Color(0xFFA66C41)
 // Action Cards
 val LogoutCardBgProfile = Color(0xFFFFE5E5)
 val LogoutCardContentProfile = Color(0xFFD32F2F)
+
+
+// ─── Steps Analytics Screen Colors ───
+val StepsBackground = Color(0xFFF7F5FC)
+val StepsHeroPrimary = Color(0xFF4F7AB3)   // muted blue
+val StepsHeroAccent = Color(0xFF35577F)    // deeper blue, gradient bottom
+val StepsOnHeroText = Color(0xFFFFFFFF)
+val StepsOnHeroSubText = Color(0xB3FFFFFF) // white @ 70% alpha
+
+val StepsChipSelectedBg = Color(0xFF4F7AB3)
+val StepsChipSelectedText = Color(0xFFFFFFFF)
+val StepsChipUnselectedBg = Color(0xFFFFFFFF)
+val StepsChipUnselectedText = Color(0xFF8A8599)
+
+val StepsStatCardPrimary = Color(0xFFDCE6F0)    // soft blue — hero bento stat
+val StepsStatCardSecondary = Color(0xFFF3E3D3)  // peak day card
+val StepsStatCardTertiary = Color(0xFFDCEBEE)   // active days card
+
+val StepsTextPrimary = Color(0xFF2D2A3D)
+val StepsTextSecondary = Color(0xFF8888A8)
+val StepsMutedText = Color(0xFF5C5C7A)

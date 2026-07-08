@@ -378,4 +378,26 @@
     <string name="auth_password_placeholder">Password</string>
     <string name="auth_toggle_password_visibility">Toggle Password Visibility</string>
     <string name="auth_forgot_password">Forgot Password?</string>
+
+
+    <!-- Steps Analytics Screen -->
+    <string name="steps_title">Steps</string>
+    <string name="steps_daily_average">Daily Average</string>
+    <string name="steps_per_day">steps / day</string>
+    <string name="steps_unit_short">steps</string>
+
+    <string name="steps_total_label">Total</string>
+    <string name="steps_peak_label_week">Peak day</string>
+    <string name="steps_peak_label_month">Peak week</string>
+    <string name="steps_peak_label_year">Peak month</string>
+    <string name="steps_active_label_week">Active days</string>
+    <string name="steps_active_label_month">Active weeks</string>
+    <string name="steps_active_label_year">Active months</string>
+    <string name="steps_active_unit_days">days</string>
+    <string name="steps_active_unit_weeks">weeks</string>
+    <string name="steps_active_unit_months">months</string>
+
+    <string name="steps_chart_card_title">Step count</string>
+    <string name="steps_no_data_title">No steps logged</string>
+    <string name="steps_no_data_subtitle">Time to get moving!</string>
 </resources>
