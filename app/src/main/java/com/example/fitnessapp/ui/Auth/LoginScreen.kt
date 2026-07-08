@@ -88,6 +88,8 @@ fun AuthScreen(
                         singleLine = true,
                         shape = RoundedCornerShape(16.dp),
                         colors = TextFieldDefaults.colors(
+                            focusedTextColor = Color.Black,
+                            unfocusedTextColor = Color.Black,
                             focusedContainerColor = AuthInputBg,
                             unfocusedContainerColor = AuthInputBg,
                             focusedIndicatorColor = Color.Transparent,
@@ -257,6 +259,8 @@ fun AuthScreen(
                     singleLine = true,
                     shape = RoundedCornerShape(18.dp),
                     colors = TextFieldDefaults.colors(
+                        focusedTextColor = Color.Black,
+                        unfocusedTextColor = Color.Black,
                         focusedContainerColor = AuthInputBg,
                         unfocusedContainerColor = AuthInputBg,
                         focusedIndicatorColor = Color.Transparent,
@@ -283,6 +287,8 @@ fun AuthScreen(
                     singleLine = true,
                     shape = RoundedCornerShape(18.dp),
                     colors = TextFieldDefaults.colors(
+                        focusedTextColor = Color.Black,
+                        unfocusedTextColor = Color.Black,
                         focusedContainerColor = AuthInputBg,
                         unfocusedContainerColor = AuthInputBg,
                         focusedIndicatorColor = Color.Transparent,
