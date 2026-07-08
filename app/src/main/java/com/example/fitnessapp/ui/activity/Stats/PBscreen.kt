@@ -18,6 +18,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -27,6 +28,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.fitnessapp.ui.UiStates.PersonalBestUiState
 import com.example.fitnessapp.ui.theme.*
+import com.example.fitnessapp.R
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -37,7 +40,7 @@ fun PersonalBestsScreen(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(ScreenBackground)
+            .background(ScreenBackgroundPB)
             .padding(horizontal = 20.dp, vertical = 24.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
@@ -56,7 +59,7 @@ fun PersonalBestsScreen(navController: NavController) {
             ) {
                 Icon(
                     imageVector = Icons.Rounded.ArrowBack,
-                    contentDescription = "Back",
+                    contentDescription = stringResource(R.string.pb_back_desc),
                     tint = HeadingTextPB,
                     modifier = Modifier.size(24.dp)
                 )
@@ -66,7 +69,7 @@ fun PersonalBestsScreen(navController: NavController) {
 
             Column {
                 Text(
-                    text = "Trophy Room", // Replace with stringResource
+                    text = stringResource(R.string.pb_trophy_room_title),
                     style = MaterialTheme.typography.headlineLarge.copy(
                         fontWeight = FontWeight.ExtraBold,
                         fontSize = 32.sp,
@@ -74,7 +77,7 @@ fun PersonalBestsScreen(navController: NavController) {
                     )
                 )
                 Text(
-                    text = "Your all-time personal records", // Replace with stringResource
+                    text = stringResource(R.string.pb_trophy_room_subtitle),
                     style = MaterialTheme.typography.bodyMedium.copy(color = MutedTextPB, fontWeight = FontWeight.Medium)
                 )
             }
@@ -115,10 +118,13 @@ fun PersonalBestsScreen(navController: NavController) {
                             Icon(Icons.Rounded.EmojiEvents, contentDescription = null, tint = HeroGradientEndPB, modifier = Modifier.size(48.dp))
                         }
                         Spacer(Modifier.height(20.dp))
-                        Text("Lace up your shoes!", style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.ExtraBold, color = HeadingTextPB))
+                        Text(
+                            text = stringResource(R.string.pb_empty_title),
+                            style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.ExtraBold, color = HeadingTextPB)
+                        )
                         Spacer(Modifier.height(8.dp))
                         Text(
-                            "Your records will appear here\nafter your first run.",
+                            text = stringResource(R.string.pb_empty_subtitle),
                             textAlign = TextAlign.Center,
                             style = MaterialTheme.typography.bodyLarge.copy(color = MutedTextPB)
                         )
@@ -129,11 +135,11 @@ fun PersonalBestsScreen(navController: NavController) {
                 Card(
                     modifier = Modifier.fillMaxSize(),
                     shape = RoundedCornerShape(32.dp),
-                    colors = CardDefaults.cardColors(containerColor = PaceBg),
+                    colors = CardDefaults.cardColors(containerColor = PaceBgPB),
                     elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
                 ) {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text(state.message, color = PaceAccent, style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold))
+                        Text(state.message, color = PaceAccentPB, style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold))
                     }
                 }
             }
@@ -175,13 +181,18 @@ private fun BentoTrophyLayout(records: PersonalBestUiState.Success) {
                         .background(Color.White.copy(alpha = 0.2f)),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(Icons.Rounded.EmojiEvents, contentDescription = "Trophy", tint = Color.White, modifier = Modifier.size(28.dp))
+                    Icon(
+                        imageVector = Icons.Rounded.EmojiEvents,
+                        contentDescription = stringResource(R.string.pb_trophy_desc),
+                        tint = Color.White,
+                        modifier = Modifier.size(28.dp)
+                    )
                 }
 
                 // Data Bottom Left
                 Column(modifier = Modifier.align(Alignment.BottomStart)) {
                     Text(
-                        text = "FARTHEST RUN",
+                        text = stringResource(R.string.pb_farthest_run),
                         style = MaterialTheme.typography.labelLarge.copy(color = Color.White.copy(alpha = 0.8f), fontWeight = FontWeight.Bold, letterSpacing = 1.5.sp)
                     )
                     Spacer(Modifier.height(2.dp))
@@ -205,11 +216,11 @@ private fun BentoTrophyLayout(records: PersonalBestUiState.Success) {
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight(),
-                title = "Most steps",
+                title = stringResource(R.string.pb_most_steps),
                 value = records.recordSteps,
                 icon = Icons.Rounded.DirectionsRun,
-                backgroundColor = StepsBg,
-                accentColor = StepsAccent
+                backgroundColor = StepsBgPB,
+                accentColor = StepsAccentPB
             )
 
             // Stacked column: Time + Pace
@@ -223,21 +234,21 @@ private fun BentoTrophyLayout(records: PersonalBestUiState.Success) {
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxWidth(),
-                    title = "Longest time",
+                    title = stringResource(R.string.pb_longest_time),
                     value = records.recordDuration,
                     icon = Icons.Rounded.Timer,
-                    backgroundColor = TimeBg,
-                    accentColor = TimeAccent
+                    backgroundColor = TimeBgPB,
+                    accentColor = TimeAccentPB
                 )
                 SmallBentoCard(
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxWidth(),
-                    title = "Fastest pace",
+                    title = stringResource(R.string.pb_fastest_pace),
                     value = records.recordPace,
                     icon = Icons.Rounded.Speed,
-                    backgroundColor = PaceBg,
-                    accentColor = PaceAccent
+                    backgroundColor = PaceBgPB,
+                    accentColor = PaceAccentPB
                 )
             }
         }
@@ -248,7 +259,7 @@ private fun BentoTrophyLayout(records: PersonalBestUiState.Success) {
                 .fillMaxWidth()
                 .weight(0.7f),
             shape = RoundedCornerShape(28.dp),
-            colors = CardDefaults.cardColors(containerColor = CaloriesBg),
+            colors = CardDefaults.cardColors(containerColor = CaloriesBgPB),
             elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
         ) {
             Row(
@@ -259,8 +270,14 @@ private fun BentoTrophyLayout(records: PersonalBestUiState.Success) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column {
-                    Text("Most calories burned", style = MaterialTheme.typography.bodyMedium.copy(color = CaloriesAccent.copy(alpha = 0.8f), fontWeight = FontWeight.Bold))
-                    Text(records.recordCalories, style = MaterialTheme.typography.headlineMedium.copy(color = CaloriesAccent, fontWeight = FontWeight.ExtraBold, fontSize = 30.sp))
+                    Text(
+                        text = stringResource(R.string.pb_most_calories),
+                        style = MaterialTheme.typography.bodyMedium.copy(color = CaloriesAccentPB.copy(alpha = 0.8f), fontWeight = FontWeight.Bold)
+                    )
+                    Text(
+                        text = records.recordCalories,
+                        style = MaterialTheme.typography.headlineMedium.copy(color = CaloriesAccentPB, fontWeight = FontWeight.ExtraBold, fontSize = 30.sp)
+                    )
                 }
                 Box(
                     modifier = Modifier
@@ -269,7 +286,7 @@ private fun BentoTrophyLayout(records: PersonalBestUiState.Success) {
                         .background(CardWhitePB.copy(alpha = 0.6f)),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(Icons.Rounded.LocalFireDepartment, contentDescription = null, tint = CaloriesAccent, modifier = Modifier.size(32.dp))
+                    Icon(Icons.Rounded.LocalFireDepartment, contentDescription = null, tint = CaloriesAccentPB, modifier = Modifier.size(32.dp))
                 }
             }
         }
@@ -332,7 +349,7 @@ private fun SmallBentoCard(
         colors = CardDefaults.cardColors(containerColor = backgroundColor),
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
     ) {
-        Column( // Shifted from Row to Column for better data fitting
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 16.dp, vertical = 14.dp),

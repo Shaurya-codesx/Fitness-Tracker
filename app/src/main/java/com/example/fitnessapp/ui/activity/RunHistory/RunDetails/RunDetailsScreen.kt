@@ -1,4 +1,4 @@
-package com.example.runtracker.ui.screens
+package com.example.fitnessapp.ui.activity.RunHistory.RunDetails
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
@@ -17,16 +17,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.example.fitnessapp.ui.activity.RunHistory.RunDetails.RunDetailsState
-import com.example.fitnessapp.ui.activity.RunHistory.RunDetails.RunDetailsUiState
-import com.example.fitnessapp.ui.activity.RunHistory.RunDetails.RunDetailsViewModel
-import com.example.fitnessapp.ui.activity.RunHistory.RunDetails.miniMapView
-
+import com.example.fitnessapp.R
 
 // ─── Entry Point ──────────────────────────────────────────────────────────────
 
@@ -66,7 +65,7 @@ private fun RunDetailTopBar(onBack: () -> Unit) {
     TopAppBar(
         title = {
             Text(
-                text = "Run Summary",
+                text = stringResource(R.string.run_summary),
                 style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold),
                 color = MaterialTheme.colorScheme.onSurface
             )
@@ -78,7 +77,7 @@ private fun RunDetailTopBar(onBack: () -> Unit) {
             ) {
                 Icon(
                     Icons.Rounded.ArrowBack,
-                    contentDescription = "Back",
+                    contentDescription = stringResource(R.string.back),
                     tint = MaterialTheme.colorScheme.onSurface
                 )
             }
@@ -181,13 +180,13 @@ private fun RunDetailSuccessState(data: RunDetailsUiState) {
                         color = MaterialTheme.colorScheme.onPrimary
                     )
                     Text(
-                        text = "km",
+                        text = stringResource(R.string.km),
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.85f)
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Total distance",
+                        text = stringResource(R.string.total_distance),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f)
                     )
@@ -207,7 +206,7 @@ private fun RunDetailSuccessState(data: RunDetailsUiState) {
                             color = MaterialTheme.colorScheme.onPrimary
                         )
                         Text(
-                            text = "Duration",
+                            text = stringResource(R.string.duration),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f)
                         )
@@ -218,7 +217,7 @@ private fun RunDetailSuccessState(data: RunDetailsUiState) {
 
         // ── Key Metrics Grid: Pace, Steps, Calories ───────────────────────
         Text(
-            text = "Performance",
+            text = stringResource(R.string.performance),
             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
             modifier = Modifier.padding(start = 4.dp, top = 8.dp)
         )
@@ -229,10 +228,10 @@ private fun RunDetailSuccessState(data: RunDetailsUiState) {
         ) {
             // Pace Card
             MetricCard(
-                icon = Icons.Rounded.Speed,
-                label = "Avg Pace",
+                icon = painterResource(R.drawable.pace_image),
+                label = stringResource(R.string.avg_pace),
                 value = data.avgPace,
-                unit = "min/km",
+                unit = stringResource(R.string.min_km),
                 containerColor = MaterialTheme.colorScheme.secondaryContainer,
                 contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
                 modifier = Modifier.weight(1f)
@@ -240,10 +239,10 @@ private fun RunDetailSuccessState(data: RunDetailsUiState) {
 
             // Steps Card
             MetricCard(
-                icon = Icons.Rounded.DirectionsWalk,
-                label = "Steps",
+                icon = painterResource(R.drawable.steps_image),
+                label = stringResource(R.string.steps),
                 value = data.stepsTaken,
-                unit = "steps",
+                unit = stringResource(R.string.steps_unit),
                 containerColor = MaterialTheme.colorScheme.tertiaryContainer,
                 contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.weight(1f)
@@ -251,8 +250,8 @@ private fun RunDetailSuccessState(data: RunDetailsUiState) {
 
             // Calories Card
             MetricCard(
-                icon = Icons.Rounded.LocalFireDepartment,
-                label = "Calories",
+                icon = painterResource(R.drawable.calories_image),
+                label = stringResource(R.string.calories),
                 value = data.caloriesBurned,
                 unit = "kcal",
                 containerColor = MaterialTheme.colorScheme.errorContainer,
@@ -263,7 +262,7 @@ private fun RunDetailSuccessState(data: RunDetailsUiState) {
 
         // ── Time Details Card ─────────────────────────────────────────────
         Text(
-            text = "Timeline",
+            text = stringResource(R.string.timeline),
             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
             modifier = Modifier.padding(start = 4.dp, top = 8.dp)
         )
@@ -304,7 +303,7 @@ private fun RunDetailSuccessState(data: RunDetailsUiState) {
                     Spacer(modifier = Modifier.width(16.dp))
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Started",
+                            text = stringResource(R.string.started),
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -347,7 +346,7 @@ private fun RunDetailSuccessState(data: RunDetailsUiState) {
                     Spacer(modifier = Modifier.width(16.dp))
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Finished",
+                            text = stringResource(R.string.finished),
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -369,7 +368,7 @@ private fun RunDetailSuccessState(data: RunDetailsUiState) {
 
 @Composable
 private fun MetricCard(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: Painter,
     label: String,
     value: String,
     unit: String,
@@ -513,7 +512,7 @@ private fun RunDetailLoadingState() {
 
 @Composable
 private fun RunDetailErrorState(
-    message: String = "Something went wrong",
+    message: String = stringResource(R.string.error_msg),
     onRetry: () -> Unit
 ) {
     Column(
@@ -544,7 +543,7 @@ private fun RunDetailErrorState(
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            text = "Couldn't load run",
+            text = stringResource(R.string.couldnt_load_msg),
             style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.SemiBold),
             color = MaterialTheme.colorScheme.onSurface
         )
@@ -552,7 +551,7 @@ private fun RunDetailErrorState(
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = message.ifBlank { "We couldn't load your run data. Please check your connection and try again." },
+            text = message.ifBlank { stringResource(R.string.not_load_msg) },
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = androidx.compose.ui.text.style.TextAlign.Center
@@ -573,7 +572,7 @@ private fun RunDetailErrorState(
                 modifier = Modifier.size(18.dp)
             )
             Spacer(modifier = Modifier.width(8.dp))
-            Text("Try again", style = MaterialTheme.typography.labelLarge)
+            Text(stringResource(R.string.try_again), style = MaterialTheme.typography.labelLarge)
         }
     }
 }

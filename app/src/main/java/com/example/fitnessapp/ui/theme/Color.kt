@@ -10,8 +10,6 @@ val Purple40 = Color(0xFF6650a4)
 val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
 
-
-
 val CardBg = Color(0xFFFFFFFF)
 val TextPrimary = Color(0xFF2D2D3A)
 val TextSecondary = Color(0xFF8B8B9E)
@@ -27,25 +25,6 @@ val TintMint = Color(0xFFDCF0E4)
 val TintPink = Color(0xFFFBE2E2)
 val OnHero = Color(0xFFF5F5FA)
 
-val BackgroundColor   = Color(0xFFF2F1F8)
-val HeroCardColor     = Color(0xFF3B5A8A)
-val HeroCardAccent    = Color(0xFF4F7AB3)
-val ChipSelectedBg    = Color(0xFF3B5A8A)
-val ChipSelectedText  = Color(0xFFFFFFFF)
-val ChipUnselectedBg  = Color(0xFFE8E6F0)
-val ChipUnselectedText= Color(0xFF5C5C7A)
-val StatCardGreen     = Color(0xFFFDFD96)
-val StatCardOrange    = Color(0xFFC3B1E1)
-val StatCardTeal      = Color(0xFFD6F2EF)
-val OnHeroText        = Color(0xFFFFFFFF)
-val OnHeroSubText     = Color(0xFFB8CEDE)
-
-
-
-val BlueTint = Color(0xFFE3E9F7); val BlueAccent = Color(0xFF6C8AE4)
-val GreenTint = Color(0xFFE1F5EA); val GreenAccent = Color(0xFF4CAF7D)
-val CoralTint = Color(0xFFFBE7E7); val CoralAccent = Color(0xFFE57575)
-val PurpleTint = Color(0xFFEFE6F8); val PurpleAccent = Color(0xFF9B7FD1)
 
 
 val AuthBackground = Color(0xFFF7F5FC)
@@ -82,14 +61,14 @@ val StatsTextPrimary = Color(0xFF2D2A3D)
 val StatsTextSecondary = Color(0xFF8A8599)
 
 val ScreenBackground = Color(0xFFF8F9FE)
-val HeadingTextPB = Color(0xFF1A1A2E)
-val MutedTextPB = Color(0xFF8888A8)
-val CardWhitePB = Color(0xFFFFFFFF)
-
-// Hero Gradient (Distance)
-val HeroGradientStartPB = Color(0xFF6A11CB)
-val HeroGradientEndPB = Color(0xFF2575FC)
-val HeroAccent = Color(0xFFE2E8F0)
+//val HeadingTextPB = Color(0xFF1A1A2E)
+//val MutedTextPB = Color(0xFF8888A8)
+//val CardWhitePB = Color(0xFFFFFFFF)
+//
+//// Hero Gradient (Distance)
+//val HeroGradientStartPB = Color(0xFF6A11CB)
+//val HeroGradientEndPB = Color(0xFF2575FC)
+//val HeroAccent = Color(0xFFE2E8F0)
 // Steps Card
 val StepsBg = Color(0xFFD6F5E1) // Vivid Pastel Green
 val StepsAccent = Color(0xFF227845)
@@ -113,3 +92,87 @@ val HistorySkyBlue = Color(0xFFAEE1FF)
 val HistoryCard = Color(0xFFFFFFFF)
 val HistoryTextPrimary = Color(0xFF2D2A3D)
 val HistoryTextSecondary = Color(0xFF8A8599)
+
+// ─── Energy Analytics Screen Colors ───
+val EnergyBackground = Color(0xFFF7F5FC)
+val EnergyHeroPrimary = Color(0xFFE8963E)   // muted amber (was vibrant orange)
+val EnergyHeroAccent = Color(0xFFC97A2A)    // deeper amber, for gradient bottom
+val EnergyOnHeroText = Color(0xFFFFFFFF)
+val EnergyOnHeroSubText = Color(0xB3FFFFFF) // white @ 70% alpha
+val EnergyChipSelectedBg = Color(0xFFE8963E)
+val EnergyChipSelectedText = Color(0xFFFFFFFF)
+val EnergyChipUnselectedBg = Color(0xFFFFFFFF)
+val EnergyChipUnselectedText = Color(0xFF8A8599)
+val EnergyStatCardPrimary = Color(0xFFF6DFC2)  // soft amber — hero bento stat
+val EnergyStatCardSecondary = Color(0xFFF3E3D3) // peak burn card
+val EnergyStatCardTertiary = Color(0xFFDCEBEE)  // active days card
+val EnergyTextPrimary = Color(0xFF2D2A3D)
+val EnergyTextSecondary = Color(0xFF8888A8)
+val EnergyMutedText = Color(0xFF5C5C7A)
+val EnergyDonutLight = Color(0xFF6FCF97)   // light/recovery
+val EnergyDonutSolid = Color(0xFFE8963E)   // solid effort — matches hero
+val EnergyDonutEpic = Color(0xFFE07A5F)    // epic burn
+
+// ─── Pace Analytics Screen Colors ───
+val PaceBackground = Color(0xFFF7F5FC)
+val PaceHeroPrimary = Color(0xFF5FAF7A)   // muted green
+val PaceHeroAccent = Color(0xFF3E8A5C)    // deeper green, gradient bottom
+val PaceOnHeroText = Color(0xFFFFFFFF)
+val PaceOnHeroSubText = Color(0xB3FFFFFF) // white @ 70% alpha
+val PaceChipSelectedBg = Color(0xFF5FAF7A)
+val PaceChipSelectedText = Color(0xFFFFFFFF)
+val PaceChipUnselectedBg = Color(0xFFFFFFFF)
+val PaceChipUnselectedText = Color(0xFF8A8599)
+val PaceStatCardPrimary = Color(0xFFD9EEDF)    // soft green — hero bento stat
+val PaceStatCardSecondary = Color(0xFFF3E3D3)  // fastest day card
+val PaceStatCardTertiary = Color(0xFFDCEBEE)   // active days card
+val PaceTextPrimary = Color(0xFF2D2A3D)
+val PaceTextSecondary = Color(0xFF8888A8)
+val PaceMutedText = Color(0xFF5C5C7A)
+val PaceDonutWalking = Color(0xFFE8963E)  // amber
+val PaceDonutJogging = Color(0xFF6D93BD)  // muted blue
+val PaceDonutRunning = Color(0xFF5FAF7A)  // matches hero
+
+
+// PBscreen colors
+val ScreenBackgroundPB = Color(0xFFF8F9FE)
+val HeadingTextPB = Color(0xFF1A1A2E)
+val MutedTextPB = Color(0xFF8888A8)
+val CardWhitePB = Color(0xFFFFFFFF)
+
+// Hero Gradient (Distance)
+val HeroGradientStartPB = Color(0xFF6A11CB)
+val HeroGradientEndPB = Color(0xFF2575FC)
+
+// Steps Card
+val StepsBgPB = Color(0xFFD6F5E1)
+val StepsAccentPB = Color(0xFF227845)
+// Time Card
+val TimeBgPB = Color(0xFFFFE8D6)
+val TimeAccentPB = Color(0xFFD96611)
+// Pace Card
+val PaceBgPB = Color(0xFFFFE5E5)
+val PaceAccentPB = Color(0xFFD32F2F)
+// Calories Card
+val CaloriesBgPB = Color(0xFFEBE4FF)
+val CaloriesAccentPB = Color(0xFF7E57C2)
+
+// Profile screen colors
+val ScreenBackgroundProfile = Color(0xFFF8F9FE)
+val TextPrimaryProfile = Color(0xFF1A1A2E)
+val TextSecondaryProfile = Color(0xFF6B6B7A)
+val TextMutedProfile = Color(0xFF8888A8)
+val ActionDestructiveProfile = Color(0xFFE53935)
+val CardWhiteProfile = Color(0xFFFFFFFF)
+val AccentPurpleProfile = Color(0xFF9D7CFF)
+// Hero Gradient
+val HeroGradientStartProfile = Color(0xFF8C52FF)
+val HeroGradientEndProfile = Color(0xFFFF914D)
+// Stat Cards
+val WeightCardBgProfile = Color(0xFFA5F3CD)
+val WeightCardContentProfile = Color(0xFF2A7C55)
+val HeightCardBgProfile = Color(0xFFFBE4D4)
+val HeightCardContentProfile = Color(0xFFA66C41)
+// Action Cards
+val LogoutCardBgProfile = Color(0xFFFFE5E5)
+val LogoutCardContentProfile = Color(0xFFD32F2F)

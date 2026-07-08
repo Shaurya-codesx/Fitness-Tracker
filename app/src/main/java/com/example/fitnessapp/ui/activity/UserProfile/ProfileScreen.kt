@@ -1,5 +1,6 @@
 package com.example.fitnessapp.ui.activity.UserProfile
 
+import android.annotation.SuppressLint
 import android.widget.Toast // ADDED for Toasts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -22,6 +23,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext // ADDED for Toasts
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
@@ -33,7 +35,10 @@ import com.example.fitnessapp.ui.UiStates.ProfileState
 import com.example.fitnessapp.ui.UiStates.ProfileUiState
 import com.example.fitnessapp.ui.components.BottomBar
 import kotlinx.coroutines.flow.collectLatest
+import com.example.fitnessapp.R
+import com.example.fitnessapp.ui.theme.*
 
+@SuppressLint("LocalContextGetResourceValueCall")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
@@ -51,7 +56,7 @@ fun ProfileScreen(
         viewModel.uiEvent.collectLatest { message ->
             if (message == "Success") {
                 isEditing = false
-                Toast.makeText(context, "Profile Saved!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, context.getString(R.string.profile_saved_toast), Toast.LENGTH_SHORT).show()
             } else {
                 Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
             }
@@ -62,11 +67,11 @@ fun ProfileScreen(
         AlertDialog(
             onDismissRequest = { showLogoutDialog = false },
             shape = RoundedCornerShape(28.dp),
-            title = { Text("Log Out", fontWeight = FontWeight.Bold, color = Color(0xFF1A1A2E)) },
+            title = { Text(stringResource(R.string.profile_logout_title), fontWeight = FontWeight.Bold, color = TextPrimaryProfile) },
             text = {
                 Text(
-                    "Are you sure you want to log out? This will clear your local data from this device.",
-                    color = Color(0xFF6B6B7A)
+                    text = stringResource(R.string.profile_logout_body),
+                    color = TextSecondaryProfile
                 )
             },
             confirmButton = {
@@ -78,21 +83,21 @@ fun ProfileScreen(
                         }
                     }
                 }) {
-                    Text("Yes, Log out", color = Color(0xFFE53935), fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.profile_logout_confirm), color = ActionDestructiveProfile, fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showLogoutDialog = false }) {
-                    Text("Cancel", color = Color(0xFF8888A8))
+                    Text(stringResource(R.string.profile_cancel), color = TextMutedProfile)
                 }
             },
-            containerColor = Color.White
+            containerColor = CardWhiteProfile
         )
     }
 
     Scaffold(
         bottomBar = { BottomBar(navController) },
-        containerColor = Color(0xFFF8F9FE) // Crisp, slightly cool off-white background
+        containerColor = ScreenBackgroundProfile
     ) { paddingValues ->
         Box(
             modifier = Modifier
@@ -104,13 +109,13 @@ fun ProfileScreen(
                 is ProfileState.Loading -> {
                     CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.Center),
-                        color = Color(0xFF9D7CFF)
+                        color = AccentPurpleProfile
                     )
                 }
                 is ProfileState.Error -> {
                     Text(
-                        "Error: ${state.message}",
-                        color = Color(0xFFE53935),
+                        text = stringResource(R.string.profile_error_prefix, state.message),
+                        color = ActionDestructiveProfile,
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
@@ -121,12 +126,12 @@ fun ProfileScreen(
                     ) {
                         // ─── Header ───
                         Text(
-                            text = if (state is ProfileState.Empty) "Complete Profile" else "Statistics",
+                            text = if (state is ProfileState.Empty) stringResource(R.string.profile_complete_title) else stringResource(R.string.profile_statistics_title),
                             style = MaterialTheme.typography.headlineLarge.copy(
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 32.sp
                             ),
-                            color = Color(0xFF1A1A2E),
+                            color = TextPrimaryProfile,
                             modifier = Modifier.padding(bottom = 4.dp, top = 8.dp)
                         )
 
@@ -147,23 +152,23 @@ fun ProfileScreen(
                                 name = state.data.name,
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .weight(0.35f) // Takes up 35% of the remaining screen
+                                    .weight(0.35f)
                             )
 
                             // ─── Asymmetrical Bento Grid ───
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .weight(0.5f), // Takes up 50% of the screen
+                                    .weight(0.5f),
                                 horizontalArrangement = Arrangement.spacedBy(16.dp)
                             ) {
                                 // Left Side: Tall Card (Weight)
                                 ProfileStatCard(
                                     icon = Icons.Default.MonitorWeight,
-                                    label = "Weight",
-                                    value = "${state.data.weight} kg",
-                                    backgroundColor = Color(0xFFA5F3CD), // Mint Green
-                                    contentColor = Color(0xFF2A7C55),
+                                    label = stringResource(R.string.profile_weight_label),
+                                    value = stringResource(R.string.profile_weight_format, state.data.weight),
+                                    backgroundColor = WeightCardBgProfile,
+                                    contentColor = WeightCardContentProfile,
                                     modifier = Modifier
                                         .weight(1f)
                                         .fillMaxHeight()
@@ -178,10 +183,10 @@ fun ProfileScreen(
                                 ) {
                                     ProfileStatCard(
                                         icon = Icons.Default.Height,
-                                        label = "Height",
-                                        value = "${state.data.height} cm",
-                                        backgroundColor = Color(0xFFFBE4D4), // Soft Orange
-                                        contentColor = Color(0xFFA66C41),
+                                        label = stringResource(R.string.profile_height_label),
+                                        value = stringResource(R.string.profile_height_format, state.data.height),
+                                        backgroundColor = HeightCardBgProfile,
+                                        contentColor = HeightCardContentProfile,
                                         modifier = Modifier
                                             .weight(1f)
                                             .fillMaxWidth()
@@ -189,9 +194,9 @@ fun ProfileScreen(
 
                                     ProfileActionCard(
                                         icon = Icons.Rounded.Edit,
-                                        label = "Edit Profile",
-                                        backgroundColor = Color(0xFF9D7CFF), // Vibrant Purple
-                                        contentColor = Color.White,
+                                        label = stringResource(R.string.profile_edit_label),
+                                        backgroundColor = AccentPurpleProfile,
+                                        contentColor = CardWhiteProfile,
                                         onClick = { isEditing = true },
                                         modifier = Modifier
                                             .weight(1f)
@@ -203,13 +208,13 @@ fun ProfileScreen(
                             // ─── Bottom Action: Log Out ───
                             ProfileActionCard(
                                 icon = Icons.Rounded.Logout,
-                                label = "Log Out",
-                                backgroundColor = Color(0xFFFFE5E5), // Light Pastel Red
-                                contentColor = Color(0xFFD32F2F),
+                                label = stringResource(R.string.profile_logout_title),
+                                backgroundColor = LogoutCardBgProfile,
+                                contentColor = LogoutCardContentProfile,
                                 onClick = { showLogoutDialog = true },
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .weight(0.15f) // Snug fit at the bottom
+                                    .weight(0.15f)
                             )
                         }
                     }
@@ -234,9 +239,8 @@ private fun ProfileHeroCard(
             .ifBlank { "?" }
     }
 
-    // Matching the gradient from the distance card in the screenshots
     val heroGradient = Brush.linearGradient(
-        colors = listOf(Color(0xFF8C52FF), Color(0xFFFF914D)) // Purple to Orange/Pink
+        colors = listOf(HeroGradientStartProfile, HeroGradientEndProfile)
     )
 
     Card(
@@ -249,11 +253,10 @@ private fun ProfileHeroCard(
                 .fillMaxSize()
                 .background(heroGradient)
         ) {
-            // Decorative background icon
             Icon(
                 imageVector = Icons.Default.Person,
                 contentDescription = null,
-                tint = Color.White.copy(alpha = 0.15f),
+                tint = CardWhiteProfile.copy(alpha = 0.15f),
                 modifier = Modifier
                     .size(200.dp)
                     .align(Alignment.CenterEnd)
@@ -266,31 +269,29 @@ private fun ProfileHeroCard(
                     .padding(24.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Avatar Bubble
                 Box(
                     modifier = Modifier
                         .size(80.dp)
                         .clip(CircleShape)
-                        .background(Color.White.copy(alpha = 0.25f)),
+                        .background(CardWhiteProfile.copy(alpha = 0.25f)),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = initials,
                         style = MaterialTheme.typography.headlineMedium.copy(
                             fontWeight = FontWeight.Bold,
-                            color = Color.White
+                            color = CardWhiteProfile
                         )
                     )
                 }
 
                 Spacer(modifier = Modifier.width(20.dp))
 
-                // Greeting Text
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = "Good evening,",
+                        text = stringResource(R.string.profile_greeting),
                         style = MaterialTheme.typography.bodyLarge,
-                        color = Color.White.copy(alpha = 0.85f)
+                        color = CardWhiteProfile.copy(alpha = 0.85f)
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
@@ -299,7 +300,7 @@ private fun ProfileHeroCard(
                             fontWeight = FontWeight.ExtraBold,
                             fontSize = 32.sp
                         ),
-                        color = Color.White,
+                        color = CardWhiteProfile,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -323,7 +324,7 @@ private fun ProfileStatCard(
         modifier = modifier,
         shape = RoundedCornerShape(28.dp),
         colors = CardDefaults.cardColors(containerColor = backgroundColor),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp) // Soft shadow
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(
             modifier = Modifier
@@ -416,7 +417,7 @@ private fun EditProfileCard(
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(32.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = CardWhiteProfile),
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
     ) {
         Column(
@@ -429,20 +430,20 @@ private fun EditProfileCard(
                 modifier = Modifier
                     .size(64.dp)
                     .clip(RoundedCornerShape(20.dp))
-                    .background(Color(0xFF9D7CFF).copy(alpha = 0.15f)),
+                    .background(AccentPurpleProfile.copy(alpha = 0.15f)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Default.Person,
                     contentDescription = null,
-                    tint = Color(0xFF9D7CFF),
+                    tint = AccentPurpleProfile,
                     modifier = Modifier.size(32.dp)
                 )
             }
 
-            ProfilePastelTextField("Full Name", uiState.name, onNameChange, KeyboardType.Text)
-            ProfilePastelTextField("Weight (kg)", uiState.weight, onWeightChange, KeyboardType.Decimal)
-            ProfilePastelTextField("Height (cm)", uiState.height, onHeightChange, KeyboardType.Number)
+            ProfilePastelTextField(stringResource(R.string.profile_name_hint), uiState.name, onNameChange, KeyboardType.Text)
+            ProfilePastelTextField(stringResource(R.string.profile_weight_hint), uiState.weight, onWeightChange, KeyboardType.Decimal)
+            ProfilePastelTextField(stringResource(R.string.profile_height_hint), uiState.height, onHeightChange, KeyboardType.Number)
 
             Spacer(modifier = Modifier.weight(1f))
 
@@ -451,12 +452,12 @@ private fun EditProfileCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(64.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF9D7CFF)),
+                colors = ButtonDefaults.buttonColors(containerColor = AccentPurpleProfile),
                 shape = RoundedCornerShape(24.dp)
             ) {
-                Icon(Icons.Rounded.Save, contentDescription = null, tint = Color.White)
+                Icon(Icons.Rounded.Save, contentDescription = null, tint = CardWhiteProfile)
                 Spacer(Modifier.width(12.dp))
-                Text("Save Changes", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.profile_save_changes), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = CardWhiteProfile)
             }
         }
     }
@@ -473,19 +474,19 @@ private fun ProfilePastelTextField(
     TextField(
         value = value,
         onValueChange = onValueChange,
-        label = { Text(label, color = Color(0xFF8888A8), fontWeight = FontWeight.Medium) },
+        label = { Text(label, color = TextMutedProfile, fontWeight = FontWeight.Medium) },
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
         modifier = Modifier.fillMaxWidth(),
         singleLine = true,
         shape = RoundedCornerShape(20.dp),
         colors = TextFieldDefaults.colors(
-            focusedContainerColor = Color(0xFFF8F9FE),
-            unfocusedContainerColor = Color(0xFFF8F9FE),
+            focusedContainerColor = ScreenBackgroundProfile,
+            unfocusedContainerColor = ScreenBackgroundProfile,
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
-            focusedTextColor = Color(0xFF1A1A2E),
-            unfocusedTextColor = Color(0xFF1A1A2E),
-            cursorColor = Color(0xFF9D7CFF)
+            focusedTextColor = TextPrimaryProfile,
+            unfocusedTextColor = TextPrimaryProfile,
+            cursorColor = AccentPurpleProfile
         )
     )
 }

@@ -85,7 +85,7 @@ class LocationForegroundService : Service() {
             ServiceCompat.startForeground(
                 this,
                 NOTIFICATION_ID,
-                buildNotification("00:00", "0.00", isPaused = false),
+                buildNotification(getString(R.string.default_time), getString(R.string.default_distance), isPaused = false),
                 ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
             )
         }catch (e : Exception) {
@@ -117,7 +117,7 @@ class LocationForegroundService : Service() {
                 when (event) {
                     is RunEvents.LocationDisabled -> {
                         // Change the notification to show a warning!
-                        updateNotification("GPS LOST - PAUSED", "Waiting for signal...", isPaused = true)
+                        updateNotification(getString(R.string.gps_lost_paused), getString(R.string.waiting_for_signal), isPaused = true)
                     }
                     is RunEvents.LocationRestored -> {
                     }
@@ -141,7 +141,7 @@ class LocationForegroundService : Service() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 CHANNEL_ID,
-                "Location Tracking",
+                getString(R.string.location_tracking_channel_name),
                 NotificationManager.IMPORTANCE_LOW // Low so it doesn't "beep" every time
             )
             val manager : NotificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -162,19 +162,19 @@ class LocationForegroundService : Service() {
             PendingIntent.FLAG_IMMUTABLE
         )
 
-        val title = if (isPaused) "⚠️ Run Paused - Check GPS" else "Fitness Tracker"
-        val content = if (isPaused) time else "Time: $time s, Distance: $distance m"
+        val title = if (isPaused) getString(R.string.run_paused_warning) else getString(R.string.fitness_tracker)
+        val content = if (isPaused) time else getString(R.string.notification_content_format, time, distance)
 
         // Notification object
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_location_notification)
-            .setContentTitle("Fitness Tracker")
-            .setContentText("Time: $time s, Distance: $distance m")
+            .setContentTitle(title)
+            .setContentText(content)
             .setOngoing(true) // User cannot swipe it away
             .setSilent(true)
             .setVisibility(VISIBILITY_PUBLIC)
             .setPriority(NotificationCompat.PRIORITY_LOW)
-            .addAction(R.drawable.ic_stop, "Stop Run", stopPendingIntent)
+            .addAction(R.drawable.ic_stop, getString(R.string.stop_run), stopPendingIntent)
             .build()
 
     }

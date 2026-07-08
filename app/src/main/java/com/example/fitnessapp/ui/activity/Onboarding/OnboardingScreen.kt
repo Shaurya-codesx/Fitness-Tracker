@@ -1,6 +1,12 @@
+package com.example.fitnessapp.ui.activity.Onboarding
+
 import android.Manifest
+import android.app.Activity
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
+import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -11,38 +17,14 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.CloudSync
-import androidx.compose.material.icons.rounded.DirectionsRun
-import androidx.compose.material.icons.rounded.NotificationsActive
-import androidx.compose.material.icons.rounded.TrackChanges
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.fitnessapp.ui.activity.Onboarding.OnboardingUiState
-import com.example.fitnessapp.ui.activity.Onboarding.OnboardingViewModel
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
-import android.app.Activity
-import android.content.Intent
-import android.net.Uri
-import android.provider.Settings
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.rounded.ArrowForward
 import androidx.compose.material.icons.rounded.Badge
 import androidx.compose.material.icons.rounded.CheckCircle
+import androidx.compose.material.icons.rounded.CloudSync
+import androidx.compose.material.icons.rounded.DirectionsRun
 import androidx.compose.material.icons.rounded.DirectionsWalk
 import androidx.compose.material.icons.rounded.EmojiEvents
 import androidx.compose.material.icons.rounded.Favorite
@@ -50,11 +32,31 @@ import androidx.compose.material.icons.rounded.Height
 import androidx.compose.material.icons.rounded.Insights
 import androidx.compose.material.icons.rounded.LocalFireDepartment
 import androidx.compose.material.icons.rounded.MonitorWeight
+import androidx.compose.material.icons.rounded.NotificationsActive
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.Straighten
+import androidx.compose.material.icons.rounded.TrackChanges
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.fitnessapp.R
 import com.example.fitnessapp.ui.theme.*
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
@@ -114,7 +116,7 @@ fun OnboardingScreen(
                                 }
                             }
                         ) {
-                            Text("Back", color = TextSecondary, fontWeight = FontWeight.SemiBold)
+                            Text(stringResource(R.string.back), color = TextSecondary, fontWeight = FontWeight.SemiBold)
                         }
                     } else {
                         Spacer(modifier = Modifier.width(64.dp))
@@ -139,7 +141,7 @@ fun OnboardingScreen(
                             CircularProgressIndicator(color = Color.White, strokeWidth = 2.dp, modifier = Modifier.size(20.dp))
                         } else {
                             Text(
-                                text = if (pagerState.currentPage == 2) "Get Started" else "Next",
+                                text = if (pagerState.currentPage == 2) stringResource(R.string.get_started) else stringResource(R.string.next),
                                 color = Color.White,
                                 fontWeight = FontWeight.Bold
                             )
@@ -238,12 +240,12 @@ fun WelcomePage() {
                 Spacer(modifier = Modifier.weight(1f))
 
                 Text(
-                    "Welcome to\nthe Journey",
+                    stringResource(R.string.welcome_title),
                     style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold, color = OnHero, lineHeight = 32.sp)
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    "Your offline-first, performance-tracking companion — built to run with you, not just track you.",
+                    stringResource(R.string.welcome_subtitle),
                     style = MaterialTheme.typography.bodyMedium.copy(color = OnHero.copy(alpha = 0.75f), lineHeight = 20.sp)
                 )
             }
@@ -260,15 +262,15 @@ fun WelcomePage() {
                 modifier = Modifier.weight(1f).fillMaxHeight(),
                 tint = TintLavender,
                 icon = Icons.Rounded.TrackChanges,
-                title = "Custom Goals",
-                subtitle = "Tailor steps, distance & calories to you"
+                title = stringResource(R.string.custom_goals_title),
+                subtitle = stringResource(R.string.custom_goals_subtitle)
             )
             FeatureBentoCard(
                 modifier = Modifier.weight(1f).fillMaxHeight(),
                 tint = TintMint,
                 icon = Icons.Rounded.CloudSync,
-                title = "Offline First",
-                subtitle = "Runs anywhere, syncs when back online"
+                title = stringResource(R.string.offline_first_title),
+                subtitle = stringResource(R.string.offline_first_subtitle)
             )
         }
 
@@ -283,15 +285,15 @@ fun WelcomePage() {
                 modifier = Modifier.weight(1f).fillMaxHeight(),
                 tint = TintPink,
                 icon = Icons.Rounded.Insights,
-                title = "Real Insights",
-                subtitle = "Trends across weeks, not just single runs"
+                title = stringResource(R.string.real_insights_title),
+                subtitle = stringResource(R.string.real_insights_subtitle)
             )
             FeatureBentoCard(
                 modifier = Modifier.weight(1f).fillMaxHeight(),
                 tint = TintPeach,
                 icon = Icons.Rounded.EmojiEvents,
-                title = "Personal Bests",
-                subtitle = "Every record, tracked automatically"
+                title = stringResource(R.string.personal_bests_title),
+                subtitle = stringResource(R.string.personal_bests_subtitle)
             )
         }
 
@@ -321,20 +323,20 @@ fun WelcomePage() {
             Spacer(modifier = Modifier.width(14.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    if (permissionGranted || !isTiramisuOrLater) "You're all set" else "Live run stats",
+                    if (permissionGranted || !isTiramisuOrLater) stringResource(R.string.all_set_title) else stringResource(R.string.live_run_stats_title),
                     fontWeight = FontWeight.Bold,
                     color = TextPrimary
                 )
                 Text(
-                    if (permissionGranted || !isTiramisuOrLater) "Notifications enabled for live pace tracking"
-                    else "Enable notifications to see pace on lock screen",
+                    if (permissionGranted || !isTiramisuOrLater) stringResource(R.string.notifications_enabled_subtitle)
+                    else stringResource(R.string.enable_notifications_subtitle),
                     style = MaterialTheme.typography.bodySmall,
                     color = TextSecondary
                 )
             }
             if (!permissionGranted && isTiramisuOrLater) {
                 TextButton(onClick = { notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS) }) {
-                    Text("Enable", color = HeroBlue, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.enable), color = HeroBlue, fontWeight = FontWeight.Bold)
                 }
             }
         }
@@ -347,7 +349,7 @@ fun WelcomePage() {
             containerColor = Color.White,
             title = {
                 Text(
-                    text = if (isPermanentlyDenied) "Permission Blocked" else "Live Stats Required",
+                    text = if (isPermanentlyDenied) stringResource(R.string.permission_blocked_title) else stringResource(R.string.live_stats_required_title),
                     fontWeight = FontWeight.Bold,
                     color = TextPrimary
                 )
@@ -355,9 +357,9 @@ fun WelcomePage() {
             text = {
                 Text(
                     text = if (isPermanentlyDenied) {
-                        "Notifications are disabled. Please open your device settings and allow notifications so we can show your live distance and pace while your phone is locked."
+                        stringResource(R.string.permission_permanently_denied_message)
                     } else {
-                        "We need notification permissions to show your live distance, pace, and time while your phone is locked during a run."
+                        stringResource(R.string.permission_rationale_message)
                     },
                     color = TextSecondary
                 )
@@ -376,12 +378,12 @@ fun WelcomePage() {
                         }
                     }
                 ) {
-                    Text(text = if (isPermanentlyDenied) "Open Settings" else "Try Again", color = HeroBlue, fontWeight = FontWeight.Bold)
+                    Text(text = if (isPermanentlyDenied) stringResource(R.string.open_settings) else stringResource(R.string.try_again), color = HeroBlue, fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showNotificationRationale = false }) {
-                    Text("Not Now", color = TextSecondary)
+                    Text(stringResource(R.string.not_now), color = TextSecondary)
                 }
             }
         )
@@ -419,11 +421,11 @@ fun ProfilePage(uiState: OnboardingUiState, viewModel: OnboardingViewModel) {
     } else null
 
     val (bmiLabel, bmiTint) = when {
-        bmi == null -> "Enter weight & height" to TintLavender
-        bmi < 18.5 -> "Underweight" to TintPeach
-        bmi < 25 -> "Healthy range" to TintMint
-        bmi < 30 -> "Above healthy range" to TintPeach
-        else -> "High range" to TintPink
+        bmi == null -> stringResource(R.string.enter_weight_height) to TintLavender
+        bmi < 18.5 -> stringResource(R.string.bmi_underweight) to TintPeach
+        bmi < 25 -> stringResource(R.string.bmi_healthy) to TintMint
+        bmi < 30 -> stringResource(R.string.bmi_above_healthy) to TintPeach
+        else -> stringResource(R.string.bmi_high) to TintPink
     }
 
     Column(
@@ -446,8 +448,8 @@ fun ProfilePage(uiState: OnboardingUiState, viewModel: OnboardingViewModel) {
                     Icon(Icons.Rounded.Person, contentDescription = null, tint = Color.White, modifier = Modifier.size(30.dp))
                 }
                 Spacer(modifier = Modifier.height(10.dp))
-                Text("About You", style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold, color = TextPrimary))
-                Text("Let's personalize your metrics", color = TextSecondary, style = MaterialTheme.typography.bodySmall)
+                Text(stringResource(R.string.about_you), style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold, color = TextPrimary))
+                Text(stringResource(R.string.personalize_metrics_subtitle), color = TextSecondary, style = MaterialTheme.typography.bodySmall)
             }
         }
 
@@ -463,13 +465,13 @@ fun ProfilePage(uiState: OnboardingUiState, viewModel: OnboardingViewModel) {
                 .padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            OnboardingTextField("Full Name", uiState.name, viewModel::onNameChange, KeyboardType.Text, Icons.Rounded.Badge)
+            OnboardingTextField(stringResource(R.string.full_name), uiState.name, viewModel::onNameChange, KeyboardType.Text, Icons.Rounded.Badge)
             Row(modifier = Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                 Box(modifier = Modifier.weight(1f)) {
-                    OnboardingTextField("Weight (kg)", uiState.weight, viewModel::onWeightChange, KeyboardType.Decimal, Icons.Rounded.MonitorWeight)
+                    OnboardingTextField(stringResource(R.string.weight_kg), uiState.weight, viewModel::onWeightChange, KeyboardType.Decimal, Icons.Rounded.MonitorWeight)
                 }
                 Box(modifier = Modifier.weight(1f)) {
-                    OnboardingTextField("Height (cm)", uiState.height, viewModel::onHeightChange, KeyboardType.Number, Icons.Rounded.Height)
+                    OnboardingTextField(stringResource(R.string.height_cm), uiState.height, viewModel::onHeightChange, KeyboardType.Number, Icons.Rounded.Height)
                 }
             }
         }
@@ -494,7 +496,7 @@ fun ProfilePage(uiState: OnboardingUiState, viewModel: OnboardingViewModel) {
             }
             Spacer(modifier = Modifier.width(14.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text("Body Mass Index", fontWeight = FontWeight.Bold, color = TextPrimary, style = MaterialTheme.typography.bodyMedium)
+                Text(stringResource(R.string.bmi_title), fontWeight = FontWeight.Bold, color = TextPrimary, style = MaterialTheme.typography.bodyMedium)
                 Text(bmiLabel, style = MaterialTheme.typography.bodySmall, color = TextSecondary)
             }
             if (bmi != null) {
@@ -516,13 +518,13 @@ fun GoalsPage(uiState: OnboardingUiState, viewModel: OnboardingViewModel) {
     Column(
         modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp, vertical = 16.dp)
     ) {
-        Text("Daily Targets", style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold, color = TextPrimary))
-        Text("What are we aiming for today?", color = TextSecondary, modifier = Modifier.padding(top = 4.dp, bottom = 16.dp))
+        Text(stringResource(R.string.daily_targets_title), style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold, color = TextPrimary))
+        Text(stringResource(R.string.aiming_for_today_subtitle), color = TextSecondary, modifier = Modifier.padding(top = 4.dp, bottom = 16.dp))
 
         GoalBentoCard(
             tint = TintLavender,
             icon = Icons.Rounded.DirectionsWalk,
-            label = "Daily Steps",
+            label = stringResource(R.string.daily_steps),
             value = uiState.stepGoal,
             onValueChange = viewModel::onStepGoalChange,
             keyboardType = KeyboardType.Number,
@@ -538,7 +540,7 @@ fun GoalsPage(uiState: OnboardingUiState, viewModel: OnboardingViewModel) {
             GoalBentoCard(
                 tint = TintMint,
                 icon = Icons.Rounded.Straighten,
-                label = "Distance (km)",
+                label = stringResource(R.string.daily_distance_km),
                 value = uiState.distanceGoal,
                 onValueChange = viewModel::onDistanceGoalChange,
                 keyboardType = KeyboardType.Decimal,
@@ -548,7 +550,7 @@ fun GoalsPage(uiState: OnboardingUiState, viewModel: OnboardingViewModel) {
             GoalBentoCard(
                 tint = TintPink,
                 icon = Icons.Rounded.LocalFireDepartment,
-                label = "Calories",
+                label = stringResource(R.string.calories),
                 value = uiState.calorieGoal,
                 onValueChange = viewModel::onCalorieGoalChange,
                 keyboardType = KeyboardType.Number,
@@ -577,9 +579,9 @@ fun GoalsPage(uiState: OnboardingUiState, viewModel: OnboardingViewModel) {
             }
             Spacer(modifier = Modifier.width(14.dp))
             Column {
-                Text("Your daily target", fontWeight = FontWeight.Bold, color = TextPrimary, style = MaterialTheme.typography.bodyMedium)
+                Text(stringResource(R.string.your_daily_target), fontWeight = FontWeight.Bold, color = TextPrimary, style = MaterialTheme.typography.bodyMedium)
                 Text(
-                    if (steps != null) "About ${String.format("%.1f", estKm)} km of walking, roughly" else "Set your step goal to see an estimate",
+                    if (steps != null) stringResource(R.string.daily_target_est_subtitle, estKm ?: 0f) else stringResource(R.string.set_step_goal_estimate_subtitle),
                     style = MaterialTheme.typography.bodySmall,
                     color = TextSecondary
                 )
@@ -618,7 +620,7 @@ private fun GoalBentoCard(
                 cursorBrush = SolidColor(HeroBlue),
                 decorationBox = { inner ->
                     if (value.isEmpty()) {
-                        Text("0", style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold, color = TextSecondary.copy(alpha = 0.4f)))
+                        Text(stringResource(R.string.zero), style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold, color = TextSecondary.copy(alpha = 0.4f)))
                     }
                     inner()
                 }

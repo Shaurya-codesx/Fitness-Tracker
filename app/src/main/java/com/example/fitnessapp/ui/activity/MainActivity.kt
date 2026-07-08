@@ -1,7 +1,6 @@
 package com.example.fitnessapp.ui.activity
 
 import AuthScreen
-import OnboardingScreen
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -18,6 +17,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.fitnessapp.Domain.AuthRepository
 import com.example.fitnessapp.ui.activity.HomeScreen.HomeScreen
+import com.example.fitnessapp.ui.activity.Onboarding.OnboardingScreen
+import com.example.fitnessapp.ui.activity.RunHistory.RunDetails.RunDetailsScreen
 import com.example.fitnessapp.ui.activity.Stats.Distance.DistanceAnalyticsScreen
 import com.example.fitnessapp.ui.activity.Stats.Energy.EnergyAnalyticsScreen
 import com.example.fitnessapp.ui.activity.Stats.Pace.PaceAnalyticsScreen
@@ -28,7 +29,6 @@ import com.example.fitnessapp.ui.activity.Tracking.TrackingViewModel
 import com.example.fitnessapp.ui.activity.UserProfile.ProfileScreen
 import com.example.fitnessapp.ui.activity.Stats.StatsScreen
 import com.example.fitnessapp.ui.components.HealthTrendsScreen
-import com.example.runtracker.ui.screens.RunDetailsScreen
 import com.example.runtracker.ui.screens.RunHistoryScreenM3
 import com.example.runtracker.ui.screens.TrackingScreen
 import dagger.hilt.android.AndroidEntryPoint

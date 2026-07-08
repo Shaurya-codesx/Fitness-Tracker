@@ -7,6 +7,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.Straighten
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -104,7 +105,7 @@ fun HealthTrendsScreen(
                     BentoStatCard(
                         title = "Distance",
                         subtitle = "See how far\nyou've gone",
-                        icon = Icons.Filled.DirectionsRun,
+                        icon = Icons.Rounded.Straighten,
                         backgroundColor = Color(0xFFD4E4FF), // Vivid Pastel Blue
                         contentColor = Color(0xFF2B5EA7),
                         onClick = onDistanceClick,

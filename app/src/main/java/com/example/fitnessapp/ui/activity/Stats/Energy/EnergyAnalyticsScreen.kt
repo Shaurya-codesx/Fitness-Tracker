@@ -3,6 +3,7 @@ package com.example.fitnessapp.ui.activity.Stats.Energy
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -15,6 +16,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.Bolt
+import androidx.compose.material.icons.rounded.CalendarMonth
 import androidx.compose.material.icons.rounded.ChevronLeft
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.LocalFireDepartment
@@ -23,10 +26,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -55,29 +61,10 @@ import java.time.temporal.TemporalAdjusters
 import java.util.Locale
 import kotlinx.datetime.DayOfWeek
 import com.example.fitnessapp.ui.theme.*
+import com.example.fitnessapp.R
 
-// ─────────────────────────────────────────────
-// Design Tokens – Yellow/Energy Theme!
-// ─────────────────────────────────────────────
-private val BackgroundColor   = Color(0xFFF2F1F8)
-private val HeroCardColor     = Color(0xFFF59E0B) // Vibrant Amber/Orange
-private val HeroCardAccent    = Color(0xFFFBBF24) // Bright Yellow
-
-private val ChipSelectedBg    = Color(0xFFF59E0B)
-private val ChipSelectedText  = Color(0xFFFFFFFF)
-private val ChipUnselectedBg  = Color(0xFFE8E6F0)
-private val ChipUnselectedText= Color(0xFF5C5C7A)
-
-private val StatCardGreen     = Color(0xFFDFF2E1)
-private val StatCardOrange    = Color(0xFFFDEDD8)
-private val StatCardTeal      = Color(0xFFD6F2EF)
-
-private val OnHeroText        = Color(0xFFFFFFFF)
-private val OnHeroSubText     = Color(0xFFFFFBEB) // Very light yellow for readability
-
-private val CardRadius        = 20.dp
-private val SectionPadding    = 20.dp
-
+private val CardRadius = 24.dp
+private val SectionPadding = 20.dp
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalFoundationApi::class)
@@ -87,24 +74,18 @@ fun EnergyAnalyticsScreen(navController: NavController) {
     var selectedFilter by remember { mutableStateOf(FilterRange.WEEK) }
     val scope = rememberCoroutineScope()
 
-    // 1. Collect the dynamic total pages from your ViewModel
     val totalPages by viewModel.pagerCount.collectAsState(initial = 1)
-
-    // 2. Calculate the "Today" page (which is the very last index)
     val startPage = (totalPages - 1).coerceAtLeast(0)
 
-    // 3. Set the Pager to use our exact boundaries
     val pagerState = rememberPagerState(
         initialPage = startPage,
         pageCount = { totalPages }
     )
 
-    // Whenever the filter changes (Week -> Month), jump back to "Today"
     LaunchedEffect(selectedFilter, startPage) {
         pagerState.animateScrollToPage(startPage)
     }
 
-    // Translate Compose's page index into your negative offsets
     val currentOffset = pagerState.currentPage - startPage
     val headerText = remember(selectedFilter, currentOffset) {
         getFormattedHeader(selectedFilter, currentOffset)
@@ -115,39 +96,56 @@ fun EnergyAnalyticsScreen(navController: NavController) {
         .collectAsState(initial = EnergyUiState())
 
     Box(
-        modifier = Modifier.fillMaxSize().background(BackgroundColor)
+        modifier = Modifier.fillMaxSize().background(EnergyBackground)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = SectionPadding)
-                .padding(top = 24.dp, bottom = 32.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
+                .padding(top = 20.dp, bottom = 32.dp),
+            verticalArrangement = Arrangement.spacedBy(18.dp)
         ) {
-            Spacer(modifier = Modifier.height(10.dp))
 
-            // ── Back Button ──────────────────────────────────────────
-            IconButton(
-                onClick = { navController.navigateUp() },
-                modifier = Modifier.size(40.dp).clip(CircleShape).background(ChipUnselectedBg)
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // ── Inline top bar ──────────────────────────────────────
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Icon(Icons.Rounded.ArrowBack, "Back", tint = ChipUnselectedText, modifier = Modifier.size(24.dp))
+                IconButton(
+                    onClick = { navController.navigateUp() },
+                    modifier = Modifier
+                        .size(40.dp)
+                        .shadow(4.dp, CircleShape, ambientColor = EnergyChipSelectedBg.copy(alpha = 0.25f))
+                        .clip(CircleShape)
+                        .background(Color.White)
+                ) {
+                    Icon(
+                        Icons.Rounded.ArrowBack,
+                        contentDescription = stringResource(R.string.content_desc_back),
+                        tint = EnergyChipUnselectedText,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+                Spacer(modifier = Modifier.width(14.dp))
+                Text(
+                    text = stringResource(R.string.energy_title),
+                    style = MaterialTheme.typography.headlineMedium.copy(
+                        fontWeight = FontWeight.ExtraBold,
+                        color = EnergyTextPrimary
+                    )
+                )
             }
 
-            // ── 1. Screen title ──────────────────────────────────────────
-            Text(
-                text = "Energy",
-                style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold, color = Color(0xFF1A1A2E))
-            )
-
-            // ── 2. Filter chips ──────────────────────────────────────────
+            // ── Filter chips ──────────────────────────────────────────
             FilterChipRow(
                 selectedFilter = selectedFilter,
                 onFilterSelected = { selectedFilter = it }
             )
 
-            // ── 3. Hero summary card ─────────────────────────────────────
+            // ── Hero summary card ─────────────────────────────────────
             HeroSummaryCard(
                 headerText = headerText,
                 uiState = currentUiState,
@@ -155,60 +153,47 @@ fun EnergyAnalyticsScreen(navController: NavController) {
                 onNext    = { scope.launch { pagerState.animateScrollToPage(pagerState.currentPage + 1) } }
             )
 
-            // ── 4. Quick stat row ────────────────────────────────────────
-            // ── Quick stat row below the hero ─────────────────────────
+            // ── Bento stat row ──────────────────────────────────────
             if (currentUiState.totalCalories > 0f) {
                 QuickStatsRow(uiState = currentUiState, selectedFilter)
             }
 
-            // ── 5. Swipeable BAR chart ───────────────────────────────────
-            ChartCard {
+            // ── Chart card ────────────────────────────────────────────
+            ChartCard(headerText = headerText) {
                 HorizontalPager(
                     state = pagerState,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(260.dp)
+                    modifier = Modifier.fillMaxWidth().height(240.dp)
                 ) { page ->
                     val pageOffset = page - startPage
                     val uiState by viewModel
                         .getEnergyDataForPage(selectedFilter, pageOffset)
-                        .collectAsState(initial = EnergyUiState()) // Adjust to your actual state name
+                        .collectAsState(initial = EnergyUiState())
 
-                    // CHECK FOR EMPTY STATE (Using Float for calories)
                     if (uiState.totalCalories > 0f) {
-                        EnergyBarChart(chartData = uiState.chartData) // Adjust to your actual chart Composable
+                        EnergyBarChart(chartData = uiState.chartData)
                     } else {
-                        // EMPTY STATE UI
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text(
-                                    text = "No energy logged",
+                                    text = stringResource(R.string.energy_no_data_title),
                                     style = MaterialTheme.typography.titleMedium.copy(
-                                        color = Color(0xFF8888A8),
+                                        color = EnergyTextSecondary,
                                         fontWeight = FontWeight.Bold
                                     )
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
-                                    text = "Time to burn some calories!",
-                                    style = MaterialTheme.typography.labelMedium.copy(
-                                        color = Color.LightGray
-                                    )
+                                    text = stringResource(R.string.energy_no_data_subtitle),
+                                    style = MaterialTheme.typography.labelMedium.copy(color = Color.LightGray)
                                 )
                             }
                         }
                     }
                 }
-
-                // Page indicator dots
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(10.dp))
                 PagerDots(currentPage = pagerState.currentPage, initialPage = startPage)
             }
 
-            // ── 6. Intensity Split Donut Chart (LIGHT THEME) ──────────────
             if (currentUiState.chartData.any { it.value > 0f }) {
                 EnergySplitCard(splitData = currentUiState.energySplit)
             }
@@ -220,162 +205,285 @@ fun EnergyAnalyticsScreen(navController: NavController) {
 // Hero Summary Card
 // ─────────────────────────────────────────────────────────────────────────────
 @Composable
-private fun HeroSummaryCard(headerText: String, uiState: EnergyUiState, onPrevious: () -> Unit, onNext: () -> Unit) {
-    Box(
+private fun HeroSummaryCard(
+    headerText: String,
+    uiState: EnergyUiState,
+    onPrevious: () -> Unit,
+    onNext: () -> Unit
+) {
+    Column(
         modifier = Modifier
             .fillMaxWidth()
+            .shadow(14.dp, RoundedCornerShape(CardRadius), ambientColor = EnergyHeroPrimary.copy(alpha = 0.4f))
             .clip(RoundedCornerShape(CardRadius))
-            .background(Brush.linearGradient(colors = listOf(HeroCardColor, HeroCardAccent)))
-            .padding(horizontal = 20.dp, vertical = 22.dp)
+            .background(Brush.verticalGradient(listOf(EnergyHeroPrimary, EnergyHeroAccent)))
+            .padding(horizontal = 22.dp, vertical = 20.dp)
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = onPrevious, modifier = Modifier.size(32.dp).clip(CircleShape).background(Color.White.copy(alpha = 0.2f))) {
-                    Icon(Icons.Rounded.ChevronLeft, "Previous", tint = OnHeroText, modifier = Modifier.size(20.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = headerText,
+                style = MaterialTheme.typography.labelLarge.copy(color = EnergyOnHeroSubText, fontWeight = FontWeight.Medium)
+            )
+            Row(
+                modifier = Modifier.clip(RoundedCornerShape(50)).background(Color.White.copy(alpha = 0.18f)),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = onPrevious, modifier = Modifier.size(28.dp)) {
+                    Icon(
+                        Icons.Rounded.ChevronLeft,
+                        contentDescription = stringResource(R.string.content_desc_previous),
+                        tint = EnergyOnHeroText,
+                        modifier = Modifier.size(16.dp)
+                    )
                 }
-                Text(headerText, style = MaterialTheme.typography.titleLarge.copy(color = OnHeroText, fontWeight = FontWeight.Medium))
-                IconButton(onClick = onNext, modifier = Modifier.size(32.dp).clip(CircleShape).background(Color.White.copy(alpha = 0.2f))) {
-                    Icon(Icons.Rounded.ChevronRight, "Next", tint = OnHeroText, modifier = Modifier.size(20.dp))
+                Box(modifier = Modifier.width(1.dp).height(14.dp).background(Color.White.copy(alpha = 0.25f)))
+                IconButton(onClick = onNext, modifier = Modifier.size(28.dp)) {
+                    Icon(
+                        Icons.Rounded.ChevronRight,
+                        contentDescription = stringResource(R.string.content_desc_next),
+                        tint = EnergyOnHeroText,
+                        modifier = Modifier.size(16.dp)
+                    )
                 }
             }
+        }
 
-            Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(18.dp))
 
-            Box(modifier = Modifier.clip(RoundedCornerShape(50)).background(Color.White.copy(alpha = 0.25f)).padding(horizontal = 10.dp, vertical = 4.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Icon(Icons.Rounded.LocalFireDepartment, contentDescription = null, tint = OnHeroText, modifier = Modifier.size(14.dp))
-                    Text("Avg. Daily Burn", style = MaterialTheme.typography.labelSmall.copy(color = OnHeroText))
-                }
-            }
-
-            Spacer(modifier = Modifier.height(4.dp))
-
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.Bottom
+        ) {
             if (uiState.chartData.any { it.value > 0f }) {
-                Text(
-                    text = uiState.dailyAverage.toInt().toString(), // Whole numbers for calories
-                    style = MaterialTheme.typography.displaySmall.copy(color = OnHeroText, fontWeight = FontWeight.Bold, fontSize = 48.sp)
-                )
-                Text("kcal", style = MaterialTheme.typography.titleMedium.copy(color = OnHeroSubText))
+                Column {
+                    Text(
+                        text = stringResource(R.string.energy_daily_avg_burn),
+                        style = MaterialTheme.typography.labelMedium.copy(color = EnergyOnHeroSubText)
+                    )
+                    Row(verticalAlignment = Alignment.Bottom) {
+                        Text(
+                            text = uiState.dailyAverage.toInt().toString(),
+                            style = MaterialTheme.typography.displaySmall.copy(
+                                color = EnergyOnHeroText,
+                                fontWeight = FontWeight.ExtraBold,
+                                fontSize = 52.sp
+                            )
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = stringResource(R.string.energy_kcal_unit),
+                            style = MaterialTheme.typography.titleSmall.copy(color = EnergyOnHeroSubText),
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                    }
+                }
+
+                Box(
+                    modifier = Modifier
+                        .size(56.dp)
+                        .clip(RoundedCornerShape(18.dp))
+                        .background(Color.White.copy(alpha = 0.18f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        Icons.Rounded.LocalFireDepartment,
+                        contentDescription = null,
+                        tint = EnergyOnHeroText,
+                        modifier = Modifier.size(26.dp)
+                    )
+                }
             } else {
-                Box(modifier = Modifier.height(72.dp).fillMaxWidth(0.4f).clip(RoundedCornerShape(8.dp)).background(Color.White.copy(alpha = 0.1f))) {}
+                Box(
+                    modifier = Modifier
+                        .height(72.dp)
+                        .fillMaxWidth(0.5f)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Color.White.copy(alpha = 0.12f))
+                ) {}
             }
         }
     }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Quick Stats Row
+// Quick Stats Row — bento asymmetric layout
 // ─────────────────────────────────────────────────────────────────────────────
 @Composable
 private fun QuickStatsRow(uiState: EnergyUiState, selectedFilter: FilterRange) {
     val bestDay = uiState.chartData.maxByOrNull { it.value }
-    val (peakLabel, activeLabel, activeUnit) = when (selectedFilter) {
-        FilterRange.WEEK -> Triple("Highest burn", "Active days", "days")
-        FilterRange.MONTH -> Triple("Best week", "Active weeks", "weeks")
-        FilterRange.YEAR -> Triple("Best month", "Active months", "months")
+
+    val peakLabel = when (selectedFilter) {
+        FilterRange.WEEK -> stringResource(R.string.energy_peak_label_week)
+        FilterRange.MONTH -> stringResource(R.string.energy_peak_label_month)
+        FilterRange.YEAR -> stringResource(R.string.energy_peak_label_year)
+    }
+    val activeLabel = when (selectedFilter) {
+        FilterRange.WEEK -> stringResource(R.string.energy_active_label_week)
+        FilterRange.MONTH -> stringResource(R.string.energy_active_label_month)
+        FilterRange.YEAR -> stringResource(R.string.energy_active_label_year)
+    }
+    val activeUnit = when (selectedFilter) {
+        FilterRange.WEEK -> stringResource(R.string.energy_active_unit_days)
+        FilterRange.MONTH -> stringResource(R.string.energy_active_unit_weeks)
+        FilterRange.YEAR -> stringResource(R.string.energy_active_unit_months)
     }
 
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        MiniStatCard(
-            modifier = Modifier.weight(1f),
-            bgColor  = StatCardGreen,
-            label    = "Total Burn",
-            value    = uiState.totalCalories.toInt().toString(),
-            unit     = "kcal"
-        )
-        MiniStatCard(
-            modifier = Modifier.weight(1f),
-            bgColor  = StatCardOrange,
-            label    = peakLabel,
-            value    = bestDay?.displayLabel ?: "–",
-            unit     = "${bestDay?.value?.toInt() ?: 0} kcal"
-        )
-        MiniStatCard(
-            modifier = Modifier.weight(1f),
-            bgColor  = StatCardTeal,
-            label    = activeLabel,
-            value    = uiState.chartData.count { it.value > 0f }.toString(),
-            unit     = activeUnit
-        )
-    }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Light Theme Intensity Split Donut Chart
-// ─────────────────────────────────────────────────────────────────────────────
-@Composable
-fun EnergySplitCard(splitData: EnergySplitData) {
-    val hasData = splitData.lightRecoveryPct > 0f || splitData.solidEffortPct > 0f || splitData.epicBurnPct > 0f
-
-    // Light theme colors to match the rest of the page layout
-    val CardBackground = Color.White
-    val DarkText = Color(0xFF1A1A2E)
-    val MutedText = Color(0xFF8888A8)
-
-    // Vibrant colors matching the yellowish/warm theme for intensity
-    val ColorRecovery = Color(0xFF4ADE80) // Light Green
-    val ColorSolid    = Color(0xFFFBBF24) // Yellow/Amber (Ties to Hero card)
-    val ColorEpic     = Color(0xFFF87171) // Soft Red
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp))
-            .background(CardBackground)
-            .padding(20.dp)
+    Row(
+        modifier = Modifier.fillMaxWidth().height(150.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Text(
-            text = "Workout Intensity",
-            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, color = DarkText)
-        )
-        Text(
-            text = "by caloric burn",
-            style = MaterialTheme.typography.bodyMedium.copy(color = MutedText)
-        )
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        Canvas(
-            modifier = Modifier.size(180.dp).align(Alignment.CenterHorizontally)
+        // Wide hero stat — total burn
+        Box(
+            modifier = Modifier
+                .weight(1.1f)
+                .fillMaxHeight()
+                .shadow(6.dp, RoundedCornerShape(20.dp), ambientColor = EnergyStatCardPrimary.copy(alpha = 0.8f))
+                .clip(RoundedCornerShape(20.dp))
+                .background(EnergyStatCardPrimary)
+                .padding(18.dp)
         ) {
-            val strokeWidth = 35.dp.toPx()
-            val stroke = Stroke(width = strokeWidth, cap = StrokeCap.Butt)
-            var startAngle = -90f
-
-            if (!hasData) {
-                drawArc(color = Color(0xFFF2F1F8), startAngle = 0f, sweepAngle = 360f, useCenter = false, style = stroke)
-            } else {
-                val sweep1 = (splitData.lightRecoveryPct / 100f) * 360f
-                if (sweep1 > 0) {
-                    drawArc(color = ColorRecovery, startAngle = startAngle, sweepAngle = sweep1, useCenter = false, style = stroke)
-                    startAngle += sweep1
+            Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceBetween) {
+                Box(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(Color.White.copy(alpha = 0.6f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(Icons.Rounded.LocalFireDepartment, null, tint = EnergyHeroAccent, modifier = Modifier.size(18.dp))
                 }
-
-                val sweep2 = (splitData.solidEffortPct / 100f) * 360f
-                if (sweep2 > 0) {
-                    drawArc(color = ColorSolid, startAngle = startAngle, sweepAngle = sweep2, useCenter = false, style = stroke)
-                    startAngle += sweep2
-                }
-
-                val sweep3 = (splitData.epicBurnPct / 100f) * 360f
-                if (sweep3 > 0) {
-                    drawArc(color = ColorEpic, startAngle = startAngle, sweepAngle = sweep3, useCenter = false, style = stroke)
+                Column {
+                    Text(
+                        uiState.totalCalories.toInt().toString(),
+                        style = MaterialTheme.typography.headlineMedium.copy(color = EnergyTextPrimary, fontWeight = FontWeight.ExtraBold, fontSize = 26.sp)
+                    )
+                    Text(
+                        stringResource(R.string.energy_total_burn) + " (" + stringResource(R.string.energy_kcal_unit) + ")",
+                        style = MaterialTheme.typography.labelSmall.copy(color = EnergyMutedText)
+                    )
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(32.dp))
+        // Right column: two stacked compact stats
+        Column(
+            modifier = Modifier.weight(1f).fillMaxHeight(),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            CompactStatCard(
+                modifier = Modifier.weight(1f).fillMaxWidth(),
+                bgColor = EnergyStatCardSecondary,
+                icon = Icons.Rounded.Bolt,
+                iconTint = Color(0xFF9A6B2E),
+                label = peakLabel,
+                value = bestDay?.displayLabel ?: "–"
+            )
+            CompactStatCard(
+                modifier = Modifier.weight(1f).fillMaxWidth(),
+                bgColor = EnergyStatCardTertiary,
+                icon = Icons.Rounded.CalendarMonth,
+                iconTint = Color(0xFF2E6E7A),
+                label = activeLabel,
+                value = "${uiState.chartData.count { it.value > 0f }} $activeUnit"
+            )
+        }
+    }
+}
 
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            LegendItem(color = ColorRecovery, label = "Light (< 300 kcal)", percentage = splitData.lightRecoveryPct)
-            LegendItem(color = ColorSolid, label = "Solid (300 - 600 kcal)", percentage = splitData.solidEffortPct)
-            LegendItem(color = ColorEpic, label = "Epic (> 600 kcal)", percentage = splitData.epicBurnPct)
+@Composable
+private fun CompactStatCard(
+    modifier: Modifier = Modifier,
+    bgColor: Color,
+    icon: ImageVector,
+    iconTint: Color,
+    label: String,
+    value: String
+) {
+    Row(
+        modifier = modifier
+            .shadow(4.dp, RoundedCornerShape(16.dp), ambientColor = bgColor.copy(alpha = 0.8f))
+            .clip(RoundedCornerShape(16.dp))
+            .background(bgColor)
+            .padding(horizontal = 14.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(28.dp)
+                .clip(RoundedCornerShape(9.dp))
+                .background(Color.White.copy(alpha = 0.6f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(icon, null, tint = iconTint, modifier = Modifier.size(15.dp))
+        }
+        Spacer(modifier = Modifier.width(10.dp))
+        Column {
+            Text(value, style = MaterialTheme.typography.titleSmall.copy(color = EnergyTextPrimary, fontWeight = FontWeight.Bold))
+            Text(label, style = MaterialTheme.typography.labelSmall.copy(color = EnergyMutedText, fontSize = 10.sp))
         }
     }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Bar Chart & Reusable Helpers
+// Chart Card
+// ─────────────────────────────────────────────────────────────────────────────
+@Composable
+private fun ChartCard(headerText: String, content: @Composable ColumnScope.() -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .shadow(8.dp, RoundedCornerShape(CardRadius), ambientColor = EnergyHeroPrimary.copy(alpha = 0.18f))
+            .clip(RoundedCornerShape(CardRadius))
+            .background(Color.White)
+            .padding(18.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                stringResource(R.string.energy_chart_card_title),
+                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold, color = EnergyTextPrimary)
+            )
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(EnergyHeroPrimary.copy(alpha = 0.12f))
+                    .padding(horizontal = 10.dp, vertical = 4.dp)
+            ) {
+                Text(headerText, style = MaterialTheme.typography.labelSmall.copy(color = EnergyHeroPrimary, fontWeight = FontWeight.SemiBold))
+            }
+        }
+        Spacer(modifier = Modifier.height(14.dp))
+        content()
+    }
+}
+
+@Composable
+private fun PagerDots(currentPage: Int, initialPage: Int) {
+    val offset = (currentPage - initialPage).coerceIn(-2, 2)
+    Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+        (-2..2).forEach { i ->
+            val isActive = i == offset
+            Box(
+                modifier = Modifier
+                    .size(if (isActive) 8.dp else 5.dp)
+                    .clip(CircleShape)
+                    .background(if (isActive) EnergyHeroPrimary else Color(0xFFCCCCDD))
+            )
+        }
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Bar Chart — thicker bars, matches Distance screen thickness
 // ─────────────────────────────────────────────────────────────────────────────
 @Composable
 fun EnergyBarChart(chartData: List<ChartData>) {
@@ -387,29 +495,26 @@ fun EnergyBarChart(chartData: List<ChartData>) {
     val bottomAxisValueFormatter = CartesianValueFormatter { x, _, _ ->
         chartData.getOrNull(x.toInt())?.displayLabel ?: ""
     }
-    // Formats Y-axis as whole numbers (e.g., 400, 600)
-    val startAxisValueFormatter = CartesianValueFormatter { y, _, _ ->
-        y.toInt().toString()
-    }
+    val startAxisValueFormatter = CartesianValueFormatter { y, _, _ -> y.toInt().toString() }
 
     CartesianChartHost(
         chart = rememberCartesianChart(
             rememberColumnCartesianLayer(
                 columnProvider = ColumnCartesianLayer.ColumnProvider.series(
                     rememberLineComponent(
-                        color = HeroCardColor,
-                        thickness = 14.dp,
-                        shape = remember { Shape.rounded(allPercent = 100) }
+                        color = EnergyHeroPrimary,
+                        thickness = 22.dp, // matches Distance screen
+                        shape = remember { Shape.rounded(allPercent = 35) }
                     )
                 )
             ),
             startAxis = rememberStartAxis(
-                label = rememberAxisLabelComponent(color = ChipUnselectedText),
+                label = rememberAxisLabelComponent(color = EnergyChipUnselectedText),
                 valueFormatter = startAxisValueFormatter,
                 guideline = rememberAxisGuidelineComponent(color = Color.LightGray.copy(alpha = 0.5f))
             ),
             bottomAxis = rememberBottomAxis(
-                label = rememberAxisLabelComponent(color = ChipUnselectedText),
+                label = rememberAxisLabelComponent(color = EnergyChipUnselectedText),
                 valueFormatter = bottomAxisValueFormatter,
                 guideline = null
             )
@@ -424,12 +529,26 @@ private fun FilterChipRow(selectedFilter: FilterRange, onFilterSelected: (Filter
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         FilterRange.values().forEach { filter ->
             val isSelected = selectedFilter == filter
-            val bgColor by animateColorAsState(if (isSelected) ChipSelectedBg else ChipUnselectedBg, label = "")
-            val textColor by animateColorAsState(if (isSelected) ChipSelectedText else ChipUnselectedText, label = "")
-            Surface(onClick = { onFilterSelected(filter) }, shape = RoundedCornerShape(50), color = bgColor) {
+            val bgColor by animateColorAsState(
+                targetValue = if (isSelected) EnergyChipSelectedBg else EnergyChipUnselectedBg,
+                animationSpec = tween(200), label = "chipBg"
+            )
+            val textColor by animateColorAsState(
+                targetValue = if (isSelected) EnergyChipSelectedText else EnergyChipUnselectedText,
+                animationSpec = tween(200), label = "chipText"
+            )
+            Surface(
+                onClick = { onFilterSelected(filter) },
+                shape = RoundedCornerShape(50),
+                color = bgColor,
+                shadowElevation = if (isSelected) 4.dp else 0.dp
+            ) {
                 Text(
                     text = filter.name.lowercase().replaceFirstChar { it.uppercase() },
-                    style = MaterialTheme.typography.labelLarge.copy(color = textColor, fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal),
+                    style = MaterialTheme.typography.labelLarge.copy(
+                        color = textColor,
+                        fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal
+                    ),
                     modifier = Modifier.padding(horizontal = 18.dp, vertical = 9.dp)
                 )
             }
@@ -437,39 +556,83 @@ private fun FilterChipRow(selectedFilter: FilterRange, onFilterSelected: (Filter
     }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Intensity Split — side-by-side donut + legend, matches Distance screen
+// ─────────────────────────────────────────────────────────────────────────────
 @Composable
-private fun MiniStatCard(modifier: Modifier = Modifier, bgColor: Color, label: String, value: String, unit: String) {
-    Box(modifier = modifier.clip(RoundedCornerShape(16.dp)).background(bgColor).padding(horizontal = 14.dp, vertical = 14.dp)) {
-        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text(label, style = MaterialTheme.typography.labelSmall.copy(color = Color(0xFF5C5C7A), fontWeight = FontWeight.Medium))
-            Text(value, style = MaterialTheme.typography.titleMedium.copy(color = Color(0xFF1A1A2E), fontWeight = FontWeight.Bold))
-            Text(unit, style = MaterialTheme.typography.labelSmall.copy(color = Color(0xFF8888A8), fontSize = 10.sp))
-        }
-    }
-}
+fun EnergySplitCard(splitData: EnergySplitData) {
+    val hasData = splitData.lightRecoveryPct > 0f || splitData.solidEffortPct > 0f || splitData.epicBurnPct > 0f
 
-@Composable
-private fun ChartCard(content: @Composable ColumnScope.() -> Unit) {
-    Column(modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(CardRadius)).background(Color.White).padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally, content = content)
-}
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .shadow(8.dp, RoundedCornerShape(24.dp), ambientColor = EnergyHeroPrimary.copy(alpha = 0.18f))
+            .clip(RoundedCornerShape(24.dp))
+            .background(Color.White)
+            .padding(20.dp)
+    ) {
+        Text(
+            text = stringResource(R.string.energy_intensity_title),
+            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, color = EnergyTextPrimary)
+        )
+        Text(
+            text = stringResource(R.string.energy_intensity_subtitle),
+            style = MaterialTheme.typography.bodyMedium.copy(color = EnergyTextSecondary)
+        )
 
-@Composable
-private fun PagerDots(currentPage: Int, initialPage: Int) {
-    val offset = (currentPage - initialPage).coerceIn(-2, 2)
-    Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-        (-2..2).forEach { i ->
-            val isActive = i == offset
-            Box(modifier = Modifier.size(if (isActive) 8.dp else 5.dp).clip(CircleShape).background(if (isActive) HeroCardColor else Color(0xFFCCCCDD)))
+        Spacer(modifier = Modifier.height(20.dp))
+
+        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Canvas(modifier = Modifier.size(130.dp)) {
+                val strokeWidth = 26.dp.toPx()
+                val stroke = Stroke(width = strokeWidth, cap = StrokeCap.Round)
+                var startAngle = -90f
+
+                if (!hasData) {
+                    drawArc(color = Color.LightGray.copy(alpha = 0.3f), startAngle = 0f, sweepAngle = 360f, useCenter = false, style = stroke)
+                } else {
+                    val sweep1 = (splitData.lightRecoveryPct / 100f) * 360f
+                    if (sweep1 > 0) {
+                        drawArc(color = EnergyDonutLight, startAngle = startAngle, sweepAngle = sweep1, useCenter = false, style = stroke)
+                        startAngle += sweep1
+                    }
+                    val sweep2 = (splitData.solidEffortPct / 100f) * 360f
+                    if (sweep2 > 0) {
+                        drawArc(color = EnergyDonutSolid, startAngle = startAngle, sweepAngle = sweep2, useCenter = false, style = stroke)
+                        startAngle += sweep2
+                    }
+                    val sweep3 = (splitData.epicBurnPct / 100f) * 360f
+                    if (sweep3 > 0) {
+                        drawArc(color = EnergyDonutEpic, startAngle = startAngle, sweepAngle = sweep3, useCenter = false, style = stroke)
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.width(24.dp))
+
+            Column(verticalArrangement = Arrangement.spacedBy(14.dp), modifier = Modifier.weight(1f)) {
+                LegendItem(color = EnergyDonutLight, label = stringResource(R.string.energy_legend_light), percentage = splitData.lightRecoveryPct)
+                LegendItem(color = EnergyDonutSolid, label = stringResource(R.string.energy_legend_solid), percentage = splitData.solidEffortPct)
+                LegendItem(color = EnergyDonutEpic, label = stringResource(R.string.energy_legend_epic), percentage = splitData.epicBurnPct)
+            }
         }
     }
 }
 
 @Composable
 private fun LegendItem(color: Color, label: String, percentage: Float) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
         Box(modifier = Modifier.size(12.dp).clip(RoundedCornerShape(3.dp)).background(color))
         Spacer(modifier = Modifier.width(8.dp))
-        Text(text = "$label — ${percentage.toInt()}%", style = MaterialTheme.typography.bodyMedium.copy(color = Color(0xFF5C5C7A), fontWeight = FontWeight.Medium))
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyMedium.copy(color = EnergyMutedText, fontWeight = FontWeight.Medium),
+            modifier = Modifier.weight(1f)
+        )
+        Text(
+            text = "${percentage.toInt()}%",
+            style = MaterialTheme.typography.bodyMedium.copy(color = EnergyTextPrimary, fontWeight = FontWeight.Bold)
+        )
     }
 }
 
@@ -478,17 +641,14 @@ private fun getFormattedHeader(filter: FilterRange, offset: Int): String {
     val today = LocalDate.now()
     return when (filter) {
         FilterRange.WEEK -> {
-            val targetWeek   = today.plusWeeks(offset.toLong())
-            val startOfWeek  = targetWeek.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-            val endOfWeek    = startOfWeek.plusDays(6)
-            val fmt          = DateTimeFormatter.ofPattern("MMM dd", Locale.getDefault())
-            val yearFmt      = DateTimeFormatter.ofPattern("yyyy", Locale.getDefault())
+            val targetWeek = today.plusWeeks(offset.toLong())
+            val startOfWeek = targetWeek.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+            val endOfWeek = startOfWeek.plusDays(6)
+            val fmt = DateTimeFormatter.ofPattern("MMM dd", Locale.getDefault())
+            val yearFmt = DateTimeFormatter.ofPattern("yyyy", Locale.getDefault())
             "${startOfWeek.format(fmt)} – ${endOfWeek.format(fmt)}, ${endOfWeek.format(yearFmt)}"
         }
-        FilterRange.MONTH -> {
-            val targetMonth = today.plusMonths(offset.toLong())
-            targetMonth.format(DateTimeFormatter.ofPattern("MMMM yyyy", Locale.getDefault()))
-        }
+        FilterRange.MONTH -> today.plusMonths(offset.toLong()).format(DateTimeFormatter.ofPattern("MMMM yyyy", Locale.getDefault()))
         FilterRange.YEAR -> today.plusYears(offset.toLong()).year.toString()
     }
 }

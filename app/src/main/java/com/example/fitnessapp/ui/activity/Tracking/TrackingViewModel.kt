@@ -100,7 +100,6 @@ class TrackingViewModel @Inject constructor(
                         _uiEvent.emit(TrackingUiEvent.ShowLocationError)
                     }
                     is RunEvents.NoMovement -> {
-                        Log.d("runEvent", "No movement detected log")
                         _uiEvent.emit(TrackingUiEvent.ShowNoMovementDialogue)
                     }
 

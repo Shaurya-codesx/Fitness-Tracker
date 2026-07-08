@@ -14,6 +14,7 @@ import androidx.compose.material.icons.automirrored.filled.DirectionsWalk
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.ShowChart
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.rounded.Straighten
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -23,6 +24,8 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -34,6 +37,7 @@ import com.example.fitnessapp.ui.UiStates.StatsUIState
 import com.example.fitnessapp.ui.activity.RunHistory.RunFilter
 import com.example.fitnessapp.ui.components.BottomBar
 import com.example.fitnessapp.ui.theme.*
+import com.example.fitnessapp.R
 
 // Shared palette — same as Auth/Home screens
 
@@ -46,17 +50,17 @@ private val HeroGradient = Brush.linearGradient(colors = listOf(Color(0xFF7C6CF0
 fun StatsScreen(
     navController: NavController,
     onHealthTrendsClick: () -> Unit = {
-        navController.navigate("healthTrendsScreen"){
+        navController.navigate("healthTrendsScreen") {
             popUpTo("statsScreen")
         }
     },
     onPersonalBestsClick: () -> Unit = {
-        navController.navigate("PersonalBestScreen"){
+        navController.navigate("PersonalBestScreen") {
             popUpTo("statsScreen")
         }
     },
 ) {
-    val viewModel : StatsViewModel = hiltViewModel()
+    val viewModel: StatsViewModel = hiltViewModel()
     val uiState by viewModel.statsUIState.collectAsStateWithLifecycle()
     var selectedFilter by remember { mutableStateOf(RunFilter.WEEK) }
 
@@ -75,7 +79,7 @@ fun StatsScreen(
                 .verticalScroll(rememberScrollState())
         ) {
             Text(
-                text = "Statistics",
+                text = stringResource(id = R.string.stats_screen_title),
                 style = MaterialTheme.typography.headlineLarge.copy(
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 30.sp
@@ -106,17 +110,17 @@ fun StatsScreen(
                     BigSummaryCard(
                         distance = data.totalDistance,
                         subtitle = when (selectedFilter) {
-                            RunFilter.DAY -> "Total distance today"
-                            RunFilter.WEEK -> "Total distance this week"
-                            RunFilter.MONTH -> "Total distance this month"
-                            RunFilter.ALL -> "Total distance all time"
+                            RunFilter.DAY -> stringResource(id = R.string.stats_distance_today)
+                            RunFilter.WEEK -> stringResource(id = R.string.stats_distance_week)
+                            RunFilter.MONTH -> stringResource(id = R.string.stats_distance_month)
+                            RunFilter.ALL -> stringResource(id = R.string.stats_distance_all)
                         }
                     )
 
                     Spacer(modifier = Modifier.height(18.dp))
 
                     Text(
-                        text = "Performance",
+                        text = stringResource(id = R.string.stats_performance_title),
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                         color = StatsTextPrimary,
                         modifier = Modifier.padding(start = 4.dp, bottom = 12.dp)
@@ -133,7 +137,7 @@ fun StatsScreen(
                         BentoStatCard(
                             icon = Icons.Filled.EmojiEvents,
                             value = data.totalRuns,
-                            label = "Total Runs",
+                            label = stringResource(id = R.string.stats_total_runs_label),
                             gradient = Brush.verticalGradient(listOf(StatsViolet, StatsVioletLight)),
                             contentColor = Color.White,
                             modifier = Modifier
@@ -144,24 +148,30 @@ fun StatsScreen(
 
                         // Right: two stacked cards
                         Column(
-                            modifier = Modifier.weight(1f).fillMaxHeight(),
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxHeight(),
                             verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             BentoStatCard(
                                 icon = Icons.Filled.LocalFireDepartment,
                                 value = data.totalCalories,
-                                label = "Calories",
+                                label = stringResource(id = R.string.stats_calories_label),
                                 bgColor = Color(0xFFFFE9D6),
                                 contentColor = Color(0xFF9A5B23),
-                                modifier = Modifier.weight(1f).fillMaxWidth()
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .fillMaxWidth()
                             )
                             BentoStatCard(
                                 icon = Icons.AutoMirrored.Filled.DirectionsWalk,
                                 value = data.totalSteps,
-                                label = "Steps",
+                                label = stringResource(id = R.string.stats_steps_label),
                                 bgColor = StatsMint,
                                 contentColor = Color(0xFF1F6D4A),
-                                modifier = Modifier.weight(1f).fillMaxWidth()
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .fillMaxWidth()
                             )
                         }
                     }
@@ -187,7 +197,7 @@ fun StatsScreen(
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
-                                imageVector = Icons.AutoMirrored.Filled.DirectionsRun,
+                                painter = painterResource(R.drawable.duration_image),
                                 contentDescription = null,
                                 modifier = Modifier.size(24.dp),
                                 tint = Color(0xFF1A5C73)
@@ -201,7 +211,7 @@ fun StatsScreen(
                                 color = Color(0xFF1A5C73)
                             )
                             Text(
-                                text = "Total Duration",
+                                text = stringResource(id = R.string.stats_duration_label),
                                 style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),
                                 color = Color(0xFF1A5C73).copy(alpha = 0.75f)
                             )
@@ -211,15 +221,15 @@ fun StatsScreen(
                     Spacer(modifier = Modifier.height(26.dp))
 
                     Text(
-                        text = "Insights",
+                        text = stringResource(id = R.string.stats_insights_title),
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                         color = StatsTextPrimary,
                         modifier = Modifier.padding(start = 4.dp, bottom = 12.dp)
                     )
 
                     InsightCard(
-                        title = "Health Trends",
-                        subtitle = "Track your progress and patterns",
+                        title = stringResource(id = R.string.stats_health_trends_title),
+                        subtitle = stringResource(id = R.string.stats_health_trends_subtitle),
                         icon = Icons.AutoMirrored.Filled.ShowChart,
                         iconBg = StatsVioletLight.copy(alpha = 0.25f),
                         iconTint = StatsViolet,
@@ -229,8 +239,8 @@ fun StatsScreen(
                     Spacer(modifier = Modifier.height(12.dp))
 
                     InsightCard(
-                        title = "Personal Bests",
-                        subtitle = "Celebrate your record achievements",
+                        title = stringResource(id = R.string.stats_personal_bests_title),
+                        subtitle = stringResource(id = R.string.stats_personal_bests_subtitle),
                         icon = Icons.Filled.Star,
                         iconBg = StatsSunshine.copy(alpha = 0.35f),
                         iconTint = Color(0xFF9A7300),
@@ -278,7 +288,7 @@ private fun BigSummaryCard(distance: String, subtitle: String) {
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                imageVector = Icons.AutoMirrored.Filled.DirectionsRun,
+                imageVector = Icons.Rounded.Straighten,
                 contentDescription = null,
                 modifier = Modifier.size(28.dp),
                 tint = Color.White
@@ -405,14 +415,16 @@ private fun FilterPillsRow(
     modifier: Modifier = Modifier
 ) {
     val filters = listOf(
-        RunFilter.DAY to "Today",
-        RunFilter.WEEK to "This week",
-        RunFilter.MONTH to "This month",
-        RunFilter.ALL to "All runs"
+        RunFilter.DAY to stringResource(id = R.string.stats_filter_today),
+        RunFilter.WEEK to stringResource(id = R.string.stats_filter_week),
+        RunFilter.MONTH to stringResource(id = R.string.stats_filter_month),
+        RunFilter.ALL to stringResource(id = R.string.stats_filter_all_time)
     )
 
     Row(
-        modifier = modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+        modifier = modifier
+            .fillMaxWidth()
+            .horizontalScroll(rememberScrollState()),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         filters.forEach { (filter, label) ->
@@ -443,12 +455,14 @@ private fun FilterPillsRow(
 @Composable
 private fun LoadingContent() {
     Box(
-        modifier = Modifier.fillMaxWidth().height(240.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(240.dp),
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(16.dp)) {
             CircularProgressIndicator(color = StatsViolet, strokeWidth = 4.dp, modifier = Modifier.size(46.dp))
-            Text("Loading your stats...", style = MaterialTheme.typography.bodyMedium, color = StatsTextSecondary)
+            Text(stringResource(id = R.string.stats_loading_message), style = MaterialTheme.typography.bodyMedium, color = StatsTextSecondary)
         }
     }
 }
@@ -456,7 +470,9 @@ private fun LoadingContent() {
 @Composable
 private fun ErrorContent(message: String, onRetry: () -> Unit) {
     Column(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 36.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 36.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Icon(
@@ -466,7 +482,7 @@ private fun ErrorContent(message: String, onRetry: () -> Unit) {
             tint = MaterialTheme.colorScheme.error
         )
         Spacer(modifier = Modifier.height(16.dp))
-        Text("Something went wrong", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold), color = StatsTextPrimary)
+        Text(stringResource(id = R.string.stats_error_title), style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold), color = StatsTextPrimary)
         Spacer(modifier = Modifier.height(4.dp))
         Text(message, style = MaterialTheme.typography.bodyMedium, color = StatsTextSecondary, textAlign = TextAlign.Center)
         Spacer(modifier = Modifier.height(22.dp))
@@ -477,7 +493,7 @@ private fun ErrorContent(message: String, onRetry: () -> Unit) {
                 .clickable { onRetry() }
                 .padding(horizontal = 28.dp, vertical = 14.dp)
         ) {
-            Text("Try Again", color = Color.White, fontWeight = FontWeight.Bold)
+            Text(stringResource(id = R.string.stats_error_retry), color = Color.White, fontWeight = FontWeight.Bold)
         }
     }
 }

@@ -1,4 +1,5 @@
-import android.R
+
+
 import android.widget.Toast
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
@@ -24,6 +25,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -38,7 +40,7 @@ import com.example.fitnessapp.ui.Auth.AuthViewModel
 import kotlinx.coroutines.flow.collectLatest
 import com.example.fitnessapp.ui.theme.*
 import com.example.fitnessapp.R.drawable
-
+import com.example.fitnessapp.R
 
 private val AuthGradient = Brush.linearGradient(
     colors = listOf(AuthViolet, Color(0xFFB18AFF))
@@ -57,6 +59,7 @@ fun AuthScreen(
 
     LaunchedEffect(Unit) {
         viewModel.uiEvent.collectLatest { event ->
+            // Event signals are kept as literal strings since they map to ViewModel logic
             when (event) {
                 "ReturningUser" -> onNavigateToHome()
                 "NewUser" -> onNavigateToOnboarding()
@@ -68,18 +71,18 @@ fun AuthScreen(
     if (uiState.showResetDialog) {
         AlertDialog(
             onDismissRequest = viewModel::toggleResetDialog,
-            title = { Text("Reset Password", fontWeight = FontWeight.Bold, color = AuthTextPrimary) },
+            title = { Text(stringResource(R.string.auth_reset_password_title), fontWeight = FontWeight.Bold, color = AuthTextPrimary) },
             text = {
                 Column {
                     Text(
-                        "Enter your email address and we will send you a link to reset your password.",
+                        text = stringResource(R.string.auth_reset_password_desc),
                         color = AuthTextSecondary,
                         modifier = Modifier.padding(bottom = 16.dp)
                     )
                     TextField(
                         value = uiState.resetEmailInput,
                         onValueChange = viewModel::onResetEmailChange,
-                        placeholder = { Text("Email address", color = AuthTextSecondary) },
+                        placeholder = { Text(stringResource(R.string.auth_email_placeholder), color = AuthTextSecondary) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
@@ -100,12 +103,12 @@ fun AuthScreen(
                     shape = CircleShape,
                     elevation = ButtonDefaults.buttonElevation(0.dp)
                 ) {
-                    Text("Send Link", color = Color.White)
+                    Text(stringResource(R.string.auth_send_link), color = Color.White)
                 }
             },
             dismissButton = {
                 TextButton(onClick = viewModel::toggleResetDialog) {
-                    Text("Cancel", color = AuthTextSecondary)
+                    Text(stringResource(R.string.auth_cancel), color = AuthTextSecondary)
                 }
             },
             containerColor = AuthCard,
@@ -170,8 +173,8 @@ fun AuthScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     AsyncImage(
-                        model = drawable.login_page_image,
-                        contentDescription = "Running animation",
+                        model = R.drawable.login_page_image, // Updated to reference R.drawable directly
+                        contentDescription = stringResource(R.string.auth_hero_image_desc),
                         contentScale = ContentScale.Fit,
                         modifier = Modifier
                             .size(160.dp)
@@ -200,19 +203,19 @@ fun AuthScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = if (uiState.isLoginMode) "Welcome Back" else "Let's Get Moving",
+                text = if (uiState.isLoginMode) stringResource(R.string.auth_welcome_back) else stringResource(R.string.auth_lets_get_moving),
                 style = MaterialTheme.typography.headlineMedium.copy(
                     fontWeight = FontWeight.ExtraBold,
                     color = AuthTextPrimary
                 )
             )
             Text(
-                text = if (uiState.isLoginMode) "Sign in to sync your runs" else "Create your account to start tracking",
+                text = if (uiState.isLoginMode) stringResource(R.string.auth_sign_in_desc) else stringResource(R.string.auth_sign_up_desc),
                 style = MaterialTheme.typography.bodyMedium.copy(color = AuthTextSecondary),
                 modifier = Modifier.padding(top = 6.dp, bottom = 24.dp)
             )
 
-            // ─── Segmented pill toggle (replaces plain text toggle) ───
+            // ─── Segmented pill toggle ───
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -221,13 +224,13 @@ fun AuthScreen(
                     .padding(4.dp)
             ) {
                 SegmentToggleItem(
-                    text = "Sign In",
+                    text = stringResource(R.string.auth_sign_in),
                     selected = uiState.isLoginMode,
                     modifier = Modifier.weight(1f)
                 ) { if (!uiState.isLoginMode) viewModel.toggleAuthMode() }
 
                 SegmentToggleItem(
-                    text = "Sign Up",
+                    text = stringResource(R.string.auth_sign_up),
                     selected = !uiState.isLoginMode,
                     modifier = Modifier.weight(1f)
                 ) { if (uiState.isLoginMode) viewModel.toggleAuthMode() }
@@ -247,7 +250,7 @@ fun AuthScreen(
                 TextField(
                     value = uiState.emailInput,
                     onValueChange = viewModel::onEmailChange,
-                    placeholder = { Text("Email address", color = AuthTextSecondary) },
+                    placeholder = { Text(stringResource(R.string.auth_email_placeholder), color = AuthTextSecondary) },
                     leadingIcon = { Icon(Icons.Rounded.Email, null, tint = AuthViolet) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                     modifier = Modifier.fillMaxWidth(),
@@ -266,14 +269,14 @@ fun AuthScreen(
                 TextField(
                     value = uiState.passwordInput,
                     onValueChange = viewModel::onPasswordChange,
-                    placeholder = { Text("Password", color = AuthTextSecondary) },
+                    placeholder = { Text(stringResource(R.string.auth_password_placeholder), color = AuthTextSecondary) },
                     leadingIcon = { Icon(Icons.Rounded.Lock, null, tint = AuthViolet) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                     visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
                         val image = if (passwordVisible) Icons.Rounded.Visibility else Icons.Rounded.VisibilityOff
                         IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                            Icon(image, "Toggle Password Visibility", tint = AuthTextSecondary)
+                            Icon(image, stringResource(R.string.auth_toggle_password_visibility), tint = AuthTextSecondary)
                         }
                     },
                     modifier = Modifier.fillMaxWidth(),
@@ -290,7 +293,7 @@ fun AuthScreen(
                 if (uiState.isLoginMode) {
                     Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
                         TextButton(onClick = viewModel::toggleResetDialog) {
-                            Text("Forgot Password?", color = AuthViolet, fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
+                            Text(stringResource(R.string.auth_forgot_password), color = AuthViolet, fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
                         }
                     }
                 } else {
@@ -323,7 +326,7 @@ fun AuthScreen(
                         CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
                     } else {
                         Text(
-                            text = if (uiState.isLoginMode) "Sign In" else "Sign Up",
+                            text = if (uiState.isLoginMode) stringResource(R.string.auth_sign_in) else stringResource(R.string.auth_sign_up),
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Fitness App</string>
+    <string name="app_name">FitBuddy</string>
     <string name="dashboard">Dashboard</string>
     <string name="water_tracking">Water Tracking</string>
     <string name="step_tracking">Step Tracking</string>
@@ -67,4 +67,315 @@
     <string name="fair_sleep">Fair (occasional waking)</string>
     <string name="good_sleep">Good (mostly uninterrupted)</string>
     <string name="excellent_sleep">Excellent (deep, restful sleep)</string>
+
+    <!-- Location Service Strings -->
+    <string name="location_tracking_channel_name">Location Tracking</string>
+    <string name="gps_lost_paused">GPS LOST - PAUSED</string>
+    <string name="waiting_for_signal">Waiting for signal...</string>
+    <string name="run_paused_warning">⚠️ Run Paused - Check GPS</string>
+    <string name="fitness_tracker">Fitness Tracker</string>
+    <string name="notification_content_format">Time: %1$s s, Distance: %2$s m</string>
+    <string name="stop_run">Stop Run</string>
+    <string name="default_time">00:00</string>
+    <string name="default_distance">0.00</string>
+
+    <!-- Streak Reminder Strings -->
+    <string name="streak_reminder_1day_title">Keep the Momentum! 🔥</string>
+    <string name="streak_reminder_1day_message">A quick 10-minute walk is all it takes to keep your streak alive today.</string>
+    <string name="streak_reminder_3day_title">Time to lace up! 👟</string>
+    <string name="streak_reminder_3day_message">Rest days are important, but we miss you out there. Ready for a quick run?</string>
+    <string name="coach_notification_channel_id">coach_channel</string>
+
+    <!-- HomeScreen Strings -->
+    <string name="start_run">Start Run</string>
+    <string name="profile">Profile</string>
+    <string name="day_streak_format">%1$d Day Streak</string>
+    <string name="keep_fire_going">Keep the fire going!</string>
+    <string name="todays_targets">Today\'s Targets</string>
+    <string name="edit_goals">Edit Goals</string>
+    <string name="tap_to_set_goals">Tap here to set your daily goals!</string>
+    <string name="consistency">Consistency</string>
+    <string name="good_morning">Good morning,</string>
+    <string name="good_afternoon">Good afternoon,</string>
+    <string name="good_evening">Good evening,</string>
+    <string name="late_night_run">Late night run?</string>
+    <string name="km">km</string>
+    <string name="kcal">kcal</string>
+    <string name="fraction_format">%1$s / %2$s</string>
+    <string name="set_daily_targets">Set Daily Targets</string>
+    <string name="daily_steps">Daily Steps</string>
+    <string name="daily_distance_km">Daily Distance (km)</string>
+    <string name="daily_calories_kcal">Daily Calories (kcal)</string>
+    <string name="save_targets">Save Targets</string>
+
+    <!-- Onboarding Strings -->
+    <string name="next">Next</string>
+    <string name="get_started">Get Started</string>
+    <string name="welcome_title">Welcome to\nthe Journey</string>
+    <string name="welcome_subtitle">Your offline-first, performance-tracking companion — built to run with you, not just track you.</string>
+    <string name="custom_goals_title">Custom Goals</string>
+    <string name="custom_goals_subtitle">Tailor steps, distance &amp; calories to you</string>
+    <string name="offline_first_title">Offline First</string>
+    <string name="offline_first_subtitle">Runs anywhere, syncs when back online</string>
+    <string name="real_insights_title">Real Insights</string>
+    <string name="real_insights_subtitle">Trends across weeks, not just single runs</string>
+    <string name="personal_bests_title">Personal Bests</string>
+    <string name="personal_bests_subtitle">Every record, tracked automatically</string>
+    <string name="all_set_title">You\'re all set</string>
+    <string name="live_run_stats_title">Live run stats</string>
+    <string name="notifications_enabled_subtitle">Notifications enabled for live pace tracking</string>
+    <string name="enable_notifications_subtitle">Enable notifications to see pace on lock screen</string>
+    <string name="enable">Enable</string>
+    <string name="permission_blocked_title">Permission Blocked</string>
+    <string name="live_stats_required_title">Live Stats Required</string>
+    <string name="permission_permanently_denied_message">Notifications are disabled. Please open your device settings and allow notifications so we can show your live distance and pace while your phone is locked.</string>
+    <string name="permission_rationale_message">We need notification permissions to show your live distance, pace, and time while your phone is locked during a run.</string>
+    <string name="open_settings">Open Settings</string>
+    <string name="try_again">Try Again</string>
+    <string name="not_now">Not Now</string>
+    <string name="enter_weight_height">Enter weight &amp; height</string>
+    <string name="bmi_underweight">Underweight</string>
+    <string name="bmi_healthy">Healthy range</string>
+    <string name="bmi_above_healthy">Above healthy range</string>
+    <string name="bmi_high">High range</string>
+    <string name="about_you">About You</string>
+    <string name="personalize_metrics_subtitle">Let\'s personalize your metrics</string>
+    <string name="full_name">Full Name</string>
+    <string name="weight_kg">Weight (kg)</string>
+    <string name="height_cm">Height (cm)</string>
+    <string name="bmi_title">Body Mass Index</string>
+    <string name="daily_targets_title">Daily Targets</string>
+    <string name="aiming_for_today_subtitle">What are we aiming for today?</string>
+    <string name="your_daily_target">Your daily target</string>
+    <string name="daily_target_est_subtitle">About %1$.1f km of walking, roughly</string>
+    <string name="set_step_goal_estimate_subtitle">Set your step goal to see an estimate</string>
+    <string name="zero">0</string>
+    <string name="fill_all_fields_error">Please fill out all fields with valid numbers.</string>
+    <string name="save_data_error">Failed to save data. Please try again.</string>
+
+    <!-- RunDetails Strings -->
+    <string name="run_summary">Run Summary</string>
+    <string name="total_distance">Total distance</string>
+    <string name="duration">Duration</string>
+    <string name="performance">Performance</string>
+    <string name="avg_pace">Avg Pace</string>
+    <string name="min_km">min/km</string>
+    <string name="steps_unit">steps</string>
+    <string name="timeline">Timeline</string>
+    <string name="started">Started</string>
+    <string name="finished">Finished</string>
+    <string name="error_msg">Something went wrong</string>
+    <string name="couldnt_load_msg">Couldn\'t load run</string>
+    <string name="not_load_msg">We couldn\'t load your run data. Please check your connection and try again.</string>
+
+    <!-- Run History Screen -->
+    <string name="run_history_title">Run History</string>
+    <string name="sessions_count">%1$s · %2$d sessions</string>
+    <string name="start_new_run">Start new run</string>
+    <string name="filter_description">Filter</string>
+    <!-- Filters -->
+    <string name="filter_today">Today</string>
+    <string name="filter_this_week">This week</string>
+    <string name="filter_this_month">This month</string>
+    <string name="filter_all_runs">All runs</string>
+    <!-- Summary Section -->
+    <string name="total_distance_month">Total distance this month</string>
+    <string name="unit_min_km">Min / km</string>
+    <string name="total_time">Total time</string>
+    <!-- Card Stats -->
+    <string name="stat_duration">Duration</string>
+    <string name="stat_distance">Distance</string>
+    <string name="stat_avg_pace">Avg pace</string>
+    <string name="unit_km">%1$s km</string>
+    <string name="emptyState_title">No runs yet</string>
+    <string name="emptyState_msg">Ready for a new run?</string>
+    <string name="long_run">Long Run</string>
+    <string name="personal_best">Personal Best</string>
+    <string name="completed">Completed</string>
+    <string name="morning">Morning run</string>
+    <string name="afternoon">Afternoon run</string>
+    <string name="evening">Evening Jog</string>
+    <string name="night">Night run</string>
+
+    <!-- Distance Analytics Screen -->
+    <string name="distance_title">Distance</string>
+    <string name="filter_week">Week</string>
+    <string name="filter_month">Month</string>
+    <string name="filter_year">Year</string>
+    <string name="km_per_day">km / day</string>">
+    <string name="no_runs_logged_title">No runs logged</string>
+    <string name="no_runs_logged_subtitle">Check back when you\'ve hit the pavement.</string>
+    <string name="distance_split_title">Distance Split</string>
+    <string name="daily_avg">Daily Average</string>
+    <string name="total">Total</string>
+    <string name="by_run_length">by run length</string>
+    <string name="dist_breakdown">Distance Breakdown</string>
+
+    <!-- Energy Analytics Screen -->
+    <string name="energy_title">Energy</string>
+    <string name="energy_daily_avg_burn">Avg. Daily Burn</string>
+    <string name="energy_kcal_unit">kcal</string>
+    <string name="energy_kcal_per_day">kcal / day</string>
+
+    <string name="energy_total_burn">Total Burn</string>
+    <string name="energy_peak_label_week">Highest burn</string>
+    <string name="energy_peak_label_month">Best week</string>
+    <string name="energy_peak_label_year">Best month</string>
+    <string name="energy_active_label_week">Active days</string>
+    <string name="energy_active_label_month">Active weeks</string>
+    <string name="energy_active_label_year">Active months</string>
+    <string name="energy_active_unit_days">days</string>
+    <string name="energy_active_unit_weeks">weeks</string>
+    <string name="energy_active_unit_months">months</string>
+
+    <string name="energy_chart_card_title">Calorie breakdown</string>
+    <string name="energy_no_data_title">No energy logged</string>
+    <string name="energy_no_data_subtitle">Time to burn some calories!</string>
+
+    <string name="energy_intensity_title">Workout Intensity</string>
+    <string name="energy_intensity_subtitle">by caloric burn</string>
+    <string name="energy_legend_light">Light (&lt; 300 kcal)</string>
+    <string name="energy_legend_solid">Solid (300 – 600 kcal)</string>
+    <string name="energy_legend_epic">Epic (&gt; 600 kcal)</string>
+
+    <string name="content_desc_back">Back</string>
+    <string name="content_desc_previous">Previous</string>
+    <string name="content_desc_next">Next</string>
+
+    <!-- Pace Analytics Screen -->
+    <string name="pace_title">Pace</string>
+    <string name="pace_average_pace">Average Pace</string>
+    <string name="pace_min_per_km">min / km</string>
+    <string name="pace_min_per_km_short">min/km</string>
+    <string name="pace_min_per_km_suffix">/km</string>
+
+    <string name="pace_avg_pace_label">Avg Pace</string>
+    <string name="pace_peak_label_week">Fastest day</string>
+    <string name="pace_peak_label_month">Fastest week</string>
+    <string name="pace_peak_label_year">Fastest month</string>
+    <string name="pace_active_label_week">Active days</string>
+    <string name="pace_active_label_month">Active weeks</string>
+    <string name="pace_active_label_year">Active months</string>
+    <string name="pace_active_unit_days">days</string>
+    <string name="pace_active_unit_weeks">weeks</string>
+    <string name="pace_active_unit_months">months</string>
+
+    <string name="pace_chart_card_title">Pace trend</string>
+    <string name="pace_no_data_title">No pace data</string>
+    <string name="pace_no_data_subtitle">Log a run to see your speed.</string>
+
+    <string name="pace_split_title">Pace split</string>
+    <string name="pace_split_subtitle">by pace zone</string>
+    <string name="pace_legend_walking">Walking (&gt; 8:00/km)</string>
+    <string name="pace_legend_jogging">Jogging (6:00 – 8:00)</string>
+    <string name="pace_legend_running">Running (&lt; 6:00/km)</string>
+
+
+
+    <string name="pb_back_desc">Back</string>
+    <string name="pb_trophy_room_title">Trophy Room</string>
+    <string name="pb_trophy_room_subtitle">Your all-time personal records</string>
+    <string name="pb_empty_title">Lace up your shoes!</string>
+    <string name="pb_empty_subtitle">Your records will appear here\nafter your first run.</string>
+    <string name="pb_trophy_desc">Trophy</string>
+    <string name="pb_farthest_run">FARTHEST RUN</string>
+    <string name="pb_most_steps">Most steps</string>
+    <string name="pb_longest_time">Longest time</string>
+    <string name="pb_fastest_pace">Fastest pace</string>
+    <string name="pb_most_calories">Most calories burned</string>
+
+    <string name="stats_screen_title">Statistics</string>
+
+    <string name="stats_filter_today">Today</string>
+    <string name="stats_filter_week">This week</string>
+    <string name="stats_filter_month">This month</string>
+    <string name="stats_filter_all_time">All runs</string>
+
+    <string name="stats_distance_today">Total distance today</string>
+    <string name="stats_distance_week">Total distance this week</string>
+    <string name="stats_distance_month">Total distance this month</string>
+    <string name="stats_distance_all">Total distance all time</string>
+
+    <string name="stats_performance_title">Performance</string>
+    <string name="stats_total_runs_label">Total Runs</string>
+    <string name="stats_calories_label">Calories</string>
+    <string name="stats_steps_label">Steps</string>
+    <string name="stats_duration_label">Total Duration</string>
+
+    <string name="stats_insights_title">Insights</string>
+    <string name="stats_health_trends_title">Health Trends</string>
+    <string name="stats_health_trends_subtitle">Track your progress and patterns</string>
+    <string name="stats_personal_bests_title">Personal Bests</string>
+    <string name="stats_personal_bests_subtitle">Celebrate your record achievements</string>
+
+    <string name="stats_loading_message">Loading your stats...</string>
+    <string name="stats_error_title">Something went wrong</string>
+    <string name="stats_error_retry">Try Again</string>
+
+    <string name="tracking_gps_lost">GPS Signal Lost. Run Paused.</string>
+    <string name="tracking_gps_restored">GPS Restored. Resuming Run!</string>
+    <string name="tracking_permissions_blocked_title">Permissions Blocked</string>
+    <string name="tracking_location_required_title">Location Required</string>
+    <string name="tracking_permissions_permanently_denied_desc">GPS access is permanently denied. Please open your device settings and allow Location permissions to track your runs.</string>
+    <string name="tracking_location_rationale_desc">We need GPS access to map your route, calculate your distance, and track your pace. Please grant location permissions to start running.</string>
+    <string name="tracking_open_settings">Open Settings</string>
+    <string name="tracking_try_again">Try Again</string>
+    <string name="tracking_cancel">Cancel</string>
+
+    <string name="tracking_back_desc">Back</string>
+    <string name="tracking_elapsed_time">Elapsed time</string>
+    <string name="tracking_started_at">Started at</string>
+    <string name="tracking_unit_km">km</string>
+    <string name="tracking_unit_pace">min / km</string>
+    <string name="tracking_stop_run_desc">Stop run</string>
+    <string name="tracking_start_run_desc">Start run</string>
+    <string name="tracking_tap_to_stop">Tap to stop</string>
+    <string name="tracking_tap_to_start">Tap to start</string>
+    <string name="tracking_waiting_for_gps">Waiting for GPS</string>
+    <string name="tracking_map_placeholder_desc">Map will appear when run starts</string>
+    <string name="tracking_live_badge">LIVE</string>
+
+    <string name="tracking_timer_default">00:00:00</string>
+    <string name="tracking_distance_default">0.0</string>
+    <string name="tracking_pace_default">—</string>
+
+    <string name="profile_saved_toast">Profile Saved!</string>
+    <string name="profile_logout_title">Log Out</string>
+    <string name="profile_logout_body">Are you sure you want to log out? This will clear your local data from this device.</string>
+    <string name="profile_logout_confirm">Yes, Log out</string>
+    <string name="profile_cancel">Cancel</string>
+    <string name="profile_error_prefix">Error: %1$s</string>
+    <string name="profile_complete_title">Complete Profile</string>
+    <string name="profile_statistics_title">Statistics</string>
+
+    <string name="profile_weight_label">Weight</string>
+    <string name="profile_weight_format">%1$s kg</string>
+    <string name="profile_height_label">Height</string>
+    <string name="profile_height_format">%1$s cm</string>
+    <string name="profile_edit_label">Edit Profile</string>
+    <string name="profile_greeting">Good evening,</string>
+
+    <string name="profile_name_hint">Full Name</string>
+    <string name="profile_weight_hint">Weight (kg)</string>
+    <string name="profile_height_hint">Height (cm)</string>
+    <string name="profile_save_changes">Save Changes</string>
+
+
+    <string name="auth_reset_password_title">Reset Password</string>
+    <string name="auth_reset_password_desc">Enter your email address and we will send you a link to reset your password.</string>
+    <string name="auth_email_placeholder">Email address</string>
+    <string name="auth_send_link">Send Link</string>
+    <string name="auth_cancel">Cancel</string>
+
+    <string name="auth_hero_image_desc">Running animation</string>
+    <string name="auth_welcome_back">Welcome Back</string>
+    <string name="auth_lets_get_moving">Let\'s Get Moving</string>
+    <string name="auth_sign_in_desc">Sign in to sync your runs</string>
+    <string name="auth_sign_up_desc">Create your account to start tracking</string>
+
+    <string name="auth_sign_in">Sign In</string>
+    <string name="auth_sign_up">Sign Up</string>
+    <string name="auth_password_placeholder">Password</string>
+    <string name="auth_toggle_password_visibility">Toggle Password Visibility</string>
+    <string name="auth_forgot_password">Forgot Password?</string>
 </resources>

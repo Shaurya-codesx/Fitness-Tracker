@@ -14,6 +14,7 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.example.fitnessapp.Domain.RunRepository
+import com.example.fitnessapp.R
 import com.example.fitnessapp.ui.activity.MainActivity
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -56,15 +57,15 @@ class StreakReminderWorker @AssistedInject constructor(
                 1L -> {
                     // They ran yesterday, but not today. The streak is in danger!
                     showNotification(
-                        title = "Keep the Momentum! 🔥",
-                        message = "A quick 10-minute walk is all it takes to keep your streak alive today."
+                        title = context.getString(R.string.streak_reminder_1day_title),
+                        message = context.getString(R.string.streak_reminder_1day_message)
                     )
                 }
                 3L -> {
                     // It has been exactly 3 days. A gentle nudge.
                     showNotification(
-                        title = "Time to lace up! 👟",
-                        message = "Rest days are important, but we miss you out there. Ready for a quick run?"
+                        title = context.getString(R.string.streak_reminder_3day_title),
+                        message = context.getString(R.string.streak_reminder_3day_message)
                     )
                 }
                 // If it's 2 days, or 4+ days, we stay silent to avoid being annoying.
@@ -94,7 +95,7 @@ class StreakReminderWorker @AssistedInject constructor(
         )
 
         // Build the notification targeting our new "coach_channel"
-        val notification = NotificationCompat.Builder(context, "coach_channel")
+        val notification = NotificationCompat.Builder(context, context.getString(R.string.coach_notification_channel_id))
             .setSmallIcon(android.R.drawable.ic_dialog_info) // Replace with your app's icon later!
             .setContentTitle(title)
             .setContentText(message)

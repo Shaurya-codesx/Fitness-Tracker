@@ -40,6 +40,9 @@ import com.example.fitnessapp.ui.components.BottomBar
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import com.example.fitnessapp.ui.theme.*
+import androidx.compose.ui.res.stringResource
+import com.example.fitnessapp.R
+
 
 private val HistoryGradient = Brush.linearGradient(colors = listOf(HistoryViolet, HistoryVioletLight))
 private val HeroGradient = Brush.linearGradient(colors = listOf(Color(0xFF6C63B5), Color(0xFF8A7FCB)))
@@ -72,7 +75,7 @@ fun RunHistoryScreenM3(navController: NavController) {
                     }
                 },
                 icon = { Icon(Icons.Rounded.Add, contentDescription = null, tint = Color.White) },
-                text = { Text("Start new run", color = Color.White, fontWeight = FontWeight.Bold) },
+                text = { Text(stringResource(R.string.start_new_run), color = Color.White, fontWeight = FontWeight.Bold) },
                 containerColor = Color.Transparent,
                 shape = CircleShape,
                 modifier = Modifier
@@ -172,13 +175,13 @@ private fun RunHistoryTopBar(totalRuns: Int, onToggleFilters: () -> Unit) {
     ) {
         Column {
             Text(
-                text = "Run History",
+                text = stringResource(R.string.run_history_title),
                 style = MaterialTheme.typography.displaySmall.copy(fontWeight = FontWeight.ExtraBold),
                 color = HistoryTextPrimary
             )
             Spacer(modifier = Modifier.height(2.dp))
             Text(
-                text = "$currentMonthYear · $totalRuns sessions",
+                text = stringResource(R.string.sessions_count, currentMonthYear, totalRuns),
                 style = MaterialTheme.typography.bodySmall,
                 color = HistoryTextSecondary
             )
@@ -262,7 +265,7 @@ private fun SummarySection(totalDistance: String, totalTime: String, totalAvgPac
                     color = Color.White
                 )
                 Text(
-                    text = "Total distance this month",
+                    text = stringResource(R.string.total_distance_month),
                     style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),
                     color = Color.White.copy(alpha = 0.85f)
                 )
@@ -283,14 +286,14 @@ private fun SummarySection(totalDistance: String, totalTime: String, totalAvgPac
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             TonalSummaryCard(
                 value = totalAvgPace,
-                label = "Min / km",
+                label = stringResource(R.string.unit_min_km),
                 bgColor = Color(0xFFE4E1F5),
                 contentColor = Color(0xFF4A4568),
                 modifier = Modifier.weight(1.2f)
             )
             TonalSummaryCard(
                 value = totalTime,
-                label = "Total time",
+                label = stringResource(R.string.total_time),
                 bgColor = Color(0xFFF0E6DC),
                 contentColor = Color(0xFF6B5A45),
                 modifier = Modifier.weight(1f)
@@ -353,7 +356,7 @@ fun RunSessionCardM3(run: RunUiModel, onClick: (Long) -> Unit) {
         ) {
             Column {
                 Text(
-                    text = resolveRunTitle(run),
+                    text = stringResource(resolveRunTitle(run)),
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                     color = HistoryTextPrimary
                 )
@@ -391,11 +394,11 @@ fun RunSessionCardM3(run: RunUiModel, onClick: (Long) -> Unit) {
                 .fillMaxWidth()
                 .padding(horizontal = 18.dp, vertical = 14.dp),
         ) {
-            M3StatItem(icon = "⏱", value = run.duration, label = "Duration", modifier = Modifier.weight(1f))
+            M3StatItem(icon = "⏱", value = run.duration, label = stringResource(R.string.stat_duration), modifier = Modifier.weight(1f))
             VerticalStatDivider()
-            M3StatItem(icon = "📍", value = run.distanceInMeters + " km", label = "Distance", modifier = Modifier.weight(1f))
+            M3StatItem(icon = "📍", value = stringResource(R.string.unit_km, run.distanceInMeters), label = stringResource(R.string.stat_distance), modifier = Modifier.weight(1f))
             VerticalStatDivider()
-            M3StatItem(icon = "⚡", value = run.avgPace, label = "Avg pace", modifier = Modifier.weight(1f))
+            M3StatItem(icon = "⚡", value = run.avgPace, label = stringResource(R.string.stat_avg_pace), modifier = Modifier.weight(1f))
         }
     }
 }
@@ -455,13 +458,13 @@ private fun M3EmptyState() {
         }
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            "No runs yet",
+            stringResource(R.string.emptyState_title),
             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
             color = HistoryTextPrimary
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
-            "Ready for a new run?",
+            stringResource(R.string.emptyState_msg),
             style = MaterialTheme.typography.bodyMedium,
             color = HistoryTextSecondary
         )
@@ -481,24 +484,24 @@ private fun resolveM3CardStyle(run: RunUiModel): M3CardStyle {
     val distanceValue = run.distanceInMeters.filter { it.isDigit() || it == '.' }.toDoubleOrNull() ?: 0.0
     return when {
         distanceValue >= 15000 -> M3CardStyle(
-            badgeLabel = "Long run",
+            badgeLabel = stringResource(R.string.long_run),
             badgeContainer = HistorySunshine,
             badgeContent = Color(0xFF8A5A00)
         )
         distanceValue >= 8000 -> M3CardStyle(
-            badgeLabel = "Personal best",
+            badgeLabel = stringResource(R.string.personal_best),
             badgeContainer = HistoryVioletLight.copy(alpha = 0.35f),
             badgeContent = HistoryViolet
         )
         else -> M3CardStyle(
-            badgeLabel = "Completed",
+            badgeLabel = stringResource(R.string.completed),
             badgeContainer = HistoryMint,
             badgeContent = Color(0xFF1F6D4A)
         )
     }
 }
 
-private fun resolveRunTitle(run: RunUiModel): String {
+private fun resolveRunTitle(run: RunUiModel): Int {
     val timeString = run.startTime.uppercase()
     val hour = timeString.substringBefore(":").toIntOrNull() ?: 12
     val isPm = timeString.contains("PM")
@@ -511,9 +514,9 @@ private fun resolveRunTitle(run: RunUiModel): String {
     }
 
     return when {
-        militaryHour in 5..11 -> "Morning run"
-        militaryHour in 12..16 -> "Afternoon run"
-        militaryHour in 17..20 -> "Evening jog"
-        else -> "Night run"
+        militaryHour in 5..11 -> R.string.morning
+        militaryHour in 12..16 -> R.string.afternoon
+        militaryHour in 17..20 -> R.string.evening
+        else -> R.string.night
     }
 }

@@ -1,7 +1,6 @@
 package com.example.runtracker.ui.screens
 
 import android.app.Activity
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
@@ -35,6 +34,7 @@ import com.example.fitnessapp.ui.activity.Tracking.OsmMapview
 import com.example.fitnessapp.ui.activity.Tracking.TrackingUiEvent
 import com.example.fitnessapp.ui.activity.Tracking.TrackingViewModel
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -44,11 +44,13 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.TextButton
+import androidx.compose.ui.res.stringResource
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-
+import com.example.fitnessapp.R
 // ─── Entry Point ──────────────────────────────────────────────────────────────
 
+@SuppressLint("LocalContextGetResourceValueCall")
 @Composable
 fun TrackingScreen(navController: NavController) {
     val trackingViewModel: TrackingViewModel = hiltViewModel()
@@ -59,7 +61,6 @@ fun TrackingScreen(navController: NavController) {
     if (showNoMovementDialog) {
         NoMovementAlertDialog(onDismiss = { showNoMovementDialog = false })
     }
-
 
     val activity = context as? Activity
     // 1. Build the list of permissions we need
@@ -74,6 +75,7 @@ fun TrackingScreen(navController: NavController) {
             }
         }.toTypedArray()
     }
+
     // 2. State for our custom Rationale Dialog
     var showPermissionRationale by remember { mutableStateOf(false) }
     var isPermanentlyDenied by remember { mutableStateOf(false) }
@@ -102,8 +104,6 @@ fun TrackingScreen(navController: NavController) {
         }
     }
 
-
-
     LaunchedEffect(Unit) {
         trackingViewModel.uiEvent.collect { event ->
             when (event) {
@@ -111,23 +111,20 @@ fun TrackingScreen(navController: NavController) {
                     trackingViewModel.startIntent()
                 }
                 is TrackingUiEvent.RequestEnableLocation -> {
-                    val activity = context as? Activity
-                    event.exception.startResolutionForResult(activity!!, 1001)
+                    val currentActivity = context as? Activity
+                    event.exception.startResolutionForResult(currentActivity!!, 1001)
                 }
                 is TrackingUiEvent.ShowLocationError -> {
-                    // 1. We removed trackingViewModel.stopRun() here!
-                    // 2. Added .show() to actually display the warning
                     Toast.makeText(
                         context,
-                        "GPS Signal Lost. Run Paused.",
+                        context.getString(R.string.tracking_gps_lost),
                         Toast.LENGTH_LONG
                     ).show()
                 }
-                // 3. NEW: Listen for the signal coming back!
                 is TrackingUiEvent.LocationRestored -> {
                     Toast.makeText(
                         context,
-                        "GPS Restored. Resuming Run!",
+                        context.getString(R.string.tracking_gps_restored),
                         Toast.LENGTH_SHORT
                     ).show()
                 }
@@ -137,7 +134,6 @@ fun TrackingScreen(navController: NavController) {
             }
         }
     }
-
 
     val isRunning = uiState.startTime.isNotEmpty()
 
@@ -155,29 +151,28 @@ fun TrackingScreen(navController: NavController) {
                 // We don't have them. Ask the user!
                 multiplePermissionsLauncher.launch(permissionsToRequest)
             }
-                  },
+        },
         onStop = {
             trackingViewModel.stopRun()
-                 },
+        },
         onBack = { navController.navigateUp() }
     )
-
 
     if (showPermissionRationale) {
         AlertDialog(
             onDismissRequest = { showPermissionRationale = false },
             title = {
                 Text(
-                    text = if (isPermanentlyDenied) "Permissions Blocked" else "Location Required",
+                    text = if (isPermanentlyDenied) stringResource(R.string.tracking_permissions_blocked_title) else stringResource(R.string.tracking_location_required_title),
                     fontWeight = FontWeight.Bold
                 )
             },
             text = {
                 Text(
                     text = if (isPermanentlyDenied) {
-                        "GPS access is permanently denied. Please open your device settings and allow Location permissions to track your runs."
+                        stringResource(R.string.tracking_permissions_permanently_denied_desc)
                     } else {
-                        "We need GPS access to map your route, calculate your distance, and track your pace. Please grant location permissions to start running."
+                        stringResource(R.string.tracking_location_rationale_desc)
                     }
                 )
             },
@@ -197,21 +192,17 @@ fun TrackingScreen(navController: NavController) {
                         }
                     }
                 ) {
-                    Text(text = if (isPermanentlyDenied) "Open Settings" else "Try Again")
+                    Text(text = if (isPermanentlyDenied) stringResource(R.string.tracking_open_settings) else stringResource(R.string.tracking_try_again))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showPermissionRationale = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.tracking_cancel))
                 }
             }
         )
     }
-
-
 }
-
-
 
 // ─── Screen Content ───────────────────────────────────────────────────────────
 
@@ -281,7 +272,7 @@ private fun TrackingScreenContent(
                     .padding(top = 48.dp, start = 18.dp)
                     .align(Alignment.TopStart)
             ) {
-                Icon(Icons.Rounded.ArrowBack, contentDescription = "Back")
+                Icon(Icons.Rounded.ArrowBack, contentDescription = stringResource(R.string.tracking_back_desc))
             }
 
             // ── LIVE badge ─────────────────────────────────────────────────
@@ -315,7 +306,7 @@ private fun SheetContent(
 
         // ── Elapsed Timer ──────────────────────────────────────────────────
         Text(
-            text = if (uiState.timerValue.isNotEmpty()) uiState.timerValue else "00:00:00",
+            text = uiState.timerValue.ifEmpty { stringResource(R.string.tracking_timer_default) },
             style = MaterialTheme.typography.displayLarge.copy(
                 fontWeight = FontWeight.Light,
                 letterSpacing = (-1).sp
@@ -323,7 +314,7 @@ private fun SheetContent(
             color = MaterialTheme.colorScheme.onSurface
         )
         Text(
-            text = "Elapsed time",
+            text = stringResource(R.string.tracking_elapsed_time),
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(top = 1.dp, bottom = 16.dp)
@@ -345,10 +336,9 @@ private fun SheetContent(
                         .padding(horizontal = 16.dp, vertical = 10.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
-                    //
                 ) {
                     Text(
-                        text = "Started at",
+                        text = stringResource(R.string.tracking_started_at),
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.primary
                     )
@@ -369,16 +359,16 @@ private fun SheetContent(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             StatChip(
-                value = if (uiState.currentDistance.isNotEmpty()) uiState.currentDistance else "0.0",
-                label = "km",
+                value = uiState.currentDistance.ifEmpty { stringResource(R.string.tracking_distance_default) },
+                label = stringResource(R.string.tracking_unit_km),
                 containerColor = MaterialTheme.colorScheme.secondaryContainer,
                 valueColor = MaterialTheme.colorScheme.onSecondaryContainer,
                 labelColor = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.65f),
                 modifier = Modifier.weight(1f)
             )
             StatChip(
-                value = if (uiState.currentPace.isNotEmpty()) uiState.currentPace else "—",
-                label = "min / km",
+                value = uiState.currentPace.ifEmpty { stringResource(R.string.tracking_pace_default) },
+                label = stringResource(R.string.tracking_unit_pace),
                 containerColor = MaterialTheme.colorScheme.tertiaryContainer,
                 valueColor = MaterialTheme.colorScheme.onTertiaryContainer,
                 labelColor = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.65f),
@@ -411,13 +401,13 @@ private fun SheetContent(
                 if (running) {
                     Icon(
                         Icons.Rounded.Stop,
-                        contentDescription = "Stop run",
+                        contentDescription = stringResource(R.string.tracking_stop_run_desc),
                         modifier = Modifier.size(32.dp)
                     )
                 } else {
                     Icon(
                         Icons.Rounded.PlayArrow,
-                        contentDescription = "Start run",
+                        contentDescription = stringResource(R.string.tracking_start_run_desc),
                         modifier = Modifier.size(32.dp)
                     )
                 }
@@ -427,7 +417,7 @@ private fun SheetContent(
         Spacer(modifier = Modifier.height(6.dp))
 
         Text(
-            text = if (isRunning) "Tap to stop" else "Tap to start",
+            text = if (isRunning) stringResource(R.string.tracking_tap_to_stop) else stringResource(R.string.tracking_tap_to_start),
             style = MaterialTheme.typography.labelMedium,
             color = if (isRunning) MaterialTheme.colorScheme.error
             else MaterialTheme.colorScheme.onSurfaceVariant
@@ -447,13 +437,13 @@ private fun IdleMapPlaceholder(modifier: Modifier = Modifier) {
             Text("📍", fontSize = 40.sp)
             Spacer(modifier = Modifier.height(10.dp))
             Text(
-                text = "Waiting for GPS",
+                text = stringResource(R.string.tracking_waiting_for_gps),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSecondaryContainer
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = "Map will appear when run starts",
+                text = stringResource(R.string.tracking_map_placeholder_desc),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.65f)
             )
@@ -492,7 +482,7 @@ private fun LiveBadge(modifier: Modifier = Modifier) {
                     .background(MaterialTheme.colorScheme.onError.copy(alpha = alpha))
             )
             Text(
-                text = "LIVE",
+                text = stringResource(R.string.tracking_live_badge),
                 fontSize = 11.sp,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onError,

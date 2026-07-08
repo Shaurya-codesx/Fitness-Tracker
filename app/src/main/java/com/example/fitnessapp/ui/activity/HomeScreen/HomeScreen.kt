@@ -46,6 +46,7 @@ import java.time.YearMonth
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import com.example.fitnessapp.ui.components.BottomBar
 import com.example.fitnessapp.ui.theme.*
 
@@ -88,12 +89,12 @@ fun HomeScreen(
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.user_fast_running),
-                    contentDescription = "Start Run",
+                    contentDescription = stringResource(R.string.start_run),
                     modifier = Modifier.size(20.dp),
                     tint = Color.White
                 )
                 Spacer(Modifier.width(8.dp))
-                Text("Start Run", fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.start_run), fontWeight = FontWeight.Bold)
             }
         }
     ) { paddingValues ->
@@ -140,10 +141,10 @@ private fun DashboardContent(
     val greeting = remember {
         val hour = LocalTime.now().hour
         when (hour) {
-            in 5..11 -> "Good morning,"
-            in 12..16 -> "Good afternoon,"
-            in 17..22 -> "Good evening,"
-            else -> "Late night run?"
+            in 5..11 -> R.string.good_morning
+            in 12..16 -> R.string.good_afternoon
+            in 17..22 -> R.string.good_evening
+            else -> R.string.late_night_run
         }
     }
 
@@ -161,7 +162,7 @@ private fun DashboardContent(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column {
-                Text(greeting, style = MaterialTheme.typography.bodyLarge.copy(color = HomeTextSecondary))
+                Text(stringResource(greeting), style = MaterialTheme.typography.bodyLarge.copy(color = HomeTextSecondary))
                 Text(
                     state.userName,
                     style = MaterialTheme.typography.headlineMedium.copy(
@@ -179,7 +180,7 @@ private fun DashboardContent(
                     .background(HomeGradient),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(Icons.Rounded.Person, contentDescription = "Profile", tint = Color.White, modifier = Modifier.size(24.dp))
+                Icon(Icons.Rounded.Person, contentDescription = stringResource(R.string.profile), tint = Color.White, modifier = Modifier.size(24.dp))
             }
         }
 
@@ -196,11 +197,11 @@ private fun DashboardContent(
         ) {
             Column {
                 Text(
-                    "${state.currentStreak} Day Streak",
+                    stringResource(R.string.day_streak_format, state.currentStreak),
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.ExtraBold, color = Color.White)
                 )
                 Text(
-                    "Keep the fire going!",
+                    stringResource(R.string.keep_fire_going),
                     style = MaterialTheme.typography.bodyMedium.copy(color = Color.White.copy(alpha = 0.9f))
                 )
             }
@@ -232,7 +233,7 @@ private fun DashboardContent(
             Column(modifier = Modifier.fillMaxWidth()) {
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     Text(
-                        "Today's Targets",
+                        stringResource(R.string.todays_targets),
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, color = HomeTextPrimary)
                     )
                     IconButton(
@@ -242,7 +243,7 @@ private fun DashboardContent(
                             .clip(CircleShape)
                             .background(HomeSkyBlue.copy(alpha = 0.5f))
                     ) {
-                        Icon(Icons.Rounded.Edit, contentDescription = "Edit Goals", tint = HomeViolet, modifier = Modifier.size(16.dp))
+                        Icon(Icons.Rounded.Edit, contentDescription = stringResource(R.string.edit_goals), tint = HomeViolet, modifier = Modifier.size(16.dp))
                     }
                 }
 
@@ -258,7 +259,7 @@ private fun DashboardContent(
                             .clickable { onEditGoalsClick() },
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("Tap here to set your daily goals!", color = HomeTextSecondary, fontWeight = FontWeight.Medium)
+                        Text(stringResource(R.string.tap_to_set_goals), color = HomeTextSecondary, fontWeight = FontWeight.Medium)
                     }
                 } else {
                     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -272,9 +273,21 @@ private fun DashboardContent(
                         Spacer(modifier = Modifier.width(24.dp))
 
                         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                            LegendItem(ColorSteps, "Steps", "${state.todaySteps} / ${state.userGoals.stepsGoal}")
-                            LegendItem(ColorDistance, "Distance", "${String.format("%.1f", state.todayDistanceKm)} / ${state.userGoals.distanceGoalKm} km")
-                            LegendItem(ColorCalories, "Calories", "${state.todayCalories} / ${state.userGoals.caloriesGoal} kcal")
+                            LegendItem(
+                                ColorSteps,
+                                stringResource(R.string.steps),
+                                stringResource(R.string.fraction_format, state.todaySteps.toString(), state.userGoals.stepsGoal.toString())
+                            )
+                            LegendItem(
+                                ColorDistance,
+                                stringResource(R.string.distance),
+                                stringResource(R.string.fraction_format, String.format("%.1f", state.todayDistanceKm), state.userGoals.distanceGoalKm.toString()) + " " + stringResource(R.string.km)
+                            )
+                            LegendItem(
+                                ColorCalories,
+                                stringResource(R.string.calories),
+                                stringResource(R.string.fraction_format, state.todayCalories.toString(), state.userGoals.caloriesGoal.toString()) + " " + stringResource(R.string.kcal)
+                            )
                         }
                     }
                 }
@@ -304,7 +317,7 @@ private fun DashboardContent(
                     Spacer(modifier = Modifier.width(10.dp))
                     Column {
                         Text(
-                            "Consistency",
+                            stringResource(R.string.consistency),
                             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, color = HomeTextPrimary)
                         )
                         Text(
@@ -467,12 +480,12 @@ fun GoalSettingBottomSheet(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 16.dp).padding(bottom = 32.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Text("Set Daily Targets", style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.ExtraBold, color = HomeTextPrimary))
+            Text(stringResource(R.string.set_daily_targets), style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.ExtraBold, color = HomeTextPrimary))
 
             OutlinedTextField(
                 value = stepInput,
                 onValueChange = { stepInput = it },
-                label = { Text("Daily Steps") },
+                label = { Text(stringResource(R.string.daily_steps)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
@@ -486,7 +499,7 @@ fun GoalSettingBottomSheet(
             OutlinedTextField(
                 value = distInput,
                 onValueChange = { distInput = it },
-                label = { Text("Daily Distance (km)") },
+                label = { Text(stringResource(R.string.daily_distance_km)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
@@ -500,7 +513,7 @@ fun GoalSettingBottomSheet(
             OutlinedTextField(
                 value = calInput,
                 onValueChange = { calInput = it },
-                label = { Text("Daily Calories (kcal)") },
+                label = { Text(stringResource(R.string.daily_calories_kcal)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
@@ -528,7 +541,7 @@ fun GoalSettingBottomSheet(
                     },
                 contentAlignment = Alignment.Center
             ) {
-                Text("Save Targets", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                Text(stringResource(R.string.save_targets), fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
             }
         }
     }
