@@ -24,17 +24,12 @@ Kotlin · Jetpack Compose · Clean Architecture · MVVM · Room · Firestore · 
 
 <div align="center">
 
-<!--
-  PLACEHOLDER — replace this with your screen recording.
-  Easiest method: open a new GitHub Issue (or edit this README directly on github.com),
-  drag your .mp4 / .mov / .gif file into the text box, and GitHub will upload it and
-  give you a URL like: https://github.com/user-attachments/assets/xxxxxxxx-xxxx-xxxx
-  Paste that URL below on its own line and GitHub will render it as an inline video player.
--->
 
-**🎬 [Insert screen recording demo video here]**
 
-*Drop your `.mp4` / `.gif` into this README on github.com to auto-embed a native video player.*
+## 📱 App Demo Video
+
+[![Watch the application walkthrough](https://youtu.be/Dto2yKJGeVM)
+
 
 </div>
 
