@@ -26,9 +26,9 @@ Kotlin · Jetpack Compose · Clean Architecture · MVVM · Room · Firestore · 
 
 
 
-## 📱 App Demo Video
+## 📱 App Demo video
 
-[![Watch the application walkthrough](https://youtu.be/Dto2yKJGeVM)
+[![Watch the application walkthrough](https://img.youtube.com/vi/Dto2yKJGeVM/hqdefault.jpg)](https://youtu.be/Dto2yKJGeVM)
 
 
 </div>
