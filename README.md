@@ -66,8 +66,6 @@ Kotlin · Jetpack Compose · Clean Architecture · MVVM · Room · Firestore · 
 </table>
 </div>
 
-> **Note:** Save your screenshots into a `screenshots/` folder at the repo root using the filenames referenced above (`login.png`, `home.png`, `live_tracking.png`, `run_summary.png`, `run_history.png`, `statistics.png`, `health_trends.png`, `distance_analytics.png`, `pace_analytics.png`, `profile.png`) and the gallery will render automatically on GitHub.
-
 <br/>
 
 ## 📖 Table of Contents
