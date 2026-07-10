@@ -80,13 +80,13 @@ Kotlin · Jetpack Compose · Clean Architecture · MVVM · Room · Firestore · 
 
 ## 💡 About The Project
 
-**FitBuddy** is a full-featured Android running-tracker built to demonstrate what production-grade mobile engineering looks like — not just another CRUD app with a map screen bolted on.
+**FitBuddy** is a full-featured Android running-tracker built to demonstrate what production-grade mobile engineering looks like not just another CRUD app with a map screen bolted on.
 
-It combines **live GPS tracking**, an **offline-first sync pipeline**, **battery-aware background work**, and **deep, filterable analytics** into a single cohesive app with a handcrafted design system. Every layer — data, domain, and UI — is deliberately separated, unit-tested, and wired through dependency injection, the way a team shipping this at scale would build it.
+It combines **live GPS tracking**, an **offline-first sync pipeline**, **battery-aware background work**, and **deep, filterable analytics** into a single cohesive app with a handcrafted design system. Every layer data, domain, and UI is deliberately separated, unit-tested, and wired through dependency injection, the way a team shipping this at scale would build it.
 
 **Why this project stands out:**
 
-- 🧭 **Real-time GPS tracking** via a persistent foreground service that survives backgrounding and app kills — auto-pausing on GPS loss and resuming the moment location returns.
+- 🧭 **Real-time GPS tracking** via a persistent foreground service that survives backgrounding and app kills auto-pausing on GPS loss and resuming the moment location returns.
 - 📴 **Offline-first architecture** — Room is the single source of truth; Firestore sync runs silently in the background, only when the device is idle and battery isn't low, with automatic retry on failure.
 - 📊 **Deep analytics engine** — four independently filterable analytics screens (Distance, Pace, Steps, Energy) with custom Compose-native bar/line charts, donut zone-splits, and swipe-to-navigate historical periods.
 - 🧱 **Clean Architecture + MVVM** with a genuine `Domain` layer of use cases, repository interfaces, and DI-driven boundaries.
@@ -115,7 +115,7 @@ It combines **live GPS tracking**, an **offline-first sync pipeline**, **battery
 
 ### 📊 Statistics & Health Trends
 - Aggregate stats (steps, distance, calories, time, session count) across selectable time ranges
-- Four dedicated deep-analytics screens — **Distance, Pace, Steps, Energy** — each with:
+- Four dedicated deep-analytics screens — **Distance, Pace, Steps, Energy** each with:
     - Bar/line graphs bucketed by day (week view), week (month view), or month (year view)
     - **Swipe navigation** to browse previous periods
     - A companion **donut chart** breaking data into effort zones
@@ -124,11 +124,11 @@ It combines **live GPS tracking**, an **offline-first sync pipeline**, **battery
 ### 🏠 Home Dashboard
 - **GitHub-style consistency heatmap** visualizing workout streaks for the current month
 - Live streak counter with retention-focused messaging
-- Editable daily targets via a bottom sheet — persisted locally via **DataStore**, resetting automatically each day
+- Editable daily targets via a bottom sheet persisted locally via **DataStore**, resetting automatically each day
 
 ### 👤 Profile & Onboarding
 - Editable user profile (name, weight, height) with logout
-- Feature-walkthrough onboarding flow with **graceful, crash-free permission handling** for notifications, location, and physical activity — with rationale dialogs when permissions are denied
+- Feature-walkthrough onboarding flow with **graceful, crash-free permission handling** for notifications, location, and physical activity with rationale dialogs when permissions are denied
 
 ### 🔔 Smart Notifications
 - Streak-preservation nudges (~6 PM) when a 3+ day streak is about to break
@@ -171,7 +171,7 @@ It combines **live GPS tracking**, an **offline-first sync pipeline**, **battery
 
 ## 🏗️ Architecture
 
-FitBuddy follows **Clean Architecture** with a strict separation between UI, domain logic, and data — each layer depending only inward, never outward.
+FitBuddy follows **Clean Architecture** with a strict separation between UI, domain logic, and data each layer depending only inward, never outward.
 
 ```
 ┌─────────────────────────────────────────────┐
@@ -264,7 +264,7 @@ app/src/main/java/com/example/fitnessapp/
 
 ### 📥 Or just install it
 
-Grab the latest signed APK from the [**Releases**](https://github.com/Shaurya-codesx/Fitness-Tracker/releases/tag/v1.0.0) page — no build setup required.
+Grab the latest signed APK from the [**Releases**](https://github.com/Shaurya-codesx/Fitness-Tracker/releases/tag/v1.0.0) page, no build setup required.
 
 <br/>
 
@@ -303,12 +303,6 @@ Contributions are welcome. To contribute:
 3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
-
-<br/>
-
-## 📄 License
-
-Distributed under the MIT License. See `LICENSE` for more information.
 
 <br/>
 
